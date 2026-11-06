@@ -44,7 +44,9 @@ SFA-5 checks do not establish data coverage, freshness, AI accuracy, privacy con
 
 ## Validation evidence
 
-On 7 November 2026, `pnpm check` passed locally: lint with zero warnings, typecheck, **16 unit tests in two files**, and production build. `pnpm audit --json` after the override reported **0 vulnerabilities**. `pnpm test:e2e` passed **5 Chromium tests** for Thai/demo routes, keyboard navigation/focus, no external browser requests, the US fixture, and unknown-listing 404. The dev server returned HTTP 200, and desktop Home/mobile Stock screenshots were visually checked for readable Thai and overflow. Clean-checkout and hosted CI results are recorded in the PR handoff after they execute; this record does not pre-claim those results.
+On 7 November 2026, `pnpm check` passed locally: lint with zero warnings, typecheck, **16 unit tests in two files**, and production build. `pnpm audit --json` after the override reported **0 vulnerabilities**. `pnpm test:e2e` passed **5 Chromium tests** for Thai/demo routes, keyboard navigation/focus, no external browser requests, the US fixture, and unknown-listing 404. The dev server returned HTTP 200, and desktop Home/mobile Stock screenshots were visually checked for readable Thai and overflow.
+
+Reproduced from a clean temporary clone of scaffold commit `c2a944b`, with no copied node_modules, build outputs, environment files, or credentials: `pnpm install --frozen-lockfile`, `pnpm check`, `pnpm test:e2e`, and `pnpm audit --json` all passed with the same test counts and zero advisories. `pnpm dev` started successfully; Home, Thai Stock, and Chat returned HTTP 200 with UTF-8 demo labels. Git status remained clean, and no agent-instruction file was generated. This uses the normal shared dependency/browser download caches, not an empty-cache or offline installation. Hosted CI results are recorded separately in the PR handoff after execution.
 
 ## References
 
