@@ -10,6 +10,7 @@ This is a new project built from scratch. The previous LLMFA project is a refere
 - [Source notes](docs/source-notes.md) when resolving conflicting or historical material
 - [Architecture decisions](docs/adr/README.md) before proposing or changing architecture
 - [Agent guidance directory](.agents/README.md)
+- [Developer guide](docs/developer-guide.md) for the authorized SFA-5 fixture-only scaffold
 
 ## Project boundaries
 

@@ -2,11 +2,13 @@
 
 A new web application that helps novice investors with limited time understand markets, research Thai and US stocks, discover candidates, and assess the risks of holdings they record themselves.
 
-The project starts from scratch, with selective reuse from the previous LLMFA project. Its design, architecture, models, tools, and deployment stack have not been selected.
+The project starts from scratch, with selective reuse from the previous LLMFA project. SFA-5 supplies a fixture-only Next.js/TypeScript workspace for review; architecture ADRs 0006–0009 remain Proposed. Models, data providers, database, hosting, and visual design remain open.
 
 ## Current work
 
 Functional requirements are being reconciled against the latest progress slides and project-owner answers. Feature scope is captured; unresolved product rules are tracked explicitly before the requirements are finalized.
+
+The owner separately authorized SFA-5 setup on 7 November 2026: three Thai page shells, shared contracts and fake fixtures, local checks, and CI. This is setup only; no live financial data, AI answers, accounts, or feature persistence is implemented. Start with the [developer guide](docs/developer-guide.md).
 
 Phase 1 is a capstone prototype containing Home's shared market content and Daily Brief, Stock Detail, and grounded AI Q&A/comparison, with no login system. Chat history lasts for the browser session: the main chatbot shows both entry points and Stock Detail shows explicitly stock-linked conversations. Charts cover 1D/1M/1Y/5Y, annual/quarterly statements cover up to four years, and the confirmed financial metrics show clear unavailable-data states. Selectable investments are Thai/US common stocks only.
 
@@ -34,6 +36,9 @@ Watchlist, Investor Profile, and Discovery follow; Portfolio is last, including 
 - `report-documents/`: original supplied PDFs; preserve them as source material.
 - `docs/`: editable functional requirements and supporting context.
 - `docs/adr/`: architecture decision records.
+- `apps/web/`: fixture-only Next.js App Router UI and server-side BFF seams.
+- `packages/contracts/`: TypeScript types, Zod schemas, internal ports, and explicitly marked examples.
+- `tests/e2e/`: Chromium shell and keyboard smoke tests.
 - `.agents/`: supporting agent guidance; project skills belong in `.agents/skills/` when needed.
 
-No application code, dependency stack, or runtime commands are defined yet.
+Use Node 26.13.0 and pnpm 12.18.0. Run `pnpm install --frozen-lockfile`, then `pnpm dev` for the local shell. Run `pnpm check` for lint/typecheck/unit/build; browser setup and `pnpm test:e2e` are covered in the [developer guide](docs/developer-guide.md). Responsibility boundaries and file insertion points are in the [ownership guide](docs/ownership.md).

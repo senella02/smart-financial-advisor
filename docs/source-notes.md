@@ -1,8 +1,12 @@
 # Requirements Sources and Historical Context
 
-Updated: 6 November 2026.
+Updated: 7 November 2026.
 
 ## Source register
+
+### S4 Owner-supplied SFA-5 setup brief
+
+On 7 November 2026 the owner supplied an implementation brief in chat authorizing a fixture-only pnpm/TypeScript monorepo, Next.js App Router UI+BFF, shared Zod contracts, Thai shells, local checks, CI, and an open pull request. This explicitly authorizes setup despite the requirements-phase default; it does not authorize research features, live market/LLM calls, persistence, infrastructure, or deployment. The brief requires ADRs 0006–0009 to remain Proposed and leaves Q04/Q05/Q08 and database/hosting/provider choices open. The original brief is intentionally outside git; the [developer guide](developer-guide.md) records the resulting reviewable setup.
 
 ### S1 Current progress slides
 

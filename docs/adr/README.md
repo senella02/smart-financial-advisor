@@ -9,8 +9,12 @@ ADRs preserve significant decisions and their reasons so contributors and AI age
 - [0003 Value holdings at current FX](0003-value-holdings-at-current-fx.md) — Accepted, 6 November 2026, from the project owner's choice to exclude FX gains/losses.
 - [0004 Start with account free research](0004-start-with-account-free-research.md) — Accepted, 6 November 2026, from the owner's Phase 1 scope and no-login clarification.
 - [0005 Define shared publication and chat context](0005-define-shared-publication-and-chat-context.md) — Accepted, 6 November 2026, from the owner's bilingual publication, Thai-day, and today's-only brief Q&A decisions.
+- [0006 Workspace layout and ownership](0006-workspace-layout-and-ownership.md) — Proposed, 7 November 2026; SFA-5 scaffold under review.
+- [0007 Next.js UI and BFF runtime](0007-nextjs-ui-and-bff-runtime.md) — Proposed, 7 November 2026; prescribed setup shape, no hosting decision.
+- [0008 Fixture-only integration boundary](0008-fixture-only-integration-boundary.md) — Proposed, 7 November 2026; contracts and internal ports, no live providers.
+- [0009 Tooling, versions, and CI baseline](0009-tooling-versions-and-ci-baseline.md) — Proposed, 7 November 2026; exact versions and validation evidence.
 
-No framework, model, provider, database, hosting, or retrieval implementation has been selected.
+The owner authorized the SFA-5 Next.js/TypeScript setup while explicitly keeping its architecture records Proposed. No model, data provider, database, hosting, or retrieval implementation has been selected.
 
 ## When to write an ADR
 

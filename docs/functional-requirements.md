@@ -329,4 +329,4 @@ Before calling version 2.0 final:
 4. Complete remaining personal-data handling and conversation controls; preserve the agreed session-only history and explicit stock links. Select a sign-in provider when planning the later account-based version.
 5. Review acceptance scenarios for the six product areas and AI guardrails with the product owner.
 
-Architecture selection follows the agreed behavior and is recorded separately. Application acceptance scenarios, including bilingual AI and data isolation checks, must be executed before the affected feature is released. No application implementation or external provider verification has been completed in this requirements phase.
+Architecture selection follows the agreed behavior and is recorded separately. Application acceptance scenarios, including bilingual AI and data isolation checks, must be executed before the affected feature is released. The separately authorized [SFA-5 fixture scaffold](developer-guide.md) supplies setup and contract checks only; no research features or external provider verification have been completed.
