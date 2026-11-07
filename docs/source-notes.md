@@ -1,8 +1,32 @@
 # Requirements Sources and Historical Context
 
-Updated: 6 November 2026.
+Updated: 7 November 2026.
+
+## Source precedence
+
+Maintain one editable [functional requirements baseline](functional-requirements.md). Resolve conflicting material in this order:
+
+1. Current explicit project-owner decisions, recorded in the appropriate requirements, question record, guidance, or ADR according to their scope.
+2. The agreed functional requirements and accepted ADRs, each within its scope. Flag contradictions; an ADR must not silently change a feature.
+3. The latest slides for features not yet resolved in the baseline. Explicitly updated feature pages take precedence over stale recap text; record the reconciliation here for review.
+4. The old v1.4 requirements only for compatible supplemental detail explicitly retained. Precision alone does not make an old detail approved.
+5. The previous project's report and code as background and potential reuse evidence, not the target architecture.
+
+Keep unanswered product rules and proposed acceptance details explicit in the [question record](requirements-questions.md). Update requirements and acceptance criteria together when resolved. The owner finalized the first baseline on 7 November 2026 with remaining details explicitly tracked; this does not approve proposed details or resolve unanswered rules. Preserve the supplied source PDFs. Fresh-build and selective-reuse instructions remain in [AGENTS.md](../AGENTS.md) and the reuse boundary below.
 
 ## Source register
+
+### S6 Owner-confirmed application and worker boundary
+
+On 7 November 2026, after discussing Python reuse and a TypeScript rewrite, the owner agreed to one Next.js web/application backend plus separate background worker execution for recurring RAG ingestion and scheduled publications, and requested existing ADRs be updated in place. Shared market-data logic serves web APIs, AI tools, and publication workflows. Two execution roles do not select physical server counts. Worker language, hosting, scheduler/job tooling, storage, model, retrieval framework, refresh cadence, and optimization techniques remain open. See [ADR 0001](adr/0001-nextjs-application-and-shared-workspace.md) for the accepted decision and its consequences.
+
+### S5 Owner-confirmed requirements finalization
+
+On 7 November 2026, the owner confirmed that the first requirements version is finalized and ready to implement Phase 1. Version 2.0 is the first finalized baseline for this new project, retaining the existing version sequence. Remaining questions and proposed acceptance details stay explicit for the affected implementation or release decision. This updates project status; it does not implement features, select outstanding technologies, or authorize deployment.
+
+### S4 Owner-supplied SFA-5 setup brief
+
+On 7 November 2026 the owner supplied an implementation brief in chat authorizing a fixture-only pnpm/TypeScript monorepo, Next.js App Router UI+BFF, shared Zod contracts, Thai shells, local checks, CI, and an open pull request. The brief covered setup only; research features, live market/LLM calls, persistence, infrastructure, and deployment were outside that task. The owner subsequently confirmed acceptance of the agreed and implemented architecture on 7 November 2026, now consolidated in [two Accepted ADRs](adr/README.md). Q04/Q05/Q08 and database/hosting/provider choices remain open. The original brief is intentionally outside git; the [developer guide](developer-guide.md) records the resulting reviewable setup.
 
 ### S1 Current progress slides
 
@@ -38,35 +62,19 @@ The report's historical accuracy and comparative claims do not establish new-pro
 
 ## Project-owner answers recorded on 6 November 2026
 
-- Portfolio tracks current holdings only and allows separate purchase positions. It is low priority. AI-assisted portfolio maintenance is a future direction.
-- Use current USD/THB for cost and current value, excluding FX gains/losses from reported price P/L.
-- Use a Thai UI and support both Thai and English AI interactions.
-- Phase 1 has no login system and opens Home, Stock Detail, and AI Q&A/comparison to visitors. In the future account-based version, AI chat and saving account-private data require sign-in; shared content remains browsable.
-- Main chatbot history includes conversations from both the main and Stock Detail pages; stock pages show history for that stock. A stock-page origin label is an optional presentation idea, not a committed extra feature.
-- Phase 1 history lasts only for the current browser session. Stock-page history includes only explicitly stock-linked conversations; mentioning a stock in general chat does not create that link.
-- Retain 1D/1M/1Y/5Y charts, up to four years of statements, and P/E, P/BV, ROE, D/E, dividend yield, and market cap, with clear unavailable-data states.
-- Provide both annual and quarterly statement views within the available history.
-- Selectable investments are Thai/US common stocks only, excluding preferred shares, warrants, DW, DR/DRx and the already excluded asset classes.
-- Daily Brief updates hourly every day and retains the latest publication for each past date. Show the dated previous-day brief until today's first publication is ready.
-- Generate stock summaries on first open per Thai calendar day using latest available data and an as-of time; keep the published summary unchanged until Thai midnight. This supersedes the opening-price assumption in the old material.
-- Shared Daily Brief short/full content and stock summaries have Thai and English versions; chat answers in the requested supported language.
-- Daily Brief Q&A is available only for today, with today's brief automatically attached as chat context. Archived briefs are read-only. This replaces the suggested archived-brief follow-up workflow; the dated previous-day display fallback is not today's AI context.
-- Phase 1 targets a capstone prototype/demonstration. Stock Detail quotes refresh on page open or explicit visitor request, not by minute polling. Initial stock-summary trend analysis uses price and volume only; RSI/MACD/EMA are not required.
-- Implement Home, Stock Detail, and reliable AI Q&A first; Watchlist, Profile, and Discovery next; Portfolio last, including its Home widget.
-
-These answers supersede conflicting source details. Remaining subquestions and proposed semantics are recorded in [the question record](requirements-questions.md).
+The answers and remaining subquestions are recorded together in [Q01–Q08](requirements-questions.md#decisions-and-remaining-questions); the resulting behavior and acceptance criteria are in the [requirements baseline](functional-requirements.md). These answers supersede conflicting slide/report details. Do not infer the owner's decisions from the current fixture code.
 
 ## Source conflicts reconciled
 
-These interpretations follow the explicitly updated feature pages. They remain reviewable as part of requirements finalization.
+These interpretations follow the explicitly updated feature pages and form part of the first finalized requirements baseline. Subsequent owner decisions should update the affected requirements and question record.
 
 ### Daily Brief replaces the morning-only model
 
-S1 pp. 4-5 describe news from Thai midnight, updated hourly, with short/full versions and historical browsing. S1 pp. 10-11 still say Morning Brief; S2 pp. 2-3 specify a 06:00 generation. The draft follows the hourly Daily Brief. It does not carry forward a 06:00-only schedule or a once-per-day publication cache.
+S1 pp. 4-5 describe news from Thai midnight, updated hourly, with short/full versions and historical browsing. S1 pp. 10-11 still say Morning Brief; S2 pp. 2-3 specify a 06:00 generation. The baseline follows the hourly Daily Brief. It does not carry forward a 06:00-only schedule or a once-per-day publication cache.
 
 ### Portfolio is now in scope
 
-S1 pp. 5-7 add personal holdings, multiple positions, summary metrics, and AI context. S1 p. 12 retains "no portfolio data" in its Watchlist recap; S2 pp. 3 and 7 prohibit storing it. The draft treats the prohibition as superseded and preserves separation of Watchlist from Portfolio.
+S1 pp. 5-7 add personal holdings, multiple positions, summary metrics, and AI context. S1 p. 12 retains "no portfolio data" in its Watchlist recap; S2 pp. 3 and 7 prohibit storing it. The baseline treats the prohibition as superseded and preserves separation of Watchlist from Portfolio.
 
 ### Minute polling does not establish real-time quotes
 
@@ -74,11 +82,11 @@ S1 p. 5 asks for one-minute refreshes, while p. 17 describes delayed data. These
 
 ### Shared content and personal answers have different boundaries
 
-S1 pp. 4 and 13 say briefs/stock summaries are shared. Page 7 adds personal context to chat. The draft preserves common published content and personal follow-up analysis so holdings cannot leak into a shared summary.
+S1 pp. 4 and 13 say briefs/stock summaries are shared. Page 7 adds personal context to chat. The baseline preserves common published content and personal follow-up analysis so holdings cannot leak into a shared summary.
 
 ### Guardrail outcomes do not select the framework
 
-S1 pp. 8-9 name LangGraph and FastAPI while describing intent handling, ticker binding, grounding, and citation checks. The user's current instruction permits a fresh architecture and tool selection. The draft preserves those observable safeguards without selecting those frameworks or promising that a confidence score proves correctness.
+S1 pp. 8-9 name LangGraph and FastAPI while describing intent handling, ticker binding, grounding, and citation checks. The user's current instruction permits a fresh architecture and tool selection. The baseline preserves those observable safeguards without selecting those frameworks or promising that a confidence score proves correctness.
 
 ### Provider names do not establish a final data contract
 
@@ -94,8 +102,8 @@ S1 pp. 5, 11, 13 and 17 refer to overlapping provider combinations. S2 p. 4 also
 
 ## Selective reuse boundary
 
-No old application code or assets were copied during this phase. No file-by-file implementation reuse audit has been performed.
+The reference checkout may supply reuse candidates, but it is not the starting architecture. Old Python dependencies, provider coverage, and live behavior have not been validated for this project.
 
-Potential candidates to inspect when implementation is authorized include source-identity metadata, relevant financial test questions, validated calculations, isolated retrieval/parsing utilities, and useful fixture documents. Each candidate must fit the current scope, have understandable provenance/dependencies, avoid credentials/personal data, and save effort after adaptation and tests.
+Potential candidates to inspect during relevant feature work include source-identity metadata, relevant financial test questions, validated calculations, isolated retrieval/parsing utilities, and useful fixture documents. Each candidate must fit the current scope, have understandable provenance/dependencies, avoid credentials/personal data, and save effort after adaptation and tests.
 
 Do not inherit the old UI, Deep Research feature, broad asset coverage, model routing, databases, multi-platform deployment, generated indexes, or monthly data ingestion merely because they exist. No decision about keeping or replacing a specific implementation has been made.

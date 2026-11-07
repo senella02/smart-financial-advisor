@@ -1,0 +1,16 @@
+packages:
+  - apps/*
+  - packages/*
+
+saveExact: true
+engineStrict: true
+# shortcut: patch vulnerable lint globs until upstream ranges include minimatch 11.
+overrides:
+  'minimatch@>=7.0.0 <11.0.1': 11.0.5
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - unrs-resolver
+minimumReleaseAgeExclude:
+  - '@isaacs/nonrecursive-glob-match@1.1.0'
+  - minimatch@11.0.5
