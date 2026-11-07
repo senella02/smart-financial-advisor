@@ -156,3 +156,133 @@ export const GeneratedTextSchema = z.strictObject({
 export interface GenerationPort {
   generate(input: z.infer<typeof GenerationRequestSchema>): Promise<Result<z.infer<typeof GeneratedTextSchema>>>;
 }
+
+// Draft Phase 1 handoffs; these do not claim provider coverage or implemented services.
+export const MarketIndexSchema = z.enum(["SET", "SET50", "DOW_JONES", "SP_500", "NASDAQ"]);
+export const IndexQuoteSchema = z.strictObject({
+  value: NumericValueSchema,
+  provenance: SourceSchema,
+}).refine(({ value }) => value.unit === "index-points", { message: "Index values use index-points" });
+export const MarketOverviewSchema = z.record(MarketIndexSchema, resultSchema(IndexQuoteSchema));
+export const ChartRangeSchema = z.enum(["1D", "1M", "1Y", "5Y"]);
+export const PriceHistorySchema = z.strictObject({
+  listing: ListingSchema,
+  range: ChartRangeSchema,
+  points: z.array(z.strictObject({
+    sourceAsOf: TimestampSchema,
+    price: NumericValueSchema,
+    volume: NumericValueSchema,
+  })).min(1),
+  provenance: SourceSchema,
+}).refine(({ points }) => points.every(({ price, volume }) =>
+  price.unit === "price-per-share" && volume.unit === "shares"),
+{ message: "Chart points require price-per-share and shares units" });
+
+export const FinancialPeriodSchema = z.strictObject({
+  frequency: z.enum(["annual", "quarterly"]),
+  startsOn: ThaiDateSchema,
+  endsOn: ThaiDateSchema,
+}).refine(({ startsOn, endsOn }) => startsOn <= endsOn, { message: "Reporting period must not run backwards" });
+export const FinancialStatementSchema = z.strictObject({
+  listing: ListingSchema,
+  kind: z.enum(["income-statement", "balance-sheet", "cash-flow"]),
+  period: FinancialPeriodSchema,
+  lines: z.array(z.strictObject({
+    code: IdSchema, label: IdSchema, value: NumericValueSchema,
+  })).min(1),
+  provenance: SourceSchema,
+});
+export const FinancialMetricSchema = z.strictObject({
+  value: NumericValueSchema,
+  basis: IdSchema,
+  period: FinancialPeriodSchema.nullable(),
+  provenance: SourceSchema,
+});
+export const FinancialMetricsSchema = z.strictObject({
+  listing: ListingSchema,
+  metrics: z.strictObject({
+    pe: resultSchema(FinancialMetricSchema),
+    pbv: resultSchema(FinancialMetricSchema),
+    roe: resultSchema(FinancialMetricSchema),
+    debtToEquity: resultSchema(FinancialMetricSchema),
+    dividendYield: resultSchema(FinancialMetricSchema),
+    marketCap: resultSchema(FinancialMetricSchema),
+  }),
+});
+export const NewsItemSchema = z.strictObject({
+  newsId: IdSchema, headline: IdSchema, language: LanguageSchema,
+  publishedAt: TimestampSchema, source: SourceSchema,
+  listings: z.array(ListingSchema),
+});
+export interface ResearchDataPort extends MarketDataPort {
+  indices(): Promise<Result<z.infer<typeof MarketOverviewSchema>>>;
+  priceHistory(listing: ListingKey, range: z.infer<typeof ChartRangeSchema>): Promise<Result<z.infer<typeof PriceHistorySchema>>>;
+  statements(listing: ListingKey, frequency: "annual" | "quarterly"): Promise<Result<z.infer<typeof FinancialStatementSchema>[]>>;
+  metrics(listing: ListingKey): Promise<Result<z.infer<typeof FinancialMetricsSchema>>>;
+  news(listing: ListingKey): Promise<Result<z.infer<typeof NewsItemSchema>[]>>;
+}
+
+export const RetrievedEvidenceSchema = z.strictObject({
+  snapshot: EvidenceSnapshotSchema,
+  passages: z.array(z.strictObject({
+    passageId: IdSchema, sourceId: IdSchema, text: IdSchema,
+    locator: IdSchema, listing: ListingSchema.nullable(),
+    period: FinancialPeriodSchema.nullable(),
+  })).min(1),
+}).refine(({ snapshot, passages }) => {
+  const sourceIds = snapshot.sources.map(({ sourceId }) => sourceId);
+  return new Set(sourceIds).size === sourceIds.length &&
+    new Set(passages.map(({ passageId }) => passageId)).size === passages.length &&
+    passages.every(({ sourceId }) => sourceIds.includes(sourceId));
+}, { message: "Evidence requires unique source/passage IDs and known sources" });
+
+// Browser input cannot supply authoritative evidence or publication context.
+export const ChatRequestSchema = z.strictObject({
+  requestId: IdSchema, conversationId: IdSchema,
+  language: LanguageSchema, association: ChatAssociationSchema, message: IdSchema,
+});
+export const GroundedAnswerSchema = z.strictObject({
+  requestId: IdSchema, language: LanguageSchema, createdAt: TimestampSchema,
+  evidence: RetrievedEvidenceSchema,
+  claims: z.array(z.strictObject({ text: IdSchema, passageIds: z.array(IdSchema).min(1) })).min(1),
+  limitations: z.array(IdSchema),
+}).refine(({ evidence, claims }) => claims.every(({ passageIds }) =>
+  passageIds.every((id) => evidence.passages.some(({ passageId }) => passageId === id))),
+{ message: "Every claim must reference retrieved evidence" });
+export const ChatResponseSchema = z.discriminatedUnion("status", [
+  z.strictObject({ status: z.literal("answered"), answer: GroundedAnswerSchema }),
+  z.strictObject({ status: z.literal("clarification"), requestId: IdSchema, language: LanguageSchema, question: IdSchema }),
+  z.strictObject({ status: z.literal("unavailable"), requestId: IdSchema, language: LanguageSchema, reason: IdSchema }),
+  z.strictObject({ status: z.literal("error"), requestId: IdSchema, language: LanguageSchema, code: IdSchema, message: IdSchema }),
+]);
+
+export const PublicationJobSchema = z.discriminatedUnion("kind", [
+  z.strictObject({ kind: z.literal("daily-brief"), jobId: IdSchema, requestedThaiDate: ThaiDateSchema }),
+  z.strictObject({ kind: z.literal("stock-summary"), jobId: IdSchema, requestedThaiDate: ThaiDateSchema, listing: ListingKeySchema.strict() }),
+]);
+export const IngestionJobSchema = z.strictObject({
+  kind: z.literal("ingestion"), jobId: IdSchema, sourceIds: z.array(IdSchema).min(1),
+});
+
+export const BriefFollowUpsSchema = z.strictObject({
+  publicationId: IdSchema, publicationDate: ThaiDateSchema,
+  cards: z.array(z.strictObject({
+    cardId: IdSchema,
+    variants: z.strictObject({
+      th: z.strictObject({ title: IdSchema, question: IdSchema }),
+      en: z.strictObject({ title: IdSchema, question: IdSchema }),
+    }),
+  })),
+});
+export interface PublicationReadPort {
+  brief(requestedThaiDate: string): Promise<DailyBriefLookup>;
+  archive(publicationDate: string): Promise<Result<z.infer<typeof DailyBriefSchema>>>;
+  summary(listing: ListingKey, requestedThaiDate: string): Promise<StockSummaryLookup>;
+  followUps(publicationId: string): Promise<Result<z.infer<typeof BriefFollowUpsSchema>>>;
+}
+export interface RetrievalPort {
+  retrieve(input: { query: string; language: z.infer<typeof LanguageSchema>; listings: ListingKey[] }): Promise<Result<z.infer<typeof RetrievedEvidenceSchema>>>;
+}
+export interface ChatPort {
+  respond(input: z.infer<typeof ChatRequestSchema>): Promise<z.infer<typeof ChatResponseSchema>>;
+}

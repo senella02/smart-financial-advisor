@@ -1,13 +1,14 @@
-import { th } from "../../messages/th";
+import { getMessages } from "../../messages/index";
 
-export default function ChatPage() {
+export default async function ChatPage() {
+  const { messages } = await getMessages();
   return (
     <>
-      <h1>{th.mainChat}</h1>
-      <p>{th.mainChatPlaceholder}</p>
+      <h1>{messages.mainChat}</h1>
+      <p>{messages.mainChatPlaceholder}</p>
       <section aria-labelledby="history-heading">
-        <h2 id="history-heading">{th.history}</h2>
-        <p>{th.historyPlaceholder}</p>
+        <h2 id="history-heading">{messages.history}</h2>
+        <p>{messages.historyPlaceholder}</p>
       </section>
     </>
   );

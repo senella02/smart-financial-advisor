@@ -1,44 +1,38 @@
 # Smart Financial Advisor
 
-A new web application that helps novice investors with limited time understand markets, research Thai and US stocks, discover candidates, and assess the risks of holdings they record themselves.
+A web application for novice investors researching Thai and US common stocks. It provides evidence and explanations; it does not execute trades. This is a fresh implementation, with selective reuse from the previous LLMFA project only when useful.
 
-The project starts from scratch, with selective reuse from the previous LLMFA project. SFA-5 supplies a fixture-only Next.js/TypeScript workspace for review; architecture ADRs 0006–0009 remain Proposed. Models, data providers, database, hosting, and visual design remain open.
+## Project status
 
-## Current work
+The owner finalized the first [requirements baseline](docs/functional-requirements.md) on 7 November 2026 and confirmed readiness to implement Phase 1: Home shared content, Stock Detail, and AI Q&A/comparison without login. Later features and unresolved details are defined in the requirements and [question record](docs/requirements-questions.md).
 
-Functional requirements are being reconciled against the latest progress slides and project-owner answers. Feature scope is captured; unresolved product rules are tracked explicitly before the requirements are finalized.
+The code currently supplies only a **fixture scaffold** (SFA-5): three Thai page shells with translation dictionaries prepared for later English UI, shared contracts and fake examples, local checks, and CI. No live financial data, AI answers, accounts, chat persistence, or worker is implemented. The [accepted ADRs](docs/adr/README.md#decisions) describe the target architecture, including separate background execution.
 
-The owner separately authorized SFA-5 setup on 7 November 2026: three Thai page shells, shared contracts and fake fixtures, local checks, and CI. This is setup only; no live financial data, AI answers, accounts, or feature persistence is implemented. Start with the [developer guide](docs/developer-guide.md).
+## Local development
 
-Phase 1 is a capstone prototype containing Home's shared market content and Daily Brief, Stock Detail, and grounded AI Q&A/comparison, with no login system. Chat history lasts for the browser session: the main chatbot shows both entry points and Stock Detail shows explicitly stock-linked conversations. Charts cover 1D/1M/1Y/5Y, annual/quarterly statements cover up to four years, and the confirmed financial metrics show clear unavailable-data states. Selectable investments are Thai/US common stocks only.
+Use the Node and pnpm versions pinned in [`.nvmrc`](.nvmrc) and [`package.json`](package.json). With those tools available:
 
-Daily Brief updates hourly every day and keeps each past date's latest publication. Until today's first publication, show the dated previous brief. Chat automatically receives today's brief; archived briefs are read-only. Stock summaries are generated on first open per Thai calendar day from latest available data, with an as-of time, and remain fixed until midnight. Shared Daily Brief and stock summaries are available in Thai and English.
+```sh
+pnpm install --frozen-lockfile
+pnpm dev
+```
 
-Home indices refresh every minute. Stock Detail quotes refresh on page open or explicit request, while initial stock-summary trend analysis uses price and volume only.
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000). No credentials or environment configuration are needed. Run `pnpm check` for lint, typechecking, unit tests, and a production build. See the [developer guide](docs/developer-guide.md) for tool bootstrap, testing scope, routes, and compatibility notes.
 
-Watchlist, Investor Profile, and Discovery follow; Portfolio is last, including Home's portfolio widget. Portfolio records current holdings and purchase positions only. The UI is Thai and AI supports Thai/English. The future account-based version requires an account for AI chat and saving account-private data, while shared content remains browsable by guests.
+## Documentation
 
-- [Functional requirements](docs/functional-requirements.md): the editable requirements baseline, with acceptance criteria.
-- [Questions to finalize](docs/requirements-questions.md): decisions still needed from the product owner.
-- [Source notes](docs/source-notes.md): source precedence, conflicts, and lessons from the previous project.
-- [Architecture decision records](docs/adr/README.md): decisions, rationale, and a template for future ADRs.
-- [AGENTS.md](AGENTS.md): project instructions for coding agents.
-- [.agents](.agents/README.md): agent guidance and the location for future project skills.
-
-## Reference documents
-
-- [Current progress slides](report-documents/2110488%20CAP%20PROJ%20I%20Bi-weekly%20Progress.pdf), session dated 2 November 2026, exported 6 November 2026.
-- [Previous functional requirements v1.4](report-documents/Functional%20Requirements%20Document%20-%20LLMFA%20v1.4.pdf), dated 25 October 2026. Historical details must be checked against current requirements.
-- Previous project: `/Users/thpalanand/Repo/llmfa-capstone`; background report: `llmfa-final-report.pdf` in that directory. This reference is outside the new repository and is not required to understand the current requirements.
+- [Functional requirements](docs/functional-requirements.md): product scope, behavior, and acceptance criteria; specifications rather than implemented features.
+- [Question record](docs/requirements-questions.md): owner answers and unresolved decisions.
+- [Source notes](docs/source-notes.md): source precedence, original PDF references, and historical context.
+- [Architecture decisions](docs/adr/README.md): significant architectural choices, supported rationale, and ADR criteria.
+- [Contracts and boundaries](docs/contracts-and-boundaries.md): current schemas, adapter usage, and implementation limits.
+- [AGENTS.md](AGENTS.md): contributor instructions, with supporting guidance in [.agents](.agents/README.md).
 
 ## Repository layout
 
-- `report-documents/`: original supplied PDFs; preserve them as source material.
-- `docs/`: editable functional requirements and supporting context.
-- `docs/adr/`: architecture decision records.
-- `apps/web/`: fixture-only Next.js App Router UI and server-side BFF seams.
-- `packages/contracts/`: TypeScript types, Zod schemas, internal ports, and explicitly marked examples.
-- `tests/e2e/`: Chromium shell and keyboard smoke tests.
-- `.agents/`: supporting agent guidance; project skills belong in `.agents/skills/` when needed.
+- `apps/web/`: Next.js App Router page shells and server-only fixture adapters.
+- `packages/contracts/`: shared schemas, inferred types, internal ports, and marked examples.
+- `docs/`: requirements, implementation guides, and ADRs.
+- `report-documents/`: supplied source PDFs, preserved as historical evidence.
 
-Use Node 26.13.0 and pnpm 12.18.0. Run `pnpm install --frozen-lockfile`, then `pnpm dev` for the local shell. Run `pnpm check` for lint/typecheck/unit/build; browser setup and `pnpm test:e2e` are covered in the [developer guide](docs/developer-guide.md). Responsibility boundaries and file insertion points are in the [ownership guide](docs/ownership.md).
+The previous checkout at `/Users/thpalanand/Repo/llmfa-capstone` is read-only reference material and is not required to run this project.

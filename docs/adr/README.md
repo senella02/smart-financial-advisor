@@ -1,32 +1,49 @@
 # Architecture Decision Records
 
-ADRs preserve significant decisions and their reasons so contributors and AI agents can understand the project without reconstructing past conversations. Functional behavior remains in the [requirements](../functional-requirements.md); unanswered product questions remain in the [question record](../requirements-questions.md).
+ADRs explain architectural choices and why they were made so future contributors can understand the system's direction. They are not a task log or a record of every owner preference.
 
-## Decisions
+## When an ADR is warranted
 
-- [0001 Build a new product with selective reuse](0001-build-new-with-selective-reuse.md) — Accepted, 6 November 2026, from the project owner's instruction.
-- [0002 Maintain one current requirements baseline](0002-requirements-source-of-truth.md) — Accepted, 6 November 2026, from the project owner's source priorities; the initial baseline still needs product-detail resolution.
-- [0003 Value holdings at current FX](0003-value-holdings-at-current-fx.md) — Accepted, 6 November 2026, from the project owner's choice to exclude FX gains/losses.
-- [0004 Start with account free research](0004-start-with-account-free-research.md) — Accepted, 6 November 2026, from the owner's Phase 1 scope and no-login clarification.
-- [0005 Define shared publication and chat context](0005-define-shared-publication-and-chat-context.md) — Accepted, 6 November 2026, from the owner's bilingual publication, Thai-day, and today's-only brief Q&A decisions.
-- [0006 Workspace layout and ownership](0006-workspace-layout-and-ownership.md) — Proposed, 7 November 2026; SFA-5 scaffold under review.
-- [0007 Next.js UI and BFF runtime](0007-nextjs-ui-and-bff-runtime.md) — Proposed, 7 November 2026; prescribed setup shape, no hosting decision.
-- [0008 Fixture-only integration boundary](0008-fixture-only-integration-boundary.md) — Proposed, 7 November 2026; contracts and internal ports, no live providers.
-- [0009 Tooling, versions, and CI baseline](0009-tooling-versions-and-ci-baseline.md) — Proposed, 7 November 2026; exact versions and validation evidence.
+Write an ADR only when **both** conditions hold:
 
-The owner authorized the SFA-5 Next.js/TypeScript setup while explicitly keeping its architecture records Proposed. No model, data provider, database, hosting, or retrieval implementation has been selected.
+1. The choice changes system structure or an architectural boundary: application/runtime structure, deployment, integration strategy, storage, data ownership, or security/trust boundaries.
+2. It creates a lasting technical constraint or tradeoff that future work must respect, and its rationale will help a future architectural decision.
 
-## When to write an ADR
+A long-lived product rule, a human choosing option A, or a choice made during a task does not qualify on that basis alone. Record the architectural response to a requirement only when it meets both conditions; link the requirement rather than copying its behavior into an ADR. If there is no lasting architectural consequence to explain, do not create an ADR.
 
-Record decisions that would be costly or confusing to reverse: architecture boundaries, model/tool strategy, source/data contracts, storage and personal-data ownership, retrieval freshness, deployment, or selective reuse of a substantial legacy component. Routine edits and every library choice do not need separate records.
+Examples that qualify include keeping UI and backend in one deployable, choosing a database with material consistency constraints, or separating shared publication data from private conversation inputs. Exact package pins, a folder rename, fixture dates, a refresh interval, a UI label, and choosing current FX for portfolio price P/L do not qualify by themselves.
 
-Use the next four-digit number and a short filename: `NNNN-short-decision-name.md`. Start from the [template](template.md).
+## Where other information belongs
+
+- Product scope, behavior, financial formulas, and acceptance criteria: [functional requirements](../functional-requirements.md).
+- Unresolved product questions and their answers: [question record](../requirements-questions.md). Update requirements and acceptance criteria when an answer is agreed.
+- Standing contributor instructions: [AGENTS.md](../../AGENTS.md); source precedence and historical context: [source notes](../source-notes.md).
+- Setup, tooling compatibility, commands, and configuration details: [developer guide](../developer-guide.md), manifests, and configuration files.
+- Current schemas and adapter usage: [contract guide](../contracts-and-boundaries.md). Code entry points: [developer guide](../developer-guide.md#where-to-work).
+- Task-specific choices, temporary restrictions, and execution/test results: the issue or PR. Trivial choices need no separate record.
+
+Do not create another document merely because a detail does not belong in an ADR. Keep it only if it helps someone use, maintain, or review the project, using its existing home.
+
+## Writing and grouping
+
+Use the [template](template.md). State the architectural problem, the chosen approach, **why it was chosen**, credible alternatives and their tradeoffs, and lasting consequences or reasons to revisit. Do not invent alternatives, technical evidence, or rationale when the actual reason is only a prescribed constraint; say so. Cite primary documentation when a choice depends on evolving tool behavior.
+
+Group related choices that solve the same architectural problem and share a rationale. Split only when choices have independent reasons or can change independently. Do not create one ADR per task, PR, dependency, or configuration flag. Link to current implementation guides instead of embedding version inventories, setup steps, test counts, or product specifications.
+
+Use `NNNN-short-decision-name.md` and the next four-digit number. Keep existing numbers stable; deleting a rejected proposal is not a reason to renumber other records.
 
 ## Status and maintenance
 
-- **Proposed:** An option under discussion. Describe alternatives and tradeoffs without implying a decision.
-- **Accepted:** A decision was actually made. Record its date and who or what authorized it.
-- **Rejected:** A considered option was not chosen; retain the reason if it matters.
-- **Superseded:** A later accepted ADR replaces it. Link both records.
+- **Accepted:** An architectural decision was made. Record its actual decision date and source.
+- **Proposed:** Optional for a substantial unresolved architectural choice that benefits from written discussion. This small project normally decides and implements architecture in one PR, recording the accepted decision there in the same change; a separate proposal document is not required.
+- Rejected proposals may be hard-deleted. Remove their index entries and repair links; no rejection archive is required. Mention rejected alternatives inside a retained ADR only when they help explain its chosen architecture.
+- **Superseded:** For a material reversal of an accepted architecture decision, add an ADR and link both records so the earlier rationale remains understandable. Correct factual errors in place. Do not add an ADR for routine implementation maintenance.
 
-Accepted records preserve historical rationale. Add a new ADR for a material reversal; correct factual mistakes transparently. Keep this index, affected requirements, and source/question records consistent. Cite current primary documentation when a technical decision depends on an evolving tool or API.
+Keep this index, links, and affected guides consistent. Never promote an unresolved product rule or an unaccepted architecture proposal by documenting it as decided.
+
+## Decisions
+
+- [0001 Next.js application, background worker, and shared workspace](0001-nextjs-application-and-shared-workspace.md) — Accepted, 7 November 2026; one web application/backend, separate background execution, and shared market-data logic.
+- [0002 Validated contracts and data trust boundaries](0002-validated-contracts-and-data-trust-boundaries.md) — Accepted, 7 November 2026; provider-neutral integration and shared/private data separation.
+
+Acceptance sources are recorded in each ADR and the [source register](../source-notes.md#source-register). For implemented behavior and commands, use the [developer guide](../developer-guide.md); accepted architecture does not imply implementation.

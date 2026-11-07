@@ -1,10 +1,14 @@
-# Questions to Finalize Functional Requirements
+# Remaining Requirement Questions
 
-Updated: 6 November 2026. Recorded answers below come from the project owner in the requirements kickoff. Subquestions remain open unless resolved explicitly. These questions clarify the finalized feature set; they do not propose an additional feature backlog.
+Updated: 7 November 2026. Recorded answers below come from the project owner in the requirements kickoff. Subquestions remain open unless resolved explicitly. These questions clarify the finalized feature set; they do not propose an additional feature backlog.
+
+## Baseline finalization
+
+On 7 November 2026, the project owner finalized the first requirements baseline and confirmed that Phase 1 is ready for implementation. Remaining subquestions are tracked for the affected implementation or release decision; later-feature questions remain deferred to their feature work. This status decision does not approve proposed details, resolve unanswered rules, or mark application acceptance scenarios as passed. The scope and acceptance-status distinction are recorded in the [requirements baseline](functional-requirements.md).
 
 ## Review focus
 
-Phase 1 access, session-only history, explicit stock links, annual/quarterly financial views, the chart/metric list, supported instrument types, and publication dates are resolved. Shared summaries are bilingual. Daily Brief Q&A supports today only and today's brief is attached automatically. Stock Detail quotes refresh on page open/manual request, and stock summaries use price/volume analysis only initially. The delivery target is a capstone prototype/demonstration. Remaining detail concerns data coverage/freshness, measured operating limits, evaluation targets, and later features.
+The [Phase 1 scope](functional-requirements.md#1-scope-and-requirement-status) is agreed. Remaining detail concerns data coverage/freshness, measured operating limits, evaluation targets, and later features.
 
 Portfolio accounting, later account persistence, Discovery detail, and Investor Profile controls remain relevant to the full target, but do not block the agreed Phase 1 feature scope. Keep their unresolved rules visible before those features are designed or implemented.
 
@@ -26,13 +30,13 @@ Answer: Partially resolved on 6 November 2026. The owner confirmed current holdi
 
 ### Q02 THB conversion and daily profit or loss
 
-Affected: FR-06, FR-10.
+Affected: FR-06, FR-10, FR-22.
 
 - FX treatment is resolved: current USD/THB converts both native USD purchase cost and current value, with FX gains/losses excluded. See FR-22.
 - What exchange-rate freshness limit and previous-close convention should be used when Thai and US markets are on different dates?
 - How are positions added today handled in daily movement? Purchase fees and dividends-received returns are excluded from FR-22. Should stock splits be handled only through manual corrections in this scope?
 
-**Confirmed example:** Ten shares bought at USD 100 and now USD 110, at current FX 34, show THB 34,000 converted cost, THB 37,400 current value, and THB 3,400 unrealized price gain (10%). Label both the current-FX cost basis and the exclusion of FX gains/losses.
+The confirmed formula, labels, and numerical acceptance example are in [FR-22](functional-requirements.md#fr-22-current-fx-valuation).
 
 **Proposed daily rule:** Compare currently held quantities at current price and each stock's previous regular-session close, using the same current FX for both. Label this as daily price movement of current holdings. Resolve same-day additions and exchange session/date labels, then add a fixed acceptance example. Do not mix THB and USD by summing them directly.
 
@@ -40,14 +44,14 @@ Answer: Partially resolved on 6 November 2026. The owner selected current FX wit
 
 ### Q03 Access, persistence, and languages
 
-Affected: FR-07, FR-09, FR-14, FR-17, FR-20.
+Affected: FR-07, FR-09, FR-14, FR-17, FR-20, FR-21.
 
 - Phase 1 access is resolved: no login system, with Home, Stock Detail, and AI Q&A/comparison open to visitors. In the future account-based version, AI chat requires an account, guests may browse shared content, and saving account-private data requires sign-in. The future sign-in method and guest discovery access remain open.
 - Phase 1 visitor chat history is resolved: current browser session only, with no cross-session/device restoration. Storage technology and multi-tab behavior can be selected during implementation. Account-based synchronization and any later guest-to-account migration are not committed.
 - When introduced later, must Watchlist, Portfolio, Profile, and account-linked chat history persist across devices/sessions?
-- Language scope is resolved: Thai UI; Thai and English versions of shared Daily Brief short/full content and stock summaries; chat follows the user's requested supported language.
+- Language delivery was clarified by the owner on 7 November 2026: complete the Phase 1 website in Thai; prepare Thai/English JSON dictionaries with matching semantic keys and a shared accessor now, while deferring English UI and its selector. Components must not embed Thai UI copy. This does not change the separately confirmed Thai and English versions of shared Daily Brief short/full content and stock summaries; chat follows the user's requested supported language.
 
-Answer: Partially resolved on 6 November 2026. The owner accepted Thai UI, bilingual shared summaries and chat, account-free AI chat in Phase 1 and account-required AI chat later, and session-only visitor history. Combined and explicitly stock-linked history views are confirmed in Q05. Future account details/discovery access remain open. The editable requirements remain English Markdown; a separate translated/exported document has not been requested.
+Answer: Partially resolved on 6 November 2026. The owner accepted Thai UI, bilingual shared summaries and chat, account-free AI chat in Phase 1 and account-required AI chat later, and session-only visitor history. Combined and explicitly stock-linked history views are confirmed in Q05. On 7 November 2026, the owner requested Thai/English JSON key mappings, then clarified that Phase 1 must finish the Thai website and prepare for English without shipping English UI yet. English interface delivery, locale selection/persistence and full translation review are deferred; the dictionary foundation belongs in Phase 1. Shared publication/chat language requirements and session-only history remain unchanged. Future account details/discovery access remain open.
 
 ### Q04 Supported data and stock coverage
 
@@ -115,4 +119,4 @@ Answer: Partially resolved on 6 November 2026. The owner confirmed Phase 1 as an
 
 ## Recording an answer
 
-Update the affected requirements and acceptance criteria in the same change as this record. Record the answer, date, and user/source that established it. If the answer makes a significant architecture choice, add an ADR; do not mark a proposed ADR accepted without a decision. A deliberate deferral must state the resulting first-release boundary.
+Update the affected requirements and acceptance criteria in the same change as this record. Record the answer, date, and user/source that established it. A product answer alone does not need an ADR. If it leads to a system structure or architectural boundary choice with lasting technical constraints, record that choice and its rationale under the [ADR criteria](adr/README.md). Do not mark a proposed ADR accepted without a decision. A deliberate deferral must state the resulting first-release boundary.

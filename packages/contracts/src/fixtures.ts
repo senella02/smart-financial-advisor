@@ -2,6 +2,9 @@ import {
   ChatContextSchema, DailyBriefLookupSchema, DailyBriefSchema, EvidenceSnapshotSchema,
   NumericValueSchema, QuoteSchema, SessionHistorySchema, StockIdentitySchema,
   StockSummaryLookupSchema, StockSummarySchema, resultSchema,
+  MarketOverviewSchema, PriceHistorySchema, FinancialStatementSchema, FinancialMetricsSchema,
+  NewsItemSchema, RetrievedEvidenceSchema, ChatRequestSchema, ChatResponseSchema,
+  PublicationJobSchema, IngestionJobSchema, BriefFollowUpsSchema,
 } from "./index";
 
 // All dates are fixed historical examples; none describe a live instrument or publication.
@@ -132,5 +135,107 @@ export const sessionHistoryFixture = {
         messages: [{ role: "user", text: "ตัวอย่างคำถามจากหน้าหุ้น ไม่มีคำตอบ AI", createdAt: "2000-01-02T10:03:00+07:00" }],
       },
     ],
+  }),
+} as const;
+
+const unavailable = { status: "unavailable", reason: "FIXTURE_ONLY" } as const;
+export const marketOverviewFixture = {
+  fixture: true,
+  data: MarketOverviewSchema.parse({
+    SET: unavailable, SET50: unavailable, DOW_JONES: unavailable, SP_500: unavailable, NASDAQ: unavailable,
+  }),
+} as const;
+export const priceHistoryFixture = {
+  fixture: true,
+  data: resultSchema(PriceHistorySchema).parse(unavailable),
+} as const;
+export const financialStatementsFixture = {
+  fixture: true,
+  data: resultSchema(FinancialStatementSchema.array()).parse(unavailable),
+} as const;
+export const financialMetricsFixture = {
+  fixture: true,
+  data: FinancialMetricsSchema.parse({
+    listing: stockIdentityFixture.data.listing,
+    metrics: { pe: unavailable, pbv: unavailable, roe: unavailable, debtToEquity: unavailable, dividendYield: unavailable, marketCap: unavailable },
+  }),
+} as const;
+export const newsFixture = {
+  fixture: true,
+  data: NewsItemSchema.parse({
+    newsId: "FIXTURE_NEWS", headline: "Structure example; no real news", language: "en",
+    publishedAt: "2000-01-01T16:00:00+07:00", source: evidenceFixture.data.sources[0],
+    listings: [stockIdentityFixture.data.listing],
+  }),
+} as const;
+export const retrievedEvidenceFixture = {
+  fixture: true,
+  data: RetrievedEvidenceSchema.parse({
+    snapshot: evidenceFixture.data,
+    passages: [{
+      passageId: "FIXTURE_PASSAGE", sourceId: "FIXTURE_SOURCE",
+      text: "This fixture has no financial data or investment analysis.", locator: "fixture paragraph 1",
+      listing: stockIdentityFixture.data.listing, period: null,
+    }],
+  }),
+} as const;
+export const chatRequestFixture = {
+  fixture: true,
+  data: ChatRequestSchema.parse({
+    requestId: "FIXTURE_REQUEST", conversationId: "FIXTURE_STOCK_CHAT", language: "en",
+    association: chatContextFixture.data.association, message: "What does this demo contain?",
+  }),
+} as const;
+export const chatResponseFixture = {
+  fixture: true,
+  data: ChatResponseSchema.parse({
+    status: "answered",
+    answer: {
+      requestId: "FIXTURE_REQUEST", language: "en", createdAt: "2000-01-02T10:04:00+07:00",
+      evidence: retrievedEvidenceFixture.data,
+      claims: [{ text: "This demo has no financial data or investment analysis.", passageIds: ["FIXTURE_PASSAGE"] }],
+      limitations: ["FIXTURE_ONLY: structural example, not an AI-generated financial answer"],
+    },
+  }),
+} as const;
+export const clarificationFixture = {
+  fixture: true,
+  data: ChatResponseSchema.parse({
+    status: "clarification", requestId: "FIXTURE_REQUEST", language: "en", question: "Which company do you mean?",
+  }),
+} as const;
+export const unavailableChatFixture = {
+  fixture: true,
+  data: ChatResponseSchema.parse({
+    status: "unavailable", requestId: "FIXTURE_REQUEST", language: "en", reason: "FIXTURE_ONLY_NO_GENERATION",
+  }),
+} as const;
+export const publicationJobFixture = {
+  fixture: true,
+  data: PublicationJobSchema.parse({ kind: "daily-brief", jobId: "FIXTURE_JOB", requestedThaiDate: "2000-01-02" }),
+} as const;
+export const stockSummaryJobFixture = {
+  fixture: true,
+  data: PublicationJobSchema.parse({
+    kind: "stock-summary", jobId: "FIXTURE_SUMMARY_JOB", requestedThaiDate: "2000-01-02",
+    listing: { market: "TH", symbol: "FIXTURE_TH_A", exchangeId: "FIXTURE_EXCHANGE_TH" },
+  }),
+} as const;
+export const ingestionJobFixture = {
+  fixture: true,
+  data: IngestionJobSchema.parse({ kind: "ingestion", jobId: "FIXTURE_INGESTION", sourceIds: ["FIXTURE_SOURCE"] }),
+} as const;
+export const briefFollowUpsFixture = {
+  fixture: true,
+  data: BriefFollowUpsSchema.parse({
+    publicationId: dailyBriefFixture.data.publicationId,
+    publicationDate: dailyBriefFixture.data.publicationDate,
+    cards: [{
+      cardId: "FIXTURE_CARD",
+      variants: {
+        th: { title: "ข้อมูลสาธิต", question: "ข้อมูลสาธิตนี้มีอะไรบ้าง?" },
+        en: { title: "Demo content", question: "What does this demo contain?" },
+      },
+    }],
   }),
 } as const;

@@ -1,26 +1,29 @@
-# ADR NNNN Decision title
+# ADR NNNN Architectural decision
 
-Status: Proposed  
-Date: YYYY-MM-DD  
-Decision owner: Name or role  
-Related requirements: FR identifiers and/or Q identifiers
+Status: Accepted or Proposed
+
+Date: YYYY-MM-DD
+
+Decision source: Who made the decision and where it was agreed
+
+Related requirements: Links to relevant requirements, if applicable
 
 ## Context
 
-What problem requires a decision? Include constraints and relevant evidence.
+What architectural problem needs a decision? What lasting constraint or tradeoff makes this worth recording? Link product rules rather than repeating them.
 
-## Decision
+## Decision and rationale
 
-What is proposed or chosen? For an accepted record, identify the decision source and date.
+What architectural approach was chosen, and why? For a proposal, state what remains unresolved. Distinguish prescribed constraints from independently evaluated choices.
 
-## Alternatives considered
+## Alternatives and tradeoffs
 
-Explain the credible alternatives and why they were not chosen, or what remains to be resolved while proposed.
+Which credible alternatives were considered, and why was this approach preferred? Do not invent an evaluation that did not happen.
 
 ## Consequences
 
-Describe benefits, costs, limitations, and follow-up work. State conditions that would justify revisiting the decision.
+What lasting benefits, costs, boundaries, or limitations must future work respect? What would justify revisiting the choice?
 
 ## References
 
-Link requirements, evidence, current primary documentation, and superseding/superseded ADRs where applicable.
+Link relevant requirements, implementation guides, primary evidence, and superseding/superseded ADRs. Keep setup details and execution logs in their appropriate homes.

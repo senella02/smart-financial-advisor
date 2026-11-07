@@ -12,6 +12,5 @@ onlyBuiltDependencies:
   - sharp
   - unrs-resolver
 minimumReleaseAgeExclude:
-  - playwright-core@1.65.0
   - '@isaacs/nonrecursive-glob-match@1.1.0'
   - minimatch@11.0.5

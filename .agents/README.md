@@ -1,9 +1,13 @@
 # Project Agent Guidance
 
-Read [AGENTS.md](../AGENTS.md) for repository-wide instructions. Keep current product behavior in [functional requirements](../docs/functional-requirements.md), unanswered product questions in [the question record](../docs/requirements-questions.md), and significant technical decisions in [ADRs](../docs/adr/README.md).
+Read [AGENTS.md](../AGENTS.md) for repository-wide instructions and documentation homes. Supporting files are active guidance only when linked from that entry point.
 
-This directory holds supporting agent guidance. Repository skills belong in [`skills/`](skills/README.md). No custom skills are installed yet; add one when a repeatable project workflow justifies it rather than copying generic instructions or the old project's skill collection.
+## Shared changes
 
-`AGENTS.md` is the instruction entry point. A supporting Markdown file in this directory is not automatically an active rule just because it exists; link required guidance from `AGENTS.md` or package a repeatable workflow as a skill.
+- Before changing a shared interface, identify its producers and consumers and agree on the smallest schema/example change with affected contributors. Update contracts, fixtures, adapters, UI, relevant tests, and docs together. Current shapes and limits are in the [contract guide](../docs/contracts-and-boundaries.md).
+- Keep downloaded direct dependencies exact and commit lockfile updates. `workspace:*` links local packages. Review compatibility notes and run affected [checks](../docs/developer-guide.md#checks-and-testing-scope) on tooling changes; routine version changes do not need an ADR.
+- Keep fixture data visibly marked as demo data. Preserve semantic sections, keyboard access, and visible focus when replacing page placeholders.
 
-The layout follows the official documentation for [project instructions](https://learn.chatgpt.com/docs/agent-configuration/agents-md) and [local skills](https://learn.chatgpt.com/docs/build-skills).
+## Project skills
+
+No custom project skills exist. Add `.agents/skills/<skill-name>/SKILL.md` with `name` and `description` frontmatter only when a repeatable project workflow justifies it. Keep supporting scripts and references in that skill folder; do not copy standing instructions or the old project's skill collection.

@@ -1,8 +1,10 @@
 # Smart Financial Advisor Functional Requirements
 
-Version: 2.0 draft 3  
-Updated: 6 November 2026  
-Status: Feature baseline from current slides and project-owner decisions; pending resolution of the linked product questions.
+Version: 2.0 (first finalized requirements baseline for the new project)
+
+Updated: 7 November 2026
+
+Status: Finalized by the project owner; ready to implement Phase 1.
 
 Smart Financial Advisor helps novice investors with limited time understand market developments, research individual stocks, discover stocks that match their stated interests, and assess their manually recorded holdings. The application provides evidence and explanations so users can make their own decisions.
 
@@ -19,6 +21,8 @@ The full feature baseline includes all six areas. The agreed implementation orde
 The main chatbot page shows history from both chat entry points. Stock Detail shows only conversations explicitly linked to that stock through application context. Phase 1 history lasts for the current browser session only; new sessions do not restore earlier history.
 
 Shared Daily Brief and stock summaries have Thai and English versions. Chat automatically receives today's Daily Brief as context. Past briefs may be read, but AI Q&A about an archived Daily Brief is outside scope.
+
+**Phase 1 interface delivery:** Finish Home, Stock Detail, and chat in Thai. Prepare Thai/English translation keys and dictionaries now, keeping user-facing UI copy out of components. English interface delivery, its language selector, locale persistence, and full translation review are deferred. This UI delivery order does not defer the separately confirmed bilingual shared publications or requested-language chat behavior. See FR-21.
 
 Phase 1 targets a capstone prototype/demonstration. Stock Detail quotes load when the page opens and when the visitor explicitly requests a refresh; they do not poll every minute. Daily stock summaries use price and volume analysis initially, without requiring RSI, MACD, or EMA. Home's one-minute index refresh remains a separate requirement.
 
@@ -288,11 +292,11 @@ Access follows FR-21. Pending: Q03 and Q07 for sign-in method, storage, deletion
 
 **Confirmed by project owner on 6 November 2026:** Phase 1 has no login system. Visitors may browse Home and Stock Detail and use AI Q&A/comparison in either chat entry point without an account. In the future account-based version, AI chat requires an account; guests may still browse shared content. Saving account-based personal data requires sign-in in that later version. Phase 1 visitor chat history is session-only under FR-14 rather than requiring a login that does not exist.
 
-The interface is Thai. Shared Daily Brief short/full content and daily stock summaries have Thai and English versions that users can select. Chat answers in Thai or English according to the user's request. A future sign-in provider is not selected by this requirement. Discovery screening is outside Phase 1; future guest access to it remains open in Q03.
+The interface ships in Thai for Phase 1; English UI is delivered later (owner clarification, 7 November 2026). Prepare matching semantic keys in `th.json` and `en.json` and a shared message accessor now. Components consume dictionary values rather than embedding Thai UI copy. Do not expose a language selector or require locale persistence in Phase 1. Shared Daily Brief short/full content and daily stock summaries have Thai and English versions that users can select. Chat answers in Thai or English according to the user's request. A future sign-in provider is not selected by this requirement. Discovery screening is outside Phase 1; future guest access to it remains open in Q03.
 
 **Proposed detail:** In the account-based version, saving Watchlist, Portfolio, Profile, or account-linked chat history prompts sign-in. No login or account-migration flow is added to Phase 1 by these later requirements. Shared language versions remain common content rather than personalized summaries.
 
-**Acceptance:** A Phase 1 visitor can open Home, Stock Detail, and either AI chat entry point without signing in. Users can select Thai or English shared summaries and receive chat answers in the requested supported language. History views follow FR-14 and the agreed visitor persistence policy. In the later account-based version, an unauthenticated request cannot access account-private records or use account-required AI chat. Language support and factual consistency must be tested even when provided by a multilingual model. Thai UI text and financial units remain readable.
+**Acceptance:** A Phase 1 visitor can open Home, Stock Detail, and either AI chat entry point without signing in. Users can select Thai or English shared summaries and receive chat answers in the requested supported language. History views follow FR-14 and the agreed visitor persistence policy. In the later account-based version, an unauthenticated request cannot access account-private records or use account-required AI chat. Language support and factual consistency must be tested even when provided by a multilingual model. Phase 1 navigation, page labels, metadata and accessibility labels render in Thai, with `html lang="th"` and no interface-language selector. Thai and English dictionaries retain the same nonempty keys; English UI completeness and language switching are later-release acceptance, not Phase 1 release gates. UI translation does not translate provider content or regenerate a shared publication. Thai UI text and financial units remain readable.
 
 ### FR-22 Current-FX valuation
 
@@ -317,16 +321,18 @@ Phase 1 is a capstone prototype/demonstration, as confirmed by the owner on 6 No
 
 The confirmed update cadences are hourly Daily Brief updates, one-minute refreshes for Home indices and later portfolio prices, and page-open/manual refresh for Stock Detail quotes. Watchlist is limited to 20 stocks. Provider data delay is not a guaranteed application latency.
 
-**Proposed quality baseline:** Keep ordinary data views usable when AI generation fails; expose useful progress and recoverable errors; preserve saved records on failed writes; support keyboard operation, labeled controls, readable financial units, and non-color indicators. Use transport security and keep credentials outside source control. Implementation and measurable targets remain subject to Q08 and later ADRs.
+**Proposed quality baseline:** Keep ordinary data views usable when AI generation fails; expose useful progress and recoverable errors; preserve saved records on failed writes; support keyboard operation, labeled controls, readable financial units, and non-color indicators. Use transport security and keep credentials outside source control. Measurable acceptance targets remain subject to Q08; architectural choices follow the [ADR criteria](adr/README.md).
 
 Do not inherit the old sub-3-second chat target, sub-200-ms cache response, sub-8-second screening target, mandatory secondary model provider, specific TLS version, cache technology, or monthly ingestion schedule without a fresh decision.
 
-Before calling version 2.0 final:
+The owner finalized this first requirements baseline on 7 November 2026 and confirmed readiness to implement Phase 1. Remaining questions are explicit follow-ups, not blockers to starting Phase 1. Proposed details and acceptance scenarios remain proposed until agreed; finalization does not silently resolve unanswered rules or establish release acceptance.
 
-1. Resolve or explicitly defer Q01-Q08 and update the affected requirements.
+Resolve the following during the affected implementation or before the affected feature is released:
+
+1. Resolve or explicitly defer remaining Q01–Q08 details and update the affected requirements and acceptance criteria. Later-feature questions remain deferred to their feature work.
 2. Complete daily portfolio formulas and review fixed numerical examples, including multiple positions, missing data, zero denominators, and Thai/US market dates. The confirmed unrealized current-FX examples have been checked arithmetically.
 3. Agree on required stocks, financial fields, history, freshness, and missing-data behavior. Verify provider feasibility during architecture selection.
 4. Complete remaining personal-data handling and conversation controls; preserve the agreed session-only history and explicit stock links. Select a sign-in provider when planning the later account-based version.
 5. Review acceptance scenarios for the six product areas and AI guardrails with the product owner.
 
-Architecture selection follows the agreed behavior and is recorded separately. Application acceptance scenarios, including bilingual AI and data isolation checks, must be executed before the affected feature is released. The separately authorized [SFA-5 fixture scaffold](developer-guide.md) supplies setup and contract checks only; no research features or external provider verification have been completed.
+The [accepted architecture](adr/README.md#decisions) supports the agreed behavior; further architectural choices are recorded separately when warranted. Application acceptance scenarios, including bilingual AI and data isolation checks, must be executed before the affected feature is released. The [current fixture scaffold](developer-guide.md) supplies setup and contract checks only; no research features or external provider verification have been completed.

@@ -7,3 +7,6 @@ test-results/
 .env*
 !.env.example
 .DS_Store
+
+# Personal AI instructions (each contributor keeps their own).
+/.ai-local/
