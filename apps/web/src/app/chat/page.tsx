@@ -1,3 +1,4 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getMessages } from "../../messages/index";
 
 export default async function ChatPage() {
@@ -7,8 +8,12 @@ export default async function ChatPage() {
       <h1>{messages.mainChat}</h1>
       <p>{messages.mainChatPlaceholder}</p>
       <section aria-labelledby="history-heading">
-        <h2 id="history-heading">{messages.history}</h2>
-        <p>{messages.historyPlaceholder}</p>
+        <Card>
+          <CardHeader>
+            <CardTitle id="history-heading">{messages.history}</CardTitle>
+          </CardHeader>
+          <CardContent><p>{messages.historyPlaceholder}</p></CardContent>
+        </Card>
       </section>
     </>
   );

@@ -66,6 +66,14 @@ Home lives in `apps/web/src/app/page.tsx`, Stock Detail in `apps/web/src/app/sto
 
 Next's automatic agent-file generation is disabled so running dev does not inject tool instructions into shared guidance. `next-env.d.ts` and `.next` are generated locally and gitignored.
 
+## Shared UI components
+
+The web app uses [Tailwind CSS's PostCSS integration](https://tailwindcss.com/docs/installation/framework-guides/nextjs) and locally owned [shadcn/ui components](https://ui.shadcn.com/docs). Button and Card live in `apps/web/src/components/ui`; their upstream MIT license is kept alongside them. They were installed manually from the official `shadcn-ui/ui` repository's `new-york-v4` source. Local adaptations use the `@/lib/utils` class-merging helper, import only the Radix Slot primitive, render CardTitle as a semantic `h2`, and give titles/buttons relaxed line height for Thai text.
+
+Reuse these components and Button variants for navigation links. Keep shared colors, font, and radius tokens in `apps/web/src/app/globals.css`, with component variants in their component files. The interface remains light-only and uses the existing local Tahoma/Arial font stack without fetching fonts. Keep copy in the translation dictionaries. Preserve labeled sections and heading order when composing cards; use an appropriate heading element if a card is nested deeper than `h2`.
+
+`apps/web/components.json` configures future component additions. From the repo root, run `pnpm dlx shadcn@4.23.0 add <component> -c apps/web` when a feature needs one. Review generated code, dependencies, and any global-style changes, retain exact direct dependency versions, and run the checks above. Component source is owned here, so upstream changes require review rather than arriving automatically through a package upgrade. No separate shared UI workspace package is needed for the single web app.
+
 ## Target architecture and open choices
 
 Follow [ADR 0001](adr/0001-nextjs-application-and-shared-workspace.md) for the application/worker boundary and outstanding technology choices, and [ADR 0002](adr/0002-validated-contracts-and-data-trust-boundaries.md) for integration and trust boundaries. There is no worker, scheduler, ingestion, or publication execution in the current code, so no worker startup command exists. Product follow-ups remain in the [question record](requirements-questions.md).

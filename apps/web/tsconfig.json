@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "paths": { "@/*": ["./src/*"] },
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "jsx": "react-jsx",
     "allowJs": false,

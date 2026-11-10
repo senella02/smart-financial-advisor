@@ -1,3 +1,4 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getMessages } from "../messages/index";
 
 export default async function HomePage() {
@@ -6,12 +7,20 @@ export default async function HomePage() {
     <>
       <h1>{messages.homeHeading}</h1>
       <section aria-labelledby="indices-heading">
-        <h2 id="indices-heading">{messages.indices}</h2>
-        <p>{messages.indicesPlaceholder}</p>
+        <Card>
+          <CardHeader>
+            <CardTitle id="indices-heading">{messages.indices}</CardTitle>
+          </CardHeader>
+          <CardContent><p>{messages.indicesPlaceholder}</p></CardContent>
+        </Card>
       </section>
       <section aria-labelledby="brief-heading">
-        <h2 id="brief-heading">{messages.dailyBrief}</h2>
-        <p>{messages.briefPlaceholder}</p>
+        <Card>
+          <CardHeader>
+            <CardTitle id="brief-heading">{messages.dailyBrief}</CardTitle>
+          </CardHeader>
+          <CardContent><p>{messages.briefPlaceholder}</p></CardContent>
+        </Card>
       </section>
     </>
   );
