@@ -20,10 +20,13 @@ const INDEX_CONFIG: { key: "SET" | "SET50" | "DOW_JONES" | "SP_500" | "NASDAQ"; 
 
 export function LiveIndicesStrip({ initialIndices }: { initialIndices: DisplayIndex[] }) {
   const [indices, setIndices] = useState<DisplayIndex[]>(initialIndices);
-  const [lastUpdated, setLastUpdated] = useState<string>("เพิ่งอัปเดต");
+  const [lastUpdated, setLastUpdated] = useState<string>("");
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   useEffect(() => {
+    // Set initial real clock time on client mount
+    setLastUpdated(new Date().toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+
     // Poll every 60 seconds (safe with backend cache)
     const interval = setInterval(async () => {
       try {
@@ -70,7 +73,7 @@ export function LiveIndicesStrip({ initialIndices }: { initialIndices: DisplayIn
         </h2>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           {isRefreshing && <span className="inline-block size-2 rounded-full bg-primary animate-ping" />}
-          <span>อัปเดตล่าสุด: {lastUpdated} น.</span>
+          <span>{lastUpdated ? `ตรวจสอบล่าสุด: ${lastUpdated} น.` : "กำลังเชื่อมต่อ..."}</span>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
