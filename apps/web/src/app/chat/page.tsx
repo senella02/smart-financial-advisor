@@ -1,3 +1,4 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getMessages } from "../../messages/index";
 import { ChatPanel } from "./chat-panel";
 

@@ -1,3 +1,4 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from "next/navigation";
 import { getMessages } from "../../../../messages/index";
 import { getDemoStock } from "../../../../server/research";
@@ -16,16 +17,28 @@ export default async function StockPage({ params }: {
       <p>{stock.data.company.name}</p>
       <p><code>{stock.data.listing.market} / {stock.data.listing.symbol}</code></p>
       <section aria-labelledby="quote-heading">
-        <h2 id="quote-heading">{messages.quote}</h2>
-        <p>{messages.quotePlaceholder}</p>
+        <Card>
+          <CardHeader>
+            <CardTitle id="quote-heading">{messages.quote}</CardTitle>
+          </CardHeader>
+          <CardContent><p>{messages.quotePlaceholder}</p></CardContent>
+        </Card>
       </section>
       <section aria-labelledby="summary-heading">
-        <h2 id="summary-heading">{messages.summary}</h2>
-        <p>{messages.summaryPlaceholder}</p>
+        <Card>
+          <CardHeader>
+            <CardTitle id="summary-heading">{messages.summary}</CardTitle>
+          </CardHeader>
+          <CardContent><p>{messages.summaryPlaceholder}</p></CardContent>
+        </Card>
       </section>
       <section aria-labelledby="stock-chat-heading">
-        <h2 id="stock-chat-heading">{messages.stockChat}</h2>
-        <p>{messages.stockChatPlaceholder}</p>
+        <Card>
+          <CardHeader>
+            <CardTitle id="stock-chat-heading">{messages.stockChat}</CardTitle>
+          </CardHeader>
+          <CardContent><p>{messages.stockChatPlaceholder}</p></CardContent>
+        </Card>
       </section>
     </>
   );

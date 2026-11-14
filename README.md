@@ -23,6 +23,7 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000). No credentials or environme
 
 - [Functional requirements](docs/functional-requirements.md): product scope, behavior, and acceptance criteria; specifications rather than implemented features.
 - [Question record](docs/requirements-questions.md): owner answers and unresolved decisions.
+- [Visual design](DESIGN.md) and [UI conventions](docs/ui-conventions.md): selected working direction, Phase 1 interaction rules, and route briefs for the next UI implementation; design targets rather than implemented behavior.
 - [Source notes](docs/source-notes.md): source precedence, original PDF references, and historical context.
 - [Architecture decisions](docs/adr/README.md): significant architectural choices, supported rationale, and ADR criteria.
 - [Contracts and boundaries](docs/contracts-and-boundaries.md): current schemas, adapter usage, and implementation limits.
