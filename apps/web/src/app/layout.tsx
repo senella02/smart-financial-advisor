@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { buttonVariants } from "@/components/ui/button";
 import { getMessages } from "../messages/index";
 import "./globals.css";
 
@@ -21,9 +22,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <header>
           <p className="brand">{messages.appName}</p>
           <nav aria-label={messages.navigation}>
-            <Link href="/">{messages.home}</Link>
-            <Link href="/stocks/TH/FIXTURE_TH_A">{messages.stock}</Link>
-            <Link href="/chat">{messages.chat}</Link>
+            <Link className={buttonVariants({ variant: "ghost" })} href="/">{messages.home}</Link>
+            <Link className={buttonVariants({ variant: "ghost" })} href="/stocks/TH/FIXTURE_TH_A">{messages.stock}</Link>
+            <Link className={buttonVariants({ variant: "ghost" })} href="/chat">{messages.chat}</Link>
           </nav>
         </header>
         <main id="main" tabIndex={-1}>
