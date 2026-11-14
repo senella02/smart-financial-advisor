@@ -3,6 +3,10 @@ import { chatRequestFixture } from "@sfa/contracts/fixtures";
 import { parseChatBody, respond } from "./chat";
 
 vi.mock("server-only", () => ({}));
+vi.mock("./chat-tools", async (importOriginal) => ({
+  ...await importOriginal<typeof import("./chat-tools")>(),
+  runTool: vi.fn(async (name: string) => ({ status: "available", tool: name })),
+}));
 
 const request = {
   requestId: "REQ_1", conversationId: "CONV_1", language: "th" as const,
@@ -70,5 +74,43 @@ describe("respond", () => {
     expect(await respond(request, [])).toMatchObject({ status: "error", code: "EMPTY_ANSWER" });
     fetchSpy.mockRejectedValueOnce(new Error("offline"));
     expect(await respond(request, [])).toMatchObject({ status: "error", code: "MODEL_UNREACHABLE" });
+  });
+});
+
+describe("respond with tools", () => {
+  const toolCall = {
+    role: "model",
+    parts: [{ functionCall: { name: "get_quote", args: { market: "TH", symbol: "PTT" } }, thoughtSignature: "SIG" }],
+  };
+  const bodyOf = (call: unknown[]) => JSON.parse(String((call[1] as RequestInit).body));
+
+  it("runs requested tools and sends results back with the model's turn unchanged", async () => {
+    vi.stubEnv("GEMINI_API_KEY", "test-key");
+    vi.spyOn(console, "info").mockImplementation(() => {});
+    const fetchSpy = vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(Response.json({ candidates: [{ content: toolCall }] }))
+      .mockResolvedValueOnce(Response.json({ candidates: [{ content: { role: "model", parts: [{ text: "PTT ราคา …" }] } }] }));
+
+    expect(await respond(request, [])).toMatchObject({ status: "draft", text: "PTT ราคา …" });
+    const first = bodyOf(fetchSpy.mock.calls[0]);
+    expect(first.tools[0].functionDeclarations.map((d: { name: string }) => d.name)).toContain("get_quote");
+    expect(first.toolConfig.functionCallingConfig.mode).toBe("AUTO");
+    const second = bodyOf(fetchSpy.mock.calls[1]).contents;
+    expect(second.at(-2)).toEqual(toolCall);
+    expect(second.at(-1)).toEqual({
+      role: "user",
+      parts: [{ functionResponse: { name: "get_quote", response: { status: "available", tool: "get_quote" } } }],
+    });
+  });
+
+  it("stops offering tools after 4 rounds so the model must answer", async () => {
+    vi.stubEnv("GEMINI_API_KEY", "test-key");
+    vi.spyOn(console, "info").mockImplementation(() => {});
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (_url, init) => {
+      const noTools = JSON.parse(String(init?.body)).toolConfig.functionCallingConfig.mode === "NONE";
+      return Response.json({ candidates: [{ content: noTools ? { role: "model", parts: [{ text: "done" }] } : toolCall }] });
+    });
+    expect(await respond(request, [])).toMatchObject({ status: "draft", text: "done" });
+    expect(fetchSpy).toHaveBeenCalledTimes(5);
   });
 });

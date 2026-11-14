@@ -19,7 +19,7 @@
   "stockChat": "Chat about this stock",
   "stockChatPlaceholder": "Placeholder for conversations explicitly linked to the selected stock",
   "mainChat": "Stock questions and comparisons",
-  "mainChatIntro": "Ask about stocks or investing ideas in Thai or English. This version has no prices, news or documents yet, so answers have no sources.",
+  "mainChatIntro": "Ask about Thai and US stocks in Thai or English. The AI can look up prices, price movements, news and market indices, but not yet financial statements, ratios or company reports.",
   "chatEmpty": "Ask about stocks or investing ideas, or pick an example question below.",
   "chatYou": "You",
   "chatAssistant": "AI assistant",
