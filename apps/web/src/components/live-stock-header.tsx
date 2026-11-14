@@ -25,6 +25,7 @@ export function LiveStockHeader({
 }: LiveStockHeaderProps) {
   const [price, setPrice] = useState<string>(initialPrice);
   const [asOf, setAsOf] = useState<string>(initialAsOf);
+  const [lastChecked, setLastChecked] = useState<string>("เพิ่งตรวจสอบ");
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   async function fetchLatestQuote() {
@@ -35,12 +36,19 @@ export function LiveStockHeader({
       if (json.status === "available" && json.data?.price?.value != null) {
         setPrice(Number(json.data.price.value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
         if (json.data.provenance?.sourceAsOf) {
-          setAsOf(
-            new Date(json.data.provenance.sourceAsOf).toLocaleString("th-TH", {
-              timeZone: market === "TH" ? "Asia/Bangkok" : "America/New_York",
-            })
-          );
+          const tz = market === "TH" ? "Asia/Bangkok" : "America/New_York";
+          const tzLabel = market === "TH" ? "ICT (เวลาไทย)" : "EST (เวลานิวยอร์ก)";
+          const formatted = new Date(json.data.provenance.sourceAsOf).toLocaleString("th-TH", {
+            timeZone: tz,
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          setAsOf(`${formatted} ${tzLabel}`);
         }
+        setLastChecked(new Date().toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
       }
     } catch {
       // Retain last known values on failure
@@ -82,16 +90,21 @@ export function LiveStockHeader({
             <span>●</span>
             <span>ราคาตลาดจริง (อัปเดตอัตโนมัติทุก 1 นาที)</span>
           </div>
-          <div className="mt-2 text-[11px] text-muted-foreground">
-            ข้อมูล ณ {asOf} •{" "}
-            <button
-              type="button"
-              onClick={fetchLatestQuote}
-              disabled={isRefreshing}
-              className="text-primary hover:underline font-medium disabled:opacity-50"
-            >
-              {isRefreshing ? "กำลังอัปเดต..." : "↻ ตรวจสอบล่าสุด"}
-            </button>
+          <div className="mt-2 text-[11px] text-muted-foreground space-y-0.5">
+            <div>
+              <span className="font-medium text-foreground">ข้อมูล ณ:</span> {asOf} (เวลาตลาดปิดล่าสุด)
+            </div>
+            <div>
+              <span className="font-medium text-foreground">ตรวจสอบล่าสุด:</span> {lastChecked} น. •{" "}
+              <button
+                type="button"
+                onClick={fetchLatestQuote}
+                disabled={isRefreshing}
+                className="text-primary hover:underline font-medium disabled:opacity-50"
+              >
+                {isRefreshing ? "กำลังอัปเดต..." : "↻ กดรีเฟรชทันที"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
