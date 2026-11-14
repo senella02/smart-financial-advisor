@@ -1,0 +1,7 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["src/**/*.ts", "../web/src/server/publication-store.ts", "../web/src/server/brief-generator.ts"]
+}

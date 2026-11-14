@@ -1,0 +1,13 @@
+{
+  "name": "@sfa/worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --experimental-strip-types src/index.ts",
+    "once": "node --experimental-strip-types src/index.ts --once",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sfa/contracts": "workspace:*"
+  }
+}

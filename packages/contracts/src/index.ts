@@ -61,7 +61,30 @@ const publicationMetadata = {
   publishedAt: TimestampSchema,
   evidence: EvidenceSnapshotSchema,
 };
-const briefText = { shortText: IdSchema, fullText: IdSchema };
+const briefText = {
+  shortText: IdSchema,
+  fullText: IdSchema,
+  scannedCount: z.number().int().min(0).optional(),
+  newsItems: z.lazy(() => z.array(BriefNewsItemSchema)).optional(),
+};
+export const BriefImpactDirectionSchema = z.enum(["positive", "negative", "mixed"]);
+export const BriefNewsItemSchema = z.strictObject({
+  newsId: IdSchema,
+  publishedTime: IdSchema,
+  headline: IdSchema,
+  sourceName: IdSchema,
+  sourceId: IdSchema,
+  importanceScore: z.number().int().min(1).max(10),
+  sourceCount: z.number().int().min(1),
+  summary: IdSchema,
+  keyPoints: z.array(IdSchema).min(1),
+  impacts: z.array(z.strictObject({
+    area: IdSchema,
+    direction: BriefImpactDirectionSchema,
+    label: IdSchema,
+  })),
+  relatedSymbols: z.array(IdSchema),
+});
 const bilingualText = z.strictObject({
   th: z.strictObject({ language: z.literal("th"), ...briefText }),
   en: z.strictObject({ language: z.literal("en"), ...briefText }),
@@ -75,10 +98,14 @@ export const StockSummarySchema = z.strictObject({
   variants: bilingualText,
 });
 
+export const BriefUpdateStatusSchema = z.enum(["on-time", "delayed", "not-published"]);
 export const DailyBriefLookupSchema = z.strictObject({
   requestedThaiDate: ThaiDateSchema,
   display: resultSchema(DailyBriefSchema),
   todayContext: resultSchema(DailyBriefSchema),
+  updateStatus: BriefUpdateStatusSchema.optional(),
+  nextScheduledAt: TimestampSchema.nullable().optional(),
+  lastAttemptedAt: TimestampSchema.nullable().optional(),
 }).refine(({ requestedThaiDate, todayContext }) =>
   todayContext.status !== "available" || todayContext.data.publicationDate === requestedThaiDate,
 { message: "A display fallback cannot be used as today's AI context" });
@@ -161,8 +188,14 @@ export interface GenerationPort {
 export const MarketIndexSchema = z.enum(["SET", "SET50", "DOW_JONES", "SP_500", "NASDAQ"]);
 export const IndexQuoteSchema = z.strictObject({
   value: NumericValueSchema,
+  change: NumericValueSchema.optional(),
+  changePercent: NumericValueSchema.optional(),
   provenance: SourceSchema,
-}).refine(({ value }) => value.unit === "index-points", { message: "Index values use index-points" });
+}).refine(({ value, change, changePercent }) =>
+  value.unit === "index-points" &&
+  (change === undefined || change.unit === "index-points") &&
+  (changePercent === undefined || changePercent.unit === "percent"),
+{ message: "Index values use index-points and optional changePercent uses percent" });
 export const MarketOverviewSchema = z.record(MarketIndexSchema, resultSchema(IndexQuoteSchema));
 export const ChartRangeSchema = z.enum(["1D", "1M", "1Y", "5Y"]);
 export const PriceHistorySchema = z.strictObject({
@@ -220,6 +253,7 @@ export interface ResearchDataPort extends MarketDataPort {
   statements(listing: ListingKey, frequency: "annual" | "quarterly"): Promise<Result<z.infer<typeof FinancialStatementSchema>[]>>;
   metrics(listing: ListingKey): Promise<Result<z.infer<typeof FinancialMetricsSchema>>>;
   news(listing: ListingKey): Promise<Result<z.infer<typeof NewsItemSchema>[]>>;
+  marketNews(): Promise<Result<z.infer<typeof NewsItemSchema>[]>>;
 }
 
 export const RetrievedEvidenceSchema = z.strictObject({
@@ -264,16 +298,33 @@ export const IngestionJobSchema = z.strictObject({
   kind: z.literal("ingestion"), jobId: IdSchema, sourceIds: z.array(IdSchema).min(1),
 });
 
+const followUpCardVariant = z.strictObject({
+  title: IdSchema,
+  question: IdSchema,
+  tag: IdSchema.optional(),
+  impact: IdSchema.optional(),
+  sector: IdSchema.optional(),
+});
 export const BriefFollowUpsSchema = z.strictObject({
   publicationId: IdSchema, publicationDate: ThaiDateSchema,
   cards: z.array(z.strictObject({
     cardId: IdSchema,
     variants: z.strictObject({
-      th: z.strictObject({ title: IdSchema, question: IdSchema }),
-      en: z.strictObject({ title: IdSchema, question: IdSchema }),
+      th: followUpCardVariant,
+      en: followUpCardVariant,
     }),
   })),
 });
+export type BriefImpactDirection = z.infer<typeof BriefImpactDirectionSchema>;
+export type BriefNewsItem = z.infer<typeof BriefNewsItemSchema>;
+export type BriefUpdateStatus = z.infer<typeof BriefUpdateStatusSchema>;
+export type DailyBrief = z.infer<typeof DailyBriefSchema>;
+export type StockSummary = z.infer<typeof StockSummarySchema>;
+export type MarketOverview = z.infer<typeof MarketOverviewSchema>;
+export type IndexQuote = z.infer<typeof IndexQuoteSchema>;
+export type NewsItem = z.infer<typeof NewsItemSchema>;
+export type PublicationJob = z.infer<typeof PublicationJobSchema>;
+export type BriefFollowUps = z.infer<typeof BriefFollowUpsSchema>;
 export interface PublicationReadPort {
   brief(requestedThaiDate: string): Promise<DailyBriefLookup>;
   archive(publicationDate: string): Promise<Result<z.infer<typeof DailyBriefSchema>>>;

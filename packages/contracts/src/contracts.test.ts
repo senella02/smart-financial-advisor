@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import * as fixtures from "./fixtures";
 import {
-  ChatRequestSchema, ChatResponseSchema, FinancialPeriodSchema, IngestionJobSchema,
-  MarketOverviewSchema, PriceHistorySchema, PublicationJobSchema, RetrievedEvidenceSchema,
+  BriefFollowUpsSchema, ChatRequestSchema, ChatResponseSchema, DailyBriefSchema,
+  FinancialPeriodSchema, IndexQuoteSchema, IngestionJobSchema, MarketOverviewSchema,
+  NewsItemSchema, PriceHistorySchema, PublicationJobSchema, RetrievedEvidenceSchema,
   DailyBriefLookupSchema, NumericValueSchema, SessionHistorySchema,
   StockIdentitySchema, StockSummaryLookupSchema, TimestampSchema,
 } from "./index";
@@ -118,5 +119,39 @@ describe("draft Phase 1 handoffs", () => {
       points: [{ sourceAsOf: "2000-01-02T10:00:00+07:00", price: fixtures.zeroValueFixture.data, volume: fixtures.zeroValueFixture.data }],
       provenance: fixtures.evidenceFixture.data.sources[0],
     }).success).toBe(false);
+  });
+
+  it("validates DailyBrief structured news, schedule metadata, follow-up cards, and broad market news", () => {
+    const lookup = DailyBriefLookupSchema.parse(fixtures.currentDayBriefLookupFixture.data);
+    expect(lookup.updateStatus).toBe("on-time");
+    expect(lookup.nextScheduledAt).toBe("2000-01-02T11:00:00+07:00");
+
+    const brief = DailyBriefSchema.parse(fixtures.dailyBriefFixture.data);
+    expect(brief.variants.th.newsItems).toHaveLength(1);
+    expect(brief.variants.en.newsItems).toHaveLength(1);
+    expect(DailyBriefSchema.safeParse({
+      ...brief,
+      variants: {
+        ...brief.variants,
+        en: {
+          ...brief.variants.en,
+          newsItems: [{ ...brief.variants.en.newsItems![0], importanceScore: 11 }],
+        },
+      },
+    }).success).toBe(false);
+
+    const followUps = BriefFollowUpsSchema.parse(fixtures.briefFollowUpsFixture.data);
+    expect(followUps.cards[0].variants.th.tag).toBeTruthy();
+
+    const broadNews = NewsItemSchema.array().parse(fixtures.broadMarketNewsFixture.data);
+    expect(broadNews[0].listings).toEqual([]);
+    expect(broadNews[1].listings).toHaveLength(1);
+
+    expect(IndexQuoteSchema.safeParse({
+      value: { status: "available", value: 1342.18, reason: null, unit: "index-points", currency: null },
+      change: { status: "available", value: -6.42, reason: null, unit: "index-points", currency: null },
+      changePercent: { status: "available", value: -0.48, reason: null, unit: "percent", currency: null },
+      provenance: fixtures.evidenceFixture.data.sources[0],
+    }).success).toBe(true);
   });
 });

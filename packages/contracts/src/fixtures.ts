@@ -68,16 +68,56 @@ export const errorFixture = {
   }),
 } as const;
 
-const variants = {
+const summaryVariants = {
   th: { language: "th", shortText: "ตัวอย่างโครงสร้างเท่านั้น", fullText: "ข้อมูลสาธิต ไม่มีบทวิเคราะห์หรือข่าวจริง" },
   en: { language: "en", shortText: "Structure example only", fullText: "Demo data; no real analysis or news" },
+};
+const briefVariants = {
+  th: {
+    language: "th",
+    shortText: "ตัวอย่างโครงสร้างเท่านั้น — ตลาดติดตามนโยบายดอกเบี้ยและราคาพลังงาน",
+    fullText: "ข้อมูลสาธิต ไม่มีบทวิเคราะห์หรือข่าวจริง — ครอบคลุมตลาดไทย สหรัฐฯ และเศรษฐกิจโลกจากแหล่งอ้างอิงเดียวกัน",
+    scannedCount: 48,
+    newsItems: [{
+      newsId: "FIXTURE_BRIEF_NEWS_1",
+      publishedTime: "06:15",
+      headline: "ตัวอย่างข่าวเศรษฐกิจมหภาค (ข้อมูลสาธิต)",
+      sourceName: "Fixture Source",
+      sourceId: "FIXTURE_SOURCE",
+      importanceScore: 9,
+      sourceCount: 1,
+      summary: "สรุปข่าวตัวอย่างสำหรับทดสอบโครงสร้างสัญญาข้อมูลเท่านั้น",
+      keyPoints: ["ประเด็นตัวอย่างที่ 1", "ประเด็นตัวอย่างที่ 2"],
+      impacts: [{ area: "ธนาคาร", direction: "mixed", label: "ผสม" }],
+      relatedSymbols: ["FIXTURE_TH_A", "FIXTURE_US_B"],
+    }],
+  },
+  en: {
+    language: "en",
+    shortText: "Structure example only — markets watch interest rates and energy prices",
+    fullText: "Demo data; no real analysis or news — covering Thai, US, and global markets from one evidence snapshot",
+    scannedCount: 48,
+    newsItems: [{
+      newsId: "FIXTURE_BRIEF_NEWS_1",
+      publishedTime: "06:15",
+      headline: "Sample macroeconomic headline (demo data)",
+      sourceName: "Fixture Source",
+      sourceId: "FIXTURE_SOURCE",
+      importanceScore: 9,
+      sourceCount: 1,
+      summary: "Sample news summary for contract structure testing only.",
+      keyPoints: ["Sample point 1", "Sample point 2"],
+      impacts: [{ area: "Banking", direction: "mixed", label: "Mixed" }],
+      relatedSymbols: ["FIXTURE_TH_A", "FIXTURE_US_B"],
+    }],
+  },
 };
 export const dailyBriefFixture = {
   fixture: true,
   data: DailyBriefSchema.parse({
     kind: "daily-brief", publicationId: "FIXTURE_BRIEF_2000_01_02",
     publicationDate: "2000-01-02", publishedAt: "2000-01-02T10:01:00+07:00",
-    evidence: evidenceFixture.data, variants,
+    evidence: evidenceFixture.data, variants: briefVariants,
   }),
 } as const;
 export const currentDayBriefLookupFixture = {
@@ -86,6 +126,9 @@ export const currentDayBriefLookupFixture = {
     requestedThaiDate: "2000-01-02",
     display: { status: "available", data: dailyBriefFixture.data },
     todayContext: { status: "available", data: dailyBriefFixture.data },
+    updateStatus: "on-time",
+    nextScheduledAt: "2000-01-02T11:00:00+07:00",
+    lastAttemptedAt: "2000-01-02T10:01:00+07:00",
   }),
 } as const;
 export const previousDayBriefLookupFixture = {
@@ -94,6 +137,9 @@ export const previousDayBriefLookupFixture = {
     requestedThaiDate: "2000-01-03",
     display: { status: "available", data: dailyBriefFixture.data },
     todayContext: { status: "unavailable", reason: "TODAY_NOT_PUBLISHED" },
+    updateStatus: "not-published",
+    nextScheduledAt: "2000-01-03T01:00:00+07:00",
+    lastAttemptedAt: null,
   }),
 } as const;
 export const stockSummaryFixture = {
@@ -101,7 +147,7 @@ export const stockSummaryFixture = {
   data: StockSummarySchema.parse({
     kind: "stock-summary", publicationId: "FIXTURE_SUMMARY_2000_01_02",
     publicationDate: "2000-01-02", publishedAt: "2000-01-02T10:01:00+07:00",
-    evidence: evidenceFixture.data, listing: stockIdentityFixture.data.listing, variants,
+    evidence: evidenceFixture.data, listing: stockIdentityFixture.data.listing, variants: summaryVariants,
   }),
 } as const;
 export const dailyStockSummaryLookupFixture = {
@@ -168,6 +214,20 @@ export const newsFixture = {
     listings: [stockIdentityFixture.data.listing],
   }),
 } as const;
+export const broadMarketNewsFixture = {
+  fixture: true,
+  data: NewsItemSchema.array().parse([
+    {
+      newsId: "FIXTURE_MACRO_NEWS_1",
+      headline: "Sample global central-bank policy watch (demo data)",
+      language: "en",
+      publishedAt: "2000-01-02T06:15:00+07:00",
+      source: evidenceFixture.data.sources[0],
+      listings: [],
+    },
+    newsFixture.data,
+  ]),
+} as const;
 export const retrievedEvidenceFixture = {
   fixture: true,
   data: RetrievedEvidenceSchema.parse({
@@ -233,8 +293,20 @@ export const briefFollowUpsFixture = {
     cards: [{
       cardId: "FIXTURE_CARD",
       variants: {
-        th: { title: "ข้อมูลสาธิต", question: "ข้อมูลสาธิตนี้มีอะไรบ้าง?" },
-        en: { title: "Demo content", question: "What does this demo contain?" },
+        th: {
+          title: "ข้อมูลสาธิต",
+          question: "ข้อมูลสาธิตนี้มีอะไรบ้าง?",
+          tag: "ข่าวสาธิต · 06:15",
+          impact: "ตัวอย่างผลกระทบต่อตลาดและกลุ่มอุตสาหกรรม",
+          sector: "ภาพรวมตลาด",
+        },
+        en: {
+          title: "Demo content",
+          question: "What does this demo contain?",
+          tag: "Demo news · 06:15",
+          impact: "Sample market and sector impact note",
+          sector: "Market Overview",
+        },
       },
     }],
   }),
