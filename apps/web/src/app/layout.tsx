@@ -1,34 +1,38 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Sarabun } from "next/font/google";
 import type { ReactNode } from "react";
-import { buttonVariants } from "@/components/ui/button";
 import { getMessages } from "../messages/index";
 import "./globals.css";
+import { NavHeader } from "./nav-header";
+
+const sarabun = Sarabun({
+  subsets: ["thai", "latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sarabun",
+  display: "swap",
+});
 
 export async function generateMetadata(): Promise<Metadata> {
   const { messages } = await getMessages();
+  const isFixtures = process.env.SFA_USE_FIXTURES === "1";
   return {
-    title: `${messages.appName} — Demo`,
-    description: messages.demo,
+    title: isFixtures ? `${messages.appName} — Demo` : messages.appName,
+    description: isFixtures ? messages.demo : messages.homeHeading,
   };
 }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const { language, messages } = await getMessages();
+  const isFixtures = process.env.SFA_USE_FIXTURES === "1";
   return (
-    <html lang={language}>
+    <html lang={language} className={sarabun.variable}>
       <body>
         <a className="skip-link" href="#main">{messages.skip}</a>
-        <header>
-          <p className="brand">{messages.appName}</p>
-          <nav aria-label={messages.navigation}>
-            <Link className={buttonVariants({ variant: "ghost" })} href="/">{messages.home}</Link>
-            <Link className={buttonVariants({ variant: "ghost" })} href="/stocks/TH/FIXTURE_TH_A">{messages.stock}</Link>
-            <Link className={buttonVariants({ variant: "ghost" })} href="/chat">{messages.chat}</Link>
-          </nav>
-        </header>
+        <NavHeader messages={messages} />
         <main id="main" tabIndex={-1}>
-          <p className="demo-label" data-testid="demo-label">{messages.demo}</p>
+          {isFixtures && (
+            <p className="demo-label" data-testid="demo-label">{messages.demo}</p>
+          )}
           {children}
         </main>
         <footer>{messages.footer}</footer>
