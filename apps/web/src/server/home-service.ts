@@ -2,30 +2,34 @@ import type {
   BriefFollowUps,
   DailyBrief,
   DailyBriefLookup,
-  MarketIndexSchema,
   MarketOverview,
   NewsItem,
   Result,
 } from "@sfa/contracts";
-import type { z } from "zod";
+import {
+  fetchLiveMarketNews,
+  fetchLiveMarketOverview,
+  isFixtureMode,
+} from "./adapters/live-market-data";
 import { generateBilingualDailyBrief } from "./brief-generator";
 import {
   SqlitePublicationStore,
   computeNextHourlyScheduledIso,
   formatBangkokTimestamp,
   formatThaiDate,
+  resolveDefaultPublicationDbPath,
 } from "./publication-store";
 
-export type MarketIndexKey = z.infer<typeof MarketIndexSchema>;
+export type MarketIndexKey = keyof MarketOverview;
 
 export interface HomeMarketOverviewResponse {
-  fixture: true;
+  fixture: boolean;
   fetchedAt: string;
   indices: MarketOverview;
 }
 
 export interface HomeBriefPayload {
-  fixture: true;
+  fixture: boolean;
   requestedThaiDate: string;
   currentThaiDate: string;
   isArchive: boolean;
@@ -227,6 +231,85 @@ export function buildHomeMarketOverview(input?: {
   };
 }
 
+/**
+ * Returns live 5-index Home overview in dev/production, or fixture data when
+ * SFA_USE_FIXTURES=1 or inside automated unit tests.
+ */
+export async function getLiveOrFixtureMarketOverview(
+  now = new Date(),
+): Promise<HomeMarketOverviewResponse> {
+  if (isFixtureMode()) {
+    return buildHomeMarketOverview({ now });
+  }
+  return fetchLiveMarketOverview(now);
+}
+
+function hasLiveEvidenceSources(brief: DailyBrief): boolean {
+  return brief.evidence.sources.some((src) => !src.url.includes("example.invalid"));
+}
+
+/**
+ * Opens the shared SQLite publication store (defaulting to `<workspace>/.data/publications.sqlite`).
+ * In live mode, if today has no real-news publication yet, fetches live market news and publishes
+ * today's initial Daily Brief immediately on cold start so `pnpm dev` shows live news.
+ */
+export async function ensureLivePublicationStore(
+  dbPath?: string,
+  now = new Date(),
+): Promise<SqlitePublicationStore> {
+  if (isFixtureMode()) {
+    return createSeededPublicationStore(now, dbPath || ":memory:");
+  }
+
+  const resolvedPath = dbPath || resolveDefaultPublicationDbPath();
+  const store = new SqlitePublicationStore(resolvedPath);
+  const currentThaiDate = formatThaiDate(now);
+  const existing = await store.brief(currentThaiDate);
+
+  if (existing.todayContext.status === "available" && hasLiveEvidenceSources(existing.todayContext.data)) {
+    return store;
+  }
+
+  try {
+    const newsResult = await fetchLiveMarketNews(now);
+    if (newsResult.status === "available" && newsResult.data.length > 0) {
+      const timestamp = formatBangkokTimestamp(now);
+      const { brief, followUps } = await generateBilingualDailyBrief({
+        publicationDate: currentThaiDate,
+        publishedAt: timestamp,
+        evidenceCutoff: timestamp,
+        newsItems: newsResult.data,
+        geminiApiKey: process.env.GEMINI_API_KEY,
+      });
+      store.publishDailyBriefAtomically({
+        brief,
+        followUps,
+        nextScheduledAt: computeNextHourlyScheduledIso(now),
+      });
+    } else {
+      const reason =
+        newsResult.status === "unavailable"
+          ? newsResult.reason
+          : newsResult.status === "error"
+            ? `${newsResult.code}: ${newsResult.message}`
+            : "EMPTY_LIVE_NEWS";
+      store.recordFailedUpdate({
+        attemptedAt: formatBangkokTimestamp(now),
+        nextScheduledAt: computeNextHourlyScheduledIso(now),
+        errorMessage: reason,
+      });
+    }
+  } catch (error) {
+    store.recordFailedUpdate({
+      attemptedAt: formatBangkokTimestamp(now),
+      nextScheduledAt: computeNextHourlyScheduledIso(now),
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  return store;
+}
+
 /** Seeds a SqlitePublicationStore with today + 2 archive dates for immediate Phase 1 demo browsing. */
 export async function createSeededPublicationStore(now = new Date(), dbPath = ":memory:"): Promise<SqlitePublicationStore> {
   const store = new SqlitePublicationStore(dbPath);
@@ -289,7 +372,10 @@ export async function getHomeBriefPayloadFromStore(
   if (isArchive) {
     const archiveResult = await store.archive(targetDate);
     return {
-      fixture: true,
+      fixture:
+        archiveResult.status === "available"
+          ? !hasLiveEvidenceSources(archiveResult.data)
+          : isFixtureMode(),
       requestedThaiDate: targetDate,
       currentThaiDate,
       isArchive: true,
@@ -312,7 +398,10 @@ export async function getHomeBriefPayloadFromStore(
   }
 
   return {
-    fixture: true,
+    fixture:
+      lookup.display.status === "available"
+        ? !hasLiveEvidenceSources(lookup.display.data)
+        : isFixtureMode(),
     requestedThaiDate: currentThaiDate,
     currentThaiDate,
     isArchive: false,

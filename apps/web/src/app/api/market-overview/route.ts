@@ -4,5 +4,5 @@ import { getHomeMarketOverview } from "../../../server/home";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  return NextResponse.json(getHomeMarketOverview());
+  return NextResponse.json(await getHomeMarketOverview());
 }

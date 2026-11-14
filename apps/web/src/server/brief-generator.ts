@@ -5,11 +5,9 @@ import type {
   DailyBrief,
   EvidenceSnapshot,
   NewsItem,
-  SourceSchema,
 } from "@sfa/contracts";
-import type { z } from "zod";
 
-type Source = z.infer<typeof SourceSchema>;
+type Source = EvidenceSnapshot["sources"][number];
 
 export interface ScoredNewsCandidate {
   item: NewsItem;
@@ -22,10 +20,10 @@ const HIGH_IMPORTANCE_KEYWORDS: Array<{
   boost: number;
   category: ScoredNewsCandidate["category"];
 }> = [
-  { pattern: /\b(fed|fomc|powell|rate|treasury|yield|cpi|inflation|gdp)\b|ดอกเบี้ย|กนง\.|เงินเฟ้อ|เฟด/i, boost: 4, category: "central-bank" },
-  { pattern: /\b(opec|brent|oil|energy|tariff|trade)\b|น้ำมัน|พลังงาน|บาท|ค่าเงิน/i, boost: 3, category: "macro-energy" },
-  { pattern: /\b(set|set50|bot|thailand|thai)\b|ไทย|ตลาดหลักทรัพย์|ท่องเที่ยว/i, boost: 2, category: "thai-market" },
-  { pattern: /\b(earnings|profit|revenue|nasdaq|s&p|dow|guidance)\b|กำไร|งบ|ผลประกอบการ/i, boost: 2, category: "us-earnings" },
+  { pattern: /\b(fed|fomc|powell|rate|treasury|yield|cpi|inflation|gdp)\b|ดอกเบี้ย|กนง\.|ธปท\.|เงินเฟ้อ|เฟด|บอนด์/i, boost: 4, category: "central-bank" },
+  { pattern: /\b(opec|brent|oil|energy|tariff|trade)\b|น้ำมัน|พลังงาน|บาท|ค่าเงิน|ส่งออก/i, boost: 3, category: "macro-energy" },
+  { pattern: /\b(set|set50|bot|thailand|thai)\b|ไทย|ตลาดหุ้น|ตลาดหลักทรัพย์|ดัชนี|ท่องเที่ยว/i, boost: 2, category: "thai-market" },
+  { pattern: /\b(earnings|profit|revenue|nasdaq|s&p|dow|guidance)\b|กำไร|งบ|ผลประกอบการ|หุ้นสหรัฐ/i, boost: 2, category: "us-earnings" },
 ];
 
 /** Scores market news importance (1-10) using macro, central-bank, FX, energy, and earnings signals. */
@@ -63,7 +61,16 @@ function formatBangkokHhMm(timestamp: string): string {
   return `${String(d.getUTCHours()).padStart(2, "0")}:${String(d.getUTCMinutes()).padStart(2, "0")}`;
 }
 
-function getSourceHostLabel(url: string): string {
+function getSourceHostLabel(url: string, sourceId?: string): string {
+  if (sourceId?.startsWith("SRC_PUB_") && sourceId.includes("::")) {
+    try {
+      const encoded = sourceId.slice("SRC_PUB_".length, sourceId.lastIndexOf("::"));
+      const decoded = decodeURIComponent(encoded).trim();
+      if (decoded) return decoded;
+    } catch {
+      // Fallback to URL hostname below if sourceId cannot be decoded.
+    }
+  }
   try {
     const parsed = new URL(url);
     return parsed.hostname.replace(/^www\./, "");
@@ -85,6 +92,7 @@ function inferLocalizedSummary(candidate: ScoredNewsCandidate, language: "th" | 
 } {
   const { item, category } = candidate;
   const time = formatBangkokHhMm(item.publishedAt);
+  const publisherLabel = getSourceHostLabel(item.source.url, item.source.sourceId);
   const symbols = item.listings.map((l) => l.symbol);
   const symbolLabel = symbols.length > 0 ? symbols.join(", ") : language === "th" ? "ภาพรวมตลาด" : "Broad Market";
 
@@ -94,7 +102,7 @@ function inferLocalizedSummary(candidate: ScoredNewsCandidate, language: "th" | 
           headline: item.language === "th" ? item.headline : `[สรุปข่าวต่างประเทศ] ${item.headline}`,
           summary: `ความเคลื่อนไหวนโยบายการเงินและอัตราผลตอบแทนพันธบัตรจาก "${item.headline}" ส่งผลต่อทิศทางกระแสเงินทุนและกลุ่มธนาคาร/เทคโนโลยี`,
           keyPoints: [
-            `เผยแพร่เวลา ${time} น. จากแหล่งอ้างอิง ${getSourceHostLabel(item.source.url)}`,
+            `เผยแพร่เวลา ${time} น. จากแหล่งอ้างอิง ${publisherLabel}`,
             "ตลาดจับตาสัญญาณดอกเบี้ยนโยบายและอัตราผลตอบแทนพันธบัตรรัฐบาล",
             `หลักทรัพย์ที่เกี่ยวข้องโดยตรง: ${symbolLabel}`,
           ],
@@ -112,7 +120,7 @@ function inferLocalizedSummary(candidate: ScoredNewsCandidate, language: "th" | 
           headline: item.headline,
           summary: `Monetary policy and bond yield developments from "${item.headline}" influence cross-market capital flows and rate-sensitive sectors.`,
           keyPoints: [
-            `Published at ${time} (+07:00) via ${getSourceHostLabel(item.source.url)}`,
+            `Published at ${time} (+07:00) via ${publisherLabel}`,
             "Investors are monitoring central-bank rate signals and sovereign bond yields",
             `Referenced symbols: ${symbolLabel}`,
           ],
@@ -134,7 +142,7 @@ function inferLocalizedSummary(candidate: ScoredNewsCandidate, language: "th" | 
           headline: item.language === "th" ? item.headline : `[พลังงาน/มหภาค] ${item.headline}`,
           summary: `ปัจจัยด้านราคาพลังงาน ค่าเงิน หรือการค้าระหว่างประเทศใน "${item.headline}" กระทบต้นทุนและกลุ่มพลังงาน/ขนส่งโดยตรง`,
           keyPoints: [
-            `เผยแพร่เวลา ${time} น. จาก ${getSourceHostLabel(item.source.url)}`,
+            `เผยแพร่เวลา ${time} น. จาก ${publisherLabel}`,
             "ความผันผวนของราคาพลังงานและอัตราแลกเปลี่ยนมีผลต่อเงินเฟ้อและกำไรกลุ่มพลังงาน",
             `หลักทรัพย์ที่เกี่ยวข้อง: ${symbolLabel}`,
           ],
@@ -152,7 +160,7 @@ function inferLocalizedSummary(candidate: ScoredNewsCandidate, language: "th" | 
           headline: item.headline,
           summary: `Energy, FX, and trade shifts highlighted in "${item.headline}" carry direct cost and margin implications across energy and transport.`,
           keyPoints: [
-            `Published at ${time} (+07:00) via ${getSourceHostLabel(item.source.url)}`,
+            `Published at ${time} (+07:00) via ${publisherLabel}`,
             "Energy price and FX swings affect inflation expectations and sector margins",
             `Referenced symbols: ${symbolLabel}`,
           ],
@@ -173,7 +181,7 @@ function inferLocalizedSummary(candidate: ScoredNewsCandidate, language: "th" | 
         headline: item.language === "th" ? item.headline : `[ตลาดหุ้น] ${item.headline}`,
         summary: `อัปเดตสำคัญของตลาดและบริษัทจดทะเบียน: "${item.headline}" สำหรับใช้ติดตามปัจจัยพื้นฐานและบรรยากาศการลงทุนวันนี้`,
         keyPoints: [
-          `เผยแพร่เวลา ${time} น. จาก ${getSourceHostLabel(item.source.url)}`,
+          `เผยแพร่เวลา ${time} น. จาก ${publisherLabel}`,
           `คะแนนความสำคัญจาก AI: ${candidate.importanceScore}/10`,
           `หลักทรัพย์ที่เกี่ยวข้อง: ${symbolLabel}`,
         ],
@@ -190,7 +198,7 @@ function inferLocalizedSummary(candidate: ScoredNewsCandidate, language: "th" | 
         headline: item.headline,
         summary: `Key market and corporate update: "${item.headline}" shaping today's market sentiment and fundamental watchpoints.`,
         keyPoints: [
-          `Published at ${time} (+07:00) via ${getSourceHostLabel(item.source.url)}`,
+          `Published at ${time} (+07:00) via ${publisherLabel}`,
           `AI importance score: ${candidate.importanceScore}/10`,
           `Referenced symbols: ${symbolLabel}`,
         ],
@@ -290,8 +298,20 @@ export async function generateBilingualDailyBrief(input: {
     throw new Error("Cannot generate Daily Brief without any market news items");
   }
 
+  const limit = input.maxStories ?? 5;
   const scored = scoreNewsImportance(input.newsItems);
-  const selected = scored.slice(0, input.maxStories ?? 5);
+  const selected = scored.slice(0, limit);
+
+  // Ensure bilingual balance (at least one Thai story if present) so Thai market news is never crowded out.
+  if (selected.length === limit) {
+    const firstThai = scored.find((c) => c.item.language === "th");
+    const firstEn = scored.find((c) => c.item.language === "en");
+    if (firstThai && !selected.some((c) => c.item.language === "th")) {
+      selected[selected.length - 1] = firstThai;
+    } else if (firstEn && !selected.some((c) => c.item.language === "en")) {
+      selected[selected.length - 1] = firstEn;
+    }
+  }
 
   const uniqueSources: Source[] = [];
   const seenSourceIds = new Set<string>();
@@ -321,7 +341,7 @@ export async function generateBilingualDailyBrief(input: {
     const thInfo = inferLocalizedSummary(candidate, "th");
     const enInfo = inferLocalizedSummary(candidate, "en");
     const publishedTime = formatBangkokHhMm(candidate.item.publishedAt);
-    const sourceName = getSourceHostLabel(candidate.item.source.url);
+    const sourceName = getSourceHostLabel(candidate.item.source.url, candidate.item.source.sourceId);
     const relatedSymbols = candidate.item.listings.map((l) => l.symbol);
 
     thNewsItems.push({

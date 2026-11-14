@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import type {
   BriefFollowUps,
@@ -9,6 +11,23 @@ import type {
   Result,
   StockSummaryLookup,
 } from "@sfa/contracts";
+
+/**
+ * Resolves the shared persistent SQLite file path under `<workspace-root>/.data/publications.sqlite`
+ * so `apps/web` and `apps/worker` read and write the same publication store regardless of CWD.
+ */
+export function resolveDefaultPublicationDbPath(): string {
+  let cursor = path.resolve(/*turbopackIgnore: true*/ process.cwd());
+  for (let depth = 0; depth < 6; depth += 1) {
+    if (fs.existsSync(path.join(/*turbopackIgnore: true*/ cursor, "pnpm-workspace.yaml"))) {
+      return path.join(/*turbopackIgnore: true*/ cursor, ".data", "publications.sqlite");
+    }
+    const parent = path.dirname(cursor);
+    if (parent === cursor) break;
+    cursor = parent;
+  }
+  return path.join(/*turbopackIgnore: true*/ process.cwd(), ".data", "publications.sqlite");
+}
 
 const BANGKOK_OFFSET_MS = 7 * 60 * 60 * 1000;
 const THAI_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -117,6 +136,9 @@ export class SqlitePublicationStore implements PublicationReadPort {
   private readonly db: DatabaseSync;
 
   constructor(dbPath = ":memory:") {
+    if (dbPath !== ":memory:") {
+      fs.mkdirSync(path.dirname(path.resolve(/*turbopackIgnore: true*/ dbPath)), { recursive: true });
+    }
     this.db = new DatabaseSync(dbPath);
     this.db.exec(`
       PRAGMA journal_mode = WAL;

@@ -1,5 +1,6 @@
 import { pathToFileURL } from "node:url";
 import type { BriefFollowUps, DailyBrief, NewsItem, Result } from "@sfa/contracts";
+import { fetchLiveMarketNews, isFixtureMode } from "../../web/src/server/adapters/live-market-data";
 import { generateBilingualDailyBrief } from "../../web/src/server/brief-generator";
 import {
   SqlitePublicationStore,
@@ -7,6 +8,7 @@ import {
   formatBangkokTimestamp,
   formatThaiDate,
   formatThaiHourSlot,
+  resolveDefaultPublicationDbPath,
 } from "../../web/src/server/publication-store";
 
 export interface HourlyJobInput {
@@ -149,7 +151,7 @@ function buildDefaultFixtureNews(requestedThaiDate: string): NewsItem[] {
 
 async function runCli(): Promise<void> {
   const once = process.argv.includes("--once");
-  const dbPath = process.env.SFA_PUBLICATION_DB_PATH || ".data/publications.sqlite";
+  const dbPath = process.env.SFA_PUBLICATION_DB_PATH || resolveDefaultPublicationDbPath();
   const store = new SqlitePublicationStore(dbPath);
   const geminiApiKey = process.env.GEMINI_API_KEY;
 
@@ -158,10 +160,15 @@ async function runCli(): Promise<void> {
       store,
       now: new Date(),
       geminiApiKey,
-      fetchMarketNews: async (date) => ({
-        status: "available",
-        data: buildDefaultFixtureNews(date),
-      }),
+      fetchMarketNews: async (date) => {
+        if (isFixtureMode()) {
+          return {
+            status: "available",
+            data: buildDefaultFixtureNews(date),
+          };
+        }
+        return fetchLiveMarketNews(new Date());
+      },
     });
     console.log(JSON.stringify({ worker: "daily-brief", ...outcome }));
   };

@@ -1,5 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { broadMarketNewsFixture } from "@sfa/contracts/fixtures";
+import {
+  fetchLiveMarketNews,
+  fetchLiveMarketOverview,
+  isFixtureMode,
+} from "./adapters/live-market-data";
 import { generateBilingualDailyBrief, scoreNewsImportance } from "./brief-generator";
 import {
   buildHomeMarketOverview,
@@ -205,6 +210,92 @@ describe("Daily Brief bilingual generation, rollover, scheduling, and failure pr
       }
     } finally {
       store.close();
+    }
+  });
+});
+
+describe("Live market data adapter parsing", () => {
+  it("stays in fixture mode under Vitest and parses mocked Yahoo/Google index & RSS news responses", async () => {
+    expect(isFixtureMode()).toBe(true);
+
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
+      const url = typeof input === "string" ? input : input.toString();
+
+      // Simulate Yahoo working for SET, DJI, GSPC, IXIC; failing for SET50 so Google Finance fallback runs.
+      if (url.includes("query1.finance.yahoo.com") && url.includes("%5ESET50.BK")) {
+        return new Response("Not Found", { status: 404 });
+      }
+      if (url.includes("google.com/finance/quote/SET50%3AINDEXBKK")) {
+        return new Response(
+          `<div data-last-price="941.25" data-last-normal-market-timestamp="1763110200"></div><div>Previous close</div><div>935.00</div>`,
+          { status: 200 },
+        );
+      }
+      if (url.includes("query1.finance.yahoo.com")) {
+        const price = url.includes("%5ESET.BK")
+          ? 1455.5
+          : url.includes("%5EDJI")
+            ? 43500.2
+            : url.includes("%5EGSPC")
+              ? 5950.1
+              : 19310.4;
+        return Response.json({
+          chart: {
+            result: [
+              {
+                meta: {
+                  regularMarketPrice: price,
+                  previousClose: price - 10,
+                  regularMarketTime: 1763110200,
+                },
+              },
+            ],
+          },
+        });
+      }
+      if (url.includes("news.google.com/rss") && url.includes("hl=th")) {
+        return new Response(
+          `<rss><channel><item><title>หุ้นไทยฟื้นตัวรับแรงซื้อต่างชาติ - กรุงเทพธุรกิจ</title><link>https://news.google.com/rss/articles/th1</link><pubDate>Sat, 14 Nov 2026 09:00:00 GMT</pubDate><source url="https://www.bangkokbiznews.com">กรุงเทพธุรกิจ</source></item></channel></rss>`,
+          { status: 200 },
+        );
+      }
+      if (url.includes("news.google.com/rss") && url.includes("hl=en-US")) {
+        return new Response(
+          `<rss><channel><item><title>Fed rate expectations shift after inflation report - Reuters</title><link>https://news.google.com/rss/articles/us1</link><pubDate>Sat, 14 Nov 2026 08:30:00 GMT</pubDate><source url="https://www.reuters.com">Reuters</source></item></channel></rss>`,
+          { status: 200 },
+        );
+      }
+      return new Response("<rss><channel></channel></rss>", { status: 200 });
+    });
+
+    try {
+      const overview = await fetchLiveMarketOverview(new Date("2026-11-14T19:00:00+07:00"), {
+        bypassCache: true,
+      });
+      expect(overview.fixture).toBe(false);
+      expect(overview.indices.SET.status).toBe("available");
+      expect(overview.indices.SET50.status).toBe("available");
+      if (overview.indices.SET50.status === "available") {
+        expect(overview.indices.SET50.data.value.status).toBe("available");
+        expect(overview.indices.SET50.data.provenance.sourceId).toBe("GFIN_SET50");
+      }
+
+      const news = await fetchLiveMarketNews(new Date("2026-11-14T19:00:00+07:00"));
+      expect(news.status).toBe("available");
+      if (news.status === "available") {
+        expect(news.data.length).toBe(2);
+        const generated = await generateBilingualDailyBrief({
+          publicationDate: "2026-11-14",
+          publishedAt: "2026-11-14T19:00:00+07:00",
+          evidenceCutoff: "2026-11-14T19:00:00+07:00",
+          newsItems: news.data,
+        });
+        expect(generated.brief.variants.th.newsItems?.map((i) => i.sourceName)).toEqual(
+          expect.arrayContaining(["กรุงเทพธุรกิจ", "Reuters"]),
+        );
+      }
+    } finally {
+      fetchSpy.mockRestore();
     }
   });
 });

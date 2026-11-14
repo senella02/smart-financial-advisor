@@ -1,8 +1,8 @@
 import "server-only";
 import {
-  buildHomeMarketOverview,
-  createSeededPublicationStore,
+  ensureLivePublicationStore,
   getHomeBriefPayloadFromStore,
+  getLiveOrFixtureMarketOverview,
   resolveChatHandoffFromStore,
 } from "./home-service";
 import { formatThaiDate, type SqlitePublicationStore } from "./publication-store";
@@ -11,14 +11,17 @@ let cachedStorePromise: Promise<SqlitePublicationStore> | null = null;
 
 export async function getSharedPublicationStore(): Promise<SqlitePublicationStore> {
   if (!cachedStorePromise) {
-    const dbPath = process.env.SFA_PUBLICATION_DB_PATH || ":memory:";
-    cachedStorePromise = createSeededPublicationStore(new Date(), dbPath);
+    const dbPath = process.env.SFA_PUBLICATION_DB_PATH || undefined;
+    cachedStorePromise = ensureLivePublicationStore(dbPath).catch((error) => {
+      cachedStorePromise = null;
+      throw error;
+    });
   }
   return cachedStorePromise;
 }
 
-export function getHomeMarketOverview() {
-  return buildHomeMarketOverview({ now: new Date() });
+export async function getHomeMarketOverview() {
+  return getLiveOrFixtureMarketOverview(new Date());
 }
 
 export async function getHomeBriefPayload(requestedDate?: string) {
