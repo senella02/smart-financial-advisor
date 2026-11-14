@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getMessages } from "../../../../messages/index";
 import { getDemoStock, liveMarketData } from "../../../../server/research";
+import { LiveStockHeader } from "@/components/live-stock-header";
 
 export default async function StockPage({ params }: {
   params: Promise<{ market: string; symbol: string }>;
@@ -30,38 +31,17 @@ export default async function StockPage({ params }: {
 
   return (
     <div className="space-y-6">
-      {/* 1. Header Identity & Quick Quote Strip */}
-      <div className="rounded-xl border border-border bg-card p-6 shadow-xs">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="rounded bg-primary/10 px-2 py-0.5 font-mono text-xs font-bold text-primary">
-                {stock.data.listing.market} : {stock.data.listing.symbol}
-              </span>
-              <span className="text-xs text-muted-foreground">{exchangeLabel}</span>
-            </div>
-            <h1 className="mt-1 text-2xl font-bold text-foreground">
-              {stock.data.company.name}
-            </h1>
-            <p className="text-xs text-muted-foreground">
-              รหัสบริษัท: {stock.data.company.companyId}
-            </p>
-          </div>
-
-          <div className="text-right">
-            <div className="text-3xl font-extrabold text-foreground">
-              {displayPrice} <span className="text-sm font-normal text-muted-foreground">{currency}</span>
-            </div>
-            <div className="mt-1 flex items-center justify-end gap-1.5 text-xs font-semibold text-emerald-700">
-              <span>●</span>
-              <span>ราคาตลาดจริง</span>
-            </div>
-            <div className="mt-2 text-[11px] text-muted-foreground">
-              ข้อมูล ณ {displayAsOf} • <button className="text-primary hover:underline font-medium">↻ ตรวจสอบล่าสุด</button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* 1. Header Identity & Quick Quote Strip (Auto-updating) */}
+      <LiveStockHeader
+        market={stock.data.listing.market as "TH" | "US"}
+        symbol={stock.data.listing.symbol}
+        exchangeLabel={exchangeLabel}
+        companyName={stock.data.company.name}
+        companyId={stock.data.company.companyId}
+        initialPrice={displayPrice}
+        initialAsOf={displayAsOf}
+        currency={currency}
+      />
 
       {/* 2. Main Content Grid: Research (Left 2 cols) & Stock Chat (Right 1 col) */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
