@@ -25,5 +25,13 @@
   "footer": "Structure prototype only; no trade execution",
   "notFound": "Demo page not found",
   "notFoundBody": "Choose the sample stock from the main navigation",
-  "language": "Language"
+  "language": "Language",
+  "searchTitle": "Search Stocks",
+  "searchPlaceholder": "Search company name or symbol, e.g. PTT, AAPL",
+  "searchButton": "Search",
+  "searchLoading": "Searching...",
+  "searchNoResults": "No matching stocks found",
+  "searchError": "Unable to search stocks. Please try again.",
+  "searchAmbiguous": "Multiple matches found. Select the company and market you want.",
+  "searchResultCount": "Search results"
 }
