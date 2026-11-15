@@ -1,6 +1,7 @@
 import { StockQuote } from "@/components/stock-quote";
 import { StockPriceChart } from "@/components/stock-price-chart";
 import { StockNews } from "@/components/stock-news";
+import { StockFinancial } from "@/components/stock-financial";
 import { notFound } from "next/navigation";
 import { getMessages } from "../../../../messages/index";
 import { getDemoStock } from "../../../../server/research";
@@ -104,9 +105,7 @@ export default async function StockPage({
             <h2 id="financial-heading">
               ข้อมูลทางการเงิน
             </h2>
-            <p className="mt-3 text-sm text-muted-foreground">
-              ยังไม่มีข้อมูล — รอเชื่อมต่อ Financial Statements
-            </p>
+            <StockFinancial market={listing.market} symbol={listing.symbol} />
           </section>
 
           <section
