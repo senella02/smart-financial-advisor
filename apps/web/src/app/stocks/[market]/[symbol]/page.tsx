@@ -1,5 +1,6 @@
-
 import { StockQuote } from "@/components/stock-quote";
+import { StockPriceChart } from "@/components/stock-price-chart";
+import { StockNews } from "@/components/stock-news";
 import { notFound } from "next/navigation";
 import { getMessages } from "../../../../messages/index";
 import { getDemoStock } from "../../../../server/research";
@@ -75,9 +76,7 @@ export default async function StockPage({
             className="stock-panel p-5 sm:p-6"
           >
             <h2 id="chart-heading">กราฟราคาหุ้น</h2>
-            <p className="mt-3 text-sm text-muted-foreground">
-              ยังไม่มีข้อมูลกราฟ — รอเชื่อมต่อ Price History
-            </p>
+            <StockPriceChart market={listing.market} symbol={listing.symbol} />
           </section>
 
           <section
@@ -115,9 +114,7 @@ export default async function StockPage({
             className="stock-panel p-5 sm:p-6"
           >
             <h2 id="news-heading">ข่าวที่เกี่ยวข้อง</h2>
-            <p className="mt-3 text-sm text-muted-foreground">
-              ยังไม่มีข้อมูล — รอเชื่อมต่อ Stock News
-            </p>
+            <StockNews market={listing.market} symbol={listing.symbol} />
           </section>
         </div>
 
