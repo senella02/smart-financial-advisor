@@ -1,4 +1,4 @@
-# ADR 0003 SQLite Publication Store, Hourly Background Worker, and Provider-Neutral Brief Generation
+# ADR 0004 SQLite Publication Store, Hourly Background Worker, and Provider-Neutral Brief Generation
 
 Status: Accepted
 

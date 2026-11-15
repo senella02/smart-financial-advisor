@@ -247,7 +247,27 @@ export const NewsItemSchema = z.strictObject({
   publishedAt: TimestampSchema, source: SourceSchema,
   listings: z.array(ListingSchema),
 });
+export const StockSearchResultSchema = z.strictObject({
+  query: z.string().min(1),
+  matches: z.array(z.strictObject({
+    listing: ListingSchema,
+    name: IdSchema,
+    instrumentType: z.string(),
+    exchangeDisplay: z.string().optional(),
+  })),
+  isAmbiguous: z.boolean(),
+});
+
+export const ProviderStatusSchema = z.enum([
+  "AVAILABLE",
+  "PROVIDER_RESTRICTED",
+  "RATE_LIMITED",
+  "NOT_FOUND",
+  "MARKET_CLOSED",
+]);
+
 export interface ResearchDataPort extends MarketDataPort {
+  search(query: string): Promise<Result<z.infer<typeof StockSearchResultSchema>>>;
   indices(): Promise<Result<z.infer<typeof MarketOverviewSchema>>>;
   priceHistory(listing: ListingKey, range: z.infer<typeof ChartRangeSchema>): Promise<Result<z.infer<typeof PriceHistorySchema>>>;
   statements(listing: ListingKey, frequency: "annual" | "quarterly"): Promise<Result<z.infer<typeof FinancialStatementSchema>[]>>;
@@ -323,6 +343,7 @@ export type StockSummary = z.infer<typeof StockSummarySchema>;
 export type MarketOverview = z.infer<typeof MarketOverviewSchema>;
 export type IndexQuote = z.infer<typeof IndexQuoteSchema>;
 export type NewsItem = z.infer<typeof NewsItemSchema>;
+export type StockSearchResult = z.infer<typeof StockSearchResultSchema>;
 export type PublicationJob = z.infer<typeof PublicationJobSchema>;
 export type BriefFollowUps = z.infer<typeof BriefFollowUpsSchema>;
 export interface PublicationReadPort {

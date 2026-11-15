@@ -2,19 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type thMessages from "../messages/th.json";
 
 type Messages = typeof thMessages;
 
-interface DemoStockEntry {
+interface StockSearchEntry {
   market: "TH" | "US";
   symbol: string;
   companyName: string;
+  exchangeDisplay?: string;
   href: string;
 }
 
-const DEMO_STOCKS: DemoStockEntry[] = [
+const DEMO_STOCKS: StockSearchEntry[] = [
   {
     market: "TH",
     symbol: "FIXTURE_TH_A",
@@ -29,21 +30,93 @@ const DEMO_STOCKS: DemoStockEntry[] = [
   },
 ];
 
+interface ApiSearchMatch {
+  listing: {
+    market: "TH" | "US";
+    symbol: string;
+  };
+  name: string;
+  exchangeDisplay?: string;
+}
+
 export function NavHeader({ messages }: { messages: Messages }) {
   const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [searchState, setSearchState] = useState<{
+    query: string;
+    matches: StockSearchEntry[];
+  }>({ query: "", matches: [] });
+
+  const trimmedQuery = query.trim();
+
+  useEffect(() => {
+    if (!searchOpen || trimmedQuery.length === 0) {
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmedQuery)}`, {
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        if (!res.ok) {
+          if (!controller.signal.aborted) {
+            setSearchState({ query: trimmedQuery, matches: [] });
+          }
+          return;
+        }
+        const payload = (await res.json()) as { matches?: ApiSearchMatch[] };
+        if (controller.signal.aborted) return;
+        const mapped: StockSearchEntry[] = (payload.matches ?? []).map((item) => ({
+          market: item.listing.market,
+          symbol: item.listing.symbol,
+          companyName: item.name,
+          exchangeDisplay: item.exchangeDisplay,
+          href: `/stocks/${item.listing.market}/${encodeURIComponent(item.listing.symbol)}`,
+        }));
+        setSearchState({ query: trimmedQuery, matches: mapped });
+      } catch {
+        if (!controller.signal.aborted) {
+          setSearchState({ query: trimmedQuery, matches: [] });
+        }
+      }
+    }, 250);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [searchOpen, trimmedQuery]);
+
+  const isSearching =
+    searchOpen && trimmedQuery.length > 0 && searchState.query !== trimmedQuery;
 
   const matches = useMemo(() => {
-    const trimmed = query.trim().toLowerCase();
-    if (!trimmed) return DEMO_STOCKS;
-    return DEMO_STOCKS.filter(
-      (item) =>
-        item.symbol.toLowerCase().includes(trimmed) ||
-        item.companyName.toLowerCase().includes(trimmed) ||
-        item.market.toLowerCase().includes(trimmed),
-    );
-  }, [query]);
+    const lower = trimmedQuery.toLowerCase();
+    const fixtureHits = !lower
+      ? DEMO_STOCKS
+      : DEMO_STOCKS.filter(
+          (item) =>
+            item.symbol.toLowerCase().includes(lower) ||
+            item.companyName.toLowerCase().includes(lower) ||
+            item.market.toLowerCase().includes(lower),
+        );
+
+    if (!lower) return DEMO_STOCKS;
+
+    const remoteHits = searchState.query === trimmedQuery ? searchState.matches : [];
+    const deduped = new Map<string, StockSearchEntry>();
+    for (const item of [...remoteHits, ...fixtureHits]) {
+      const key = `${item.market}:${item.symbol}`;
+      if (!deduped.has(key)) {
+        deduped.set(key, item);
+      }
+    }
+    return Array.from(deduped.values());
+  }, [trimmedQuery, searchState]);
 
   const isHome = pathname === "/";
   const isChat = pathname.startsWith("/chat");
@@ -115,6 +188,7 @@ export function NavHeader({ messages }: { messages: Messages }) {
             id="stock-search-region"
             role="search"
             aria-label={messages.searchRegionLabel}
+            aria-busy={isSearching}
             className="mt-3 rounded-[6px] border border-[#D8DEEA] bg-white p-4 text-[#17243B]"
           >
             <div className="flex flex-wrap items-end justify-between gap-3">
@@ -147,9 +221,9 @@ export function NavHeader({ messages }: { messages: Messages }) {
               {matches.length > 1 && (
                 <p className="mb-2 text-sm text-[#56647B]">{messages.searchAmbiguousNotice}</p>
               )}
-              {matches.length === 0 ? (
+              {matches.length === 0 && !isSearching ? (
                 <p className="text-sm text-[#56647B]">{messages.searchNoResults}</p>
-              ) : (
+              ) : matches.length > 0 ? (
                 <ul className="m-0 flex list-none flex-col gap-2 p-0">
                   {matches.map((item) => (
                     <li key={`${item.market}-${item.symbol}`}>
@@ -160,13 +234,14 @@ export function NavHeader({ messages }: { messages: Messages }) {
                       >
                         <span className="font-semibold text-[#334DB3]">
                           {item.market} · {item.symbol}
+                          {item.exchangeDisplay ? ` (${item.exchangeDisplay})` : ""}
                         </span>
                         <span className="text-sm text-[#17243B]">{item.companyName}</span>
                       </Link>
                     </li>
                   ))}
                 </ul>
-              )}
+              ) : null}
             </div>
           </section>
         )}
