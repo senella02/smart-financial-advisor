@@ -45,6 +45,6 @@ Keep this index, links, and affected guides consistent. Never promote an unresol
 
 - [0001 Next.js application, background worker, and shared workspace](0001-nextjs-application-and-shared-workspace.md) — Accepted, 7 November 2026; one web application/backend, separate background execution, and shared market-data logic.
 - [0002 Validated contracts and data trust boundaries](0002-validated-contracts-and-data-trust-boundaries.md) — Accepted, 7 November 2026; provider-neutral integration and shared/private data separation.
-- [0003 SQLite publication store, hourly background worker, and provider-neutral brief generation](0003-publication-store-worker-and-brief-generation.md) — Accepted, 14 November 2026; atomic bilingual publication storage, hourly Asia/Bangkok worker scheduling, and provider-neutral brief generation.
+- [0004 SQLite publication store, hourly background worker, and provider-neutral brief generation](0004-publication-store-worker-and-brief-generation.md) — Accepted, 14 November 2026; atomic bilingual publication storage, hourly Asia/Bangkok worker scheduling, and provider-neutral brief generation.
 
 Acceptance sources are recorded in each ADR and the [source register](../source-notes.md#source-register). For implemented behavior and commands, use the [developer guide](../developer-guide.md); accepted architecture does not imply implementation.
