@@ -40,14 +40,57 @@ function toYahooTicker(listing: ListingKey): string {
   return listing.symbol;
 }
 
+interface YahooChartMeta {
+  longName?: string;
+  shortName?: string;
+  exchangeName?: string;
+  regularMarketPrice?: number;
+  regularMarketTime?: number;
+}
+
+interface YahooChartResponse {
+  chart?: {
+    result?: Array<{
+      meta?: YahooChartMeta;
+      timestamp?: number[];
+      indicators?: {
+        quote?: Array<{
+          close?: (number | null)[];
+          volume?: (number | null)[];
+        }>;
+      };
+    }>;
+  };
+}
+
+interface YahooSearchQuote {
+  symbol?: string;
+  exchange?: string;
+  quoteType?: string;
+  longname?: string;
+  shortname?: string;
+  exchDisp?: string;
+}
+
+interface YahooSearchResponse {
+  quotes?: YahooSearchQuote[];
+  news?: Array<{
+    uuid?: string;
+    title?: string;
+    link?: string;
+    publisher?: string;
+    providerPublishTime?: number;
+  }>;
+}
+
 // Global In-Memory Cache Store (Server Singleton)
 interface CacheEntry<T> {
   data: T;
   expiresAt: number;
 }
 
-const GLOBAL_CACHE = new Map<string, CacheEntry<any>>();
-const IN_FLIGHT_PROMISES = new Map<string, Promise<any>>();
+const GLOBAL_CACHE = new Map<string, CacheEntry<unknown>>();
+const IN_FLIGHT_PROMISES = new Map<string, Promise<unknown>>();
 
 /**
  * Fetch with Coalescing (Single-flight) & 60-second TTL In-Memory Cache.
@@ -91,7 +134,7 @@ export class LiveMarketDataAdapter implements ResearchDataPort {
     try {
       const ticker = toYahooTicker(listing);
       const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
-      const json = await cachedFetchJson<any>(url, 300_000, this.userAgent); // Company info cached 5 mins
+      const json = await cachedFetchJson<YahooChartResponse>(url, 300_000, this.userAgent); // Company info cached 5 mins
       const meta = json?.chart?.result?.[0]?.meta;
       if (!meta) {
         return { status: "unavailable", reason: "STOCK_NOT_FOUND" };
@@ -122,7 +165,7 @@ export class LiveMarketDataAdapter implements ResearchDataPort {
       const ticker = toYahooTicker(listing);
       const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
       const fetchedAt = new Date().toISOString();
-      const json = await cachedFetchJson<any>(url, 60_000, this.userAgent); // Quote cached 60 seconds
+      const json = await cachedFetchJson<YahooChartResponse>(url, 60_000, this.userAgent); // Quote cached 60 seconds
       const result = json?.chart?.result?.[0];
       const meta = result?.meta;
       if (!meta || meta.regularMarketPrice == null) {
@@ -165,7 +208,7 @@ export class LiveMarketDataAdapter implements ResearchDataPort {
   async search(query: string): Promise<Result<StockSearchResult>> {
     try {
       const url = `https://query2.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=10&newsCount=0`;
-      const json = await cachedFetchJson<any>(url, 300_000, this.userAgent); // Search cached 5 mins
+      const json = await cachedFetchJson<YahooSearchResponse>(url, 300_000, this.userAgent); // Search cached 5 mins
       const quotes = json?.quotes || [];
 
       // Filter only Equity / Common stocks and supported markets (TH or US)
@@ -216,14 +259,20 @@ export class LiveMarketDataAdapter implements ResearchDataPort {
   async indices(): Promise<Result<MarketOverview>> {
     try {
       const entries = Object.entries(INDEX_TICKERS) as [keyof typeof INDEX_TICKERS, string][];
-      const overview: Record<string, any> = {};
+      const overview: MarketOverview = {
+        SET: { status: "unavailable", reason: "INITIALIZING" },
+        SET50: { status: "unavailable", reason: "INITIALIZING" },
+        DOW_JONES: { status: "unavailable", reason: "INITIALIZING" },
+        SP_500: { status: "unavailable", reason: "INITIALIZING" },
+        NASDAQ: { status: "unavailable", reason: "INITIALIZING" },
+      };
       const fetchedAt = new Date().toISOString();
 
       await Promise.all(
         entries.map(async ([key, ticker]) => {
           try {
             const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
-            const json = await cachedFetchJson<any>(url, 60_000, this.userAgent); // Indices cached 60 seconds
+            const json = await cachedFetchJson<YahooChartResponse>(url, 60_000, this.userAgent); // Indices cached 60 seconds
             const meta = json?.chart?.result?.[0]?.meta;
             if (!meta || meta.regularMarketPrice == null) {
               overview[key] = { status: "unavailable", reason: "PRICE_MISSING" };
@@ -258,7 +307,7 @@ export class LiveMarketDataAdapter implements ResearchDataPort {
         })
       );
 
-      return { status: "available", data: overview as MarketOverview };
+      return { status: "available", data: overview };
     } catch (err) {
       return { status: "error", code: "INDICES_FETCH_FAILED", message: err instanceof Error ? err.message : String(err) };
     }
@@ -280,7 +329,7 @@ export class LiveMarketDataAdapter implements ResearchDataPort {
       const params = yahooRangeMap[range] || { range: "1y", interval: "1d" };
       const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?range=${params.range}&interval=${params.interval}`;
       const fetchedAt = new Date().toISOString();
-      const json = await cachedFetchJson<any>(url, 60_000, this.userAgent); // Chart history cached 60 seconds
+      const json = await cachedFetchJson<YahooChartResponse>(url, 60_000, this.userAgent); // Chart history cached 60 seconds
       const result = json?.chart?.result?.[0];
       const timestamps: number[] = result?.timestamp || [];
       const quotes = result?.indicators?.quote?.[0];
@@ -347,7 +396,9 @@ export class LiveMarketDataAdapter implements ResearchDataPort {
   }
 
   async statements(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _listing: ListingKey,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _frequency: "annual" | "quarterly"
   ): Promise<Result<FinancialStatement[]>> {
     // Statement API on Yahoo anonymous is restricted (401); explicit boundary result
@@ -358,6 +409,7 @@ export class LiveMarketDataAdapter implements ResearchDataPort {
   }
 
   async metrics(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _listing: ListingKey
   ): Promise<Result<FinancialMetrics>> {
     return {

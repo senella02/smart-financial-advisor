@@ -8,7 +8,7 @@ export default async function StockPage({ params }: {
 }) {
   const { messages } = await getMessages();
   const { market, symbol } = await params;
-  const stock = await getDemoStock(market, symbol);
+  const stock = await getStock(market, symbol);
   if (!stock) notFound();
 
   return (
