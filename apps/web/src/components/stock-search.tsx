@@ -59,6 +59,7 @@ export function StockSearch({
   const [isAmbiguous, setIsAmbiguous] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
 
   async function handleSearch(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -68,6 +69,7 @@ export function StockSearch({
     if (!keyword) {
       setMatches([]);
       setError(labels.error);
+      setHasSearched(true);
       return;
     }
 
@@ -93,6 +95,7 @@ export function StockSearch({
       setError(labels.error);
     } finally {
       setLoading(false);
+      setHasSearched(true);
     }
   }
 
@@ -104,6 +107,7 @@ export function StockSearch({
     setIsAmbiguous(false);
     setError("");
     setLoading(false);
+    setHasSearched(false);
   }
 
   return (
@@ -127,22 +131,43 @@ export function StockSearch({
         <input
           type="search"
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            setHasSearched(false);
+            setMatches([]);
+            setError("");
+            setIsAmbiguous(false);
+          }}
           placeholder={labels.placeholder}
           aria-label={labels.placeholder}
-          className="min-w-0 flex-1 rounded-md border bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="min-w-0 flex-1 rounded-md border bg-white px-3 py-2 text-sm text-black outline-none focus-visible:ring-2 focus-visible:ring-ring"
         />
 
         <button
           type="submit"
           disabled={loading}
-          className="shrink-0 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+          className="inline-flex shrink-0 items-center justify-center gap-1 rounded-md border border-white bg-white px-2 py-2 text-sm font-semibold text-[#334DB3] transition-colors hover:bg-[#E9EDFB] disabled:opacity-50"
         >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-4-4" />
+          </svg>
+
           {loading ? labels.loading : labels.button}
         </button>
       </form>
 
-      {(error || matches.length > 0 || isAmbiguous) && (
+      {(error || matches.length > 0 || isAmbiguous ||
+        (hasSearched && !loading && matches.length === 0)) && (
         <div
           className={
             isNavbar
@@ -155,6 +180,15 @@ export function StockSearch({
               {error}
             </p>
           )}
+
+          {hasSearched &&
+            !loading &&
+            !error &&
+            matches.length === 0 && (
+              <p role="status" className="text-sm text-destructive">
+                {labels.noResults}
+              </p>
+            )}
 
           {isAmbiguous && (
             <p className="mb-2 text-sm text-muted-foreground">
@@ -182,7 +216,7 @@ export function StockSearch({
                         className="flex items-center justify-between gap-3 rounded-md p-3 hover:bg-accent"
                       >
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold">
+                          <p className="truncate text-sm text-gray-600 font-semibold">
                             {match.name}
                           </p>
                           <p className="text-xs text-muted-foreground">
@@ -191,7 +225,7 @@ export function StockSearch({
                           </p>
                         </div>
 
-                        <span className="rounded-md bg-secondary px-2 py-1 text-xs">
+                        <span className="rounded-md bg-secondary px-2 py-1 text-xs text-secondary-foreground">
                           {listing.market}
                         </span>
                       </Link>
@@ -203,15 +237,6 @@ export function StockSearch({
           )}
         </div>
       )}
-
-      {!loading &&
-        !error &&
-        query.trim() !== "" &&
-        matches.length === 0 && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            {labels.noResults}
-          </p>
-        )}
     </section>
   );
 }

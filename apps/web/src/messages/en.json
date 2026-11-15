@@ -11,7 +11,7 @@
   "indicesPlaceholder": "Placeholder for SET, SET50, Dow Jones, S&P 500 and Nasdaq",
   "dailyBrief": "Daily Brief",
   "briefPlaceholder": "Not yet published — placeholder for Thai and English briefs",
-  "stockHeading": "Sample stock details",
+  "stockHeading": "Stock details",
   "quote": "Stock quote and data",
   "quotePlaceholder": "No price in this demo; no market data connection",
   "summary": "Daily stock summary",
