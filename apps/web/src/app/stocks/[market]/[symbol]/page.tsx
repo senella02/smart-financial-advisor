@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getMessages } from "../../../../messages/index";
-import { getDemoStock, liveMarketData } from "../../../../server/research";
+import { getStock, liveMarketData } from "../../../../server/research";
 import { LiveStockHeader } from "@/components/live-stock-header";
 
 export default async function StockPage({ params }: {
@@ -10,7 +10,7 @@ export default async function StockPage({ params }: {
 }) {
   const { messages } = await getMessages();
   const { market, symbol } = await params;
-  const stock = await getDemoStock(market, symbol);
+  const stock = await getStock(market, symbol);
   if (!stock) notFound();
 
   // Fetch real live quote if not a fixture
