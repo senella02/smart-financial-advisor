@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { getMessages } from "../messages/index";
+import { StockSearch } from "@/components/stock-search";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,10 +22,47 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <a className="skip-link" href="#main">{messages.skip}</a>
         <header>
           <p className="brand">{messages.appName}</p>
-          <nav aria-label={messages.navigation}>
-            <Link className={buttonVariants({ variant: "ghost" })} href="/">{messages.home}</Link>
-            <Link className={buttonVariants({ variant: "ghost" })} href="/stocks/TH/FIXTURE_TH_A">{messages.stock}</Link>
-            <Link className={buttonVariants({ variant: "ghost" })} href="/chat">{messages.chat}</Link>
+
+          <nav
+            aria-label={messages.navigation}
+            className="flex flex-wrap items-center gap-3"
+          >
+            <Link
+              className={buttonVariants({ variant: "ghost" })}
+              href="/"
+            >
+              {messages.home}
+            </Link>
+
+            <Link
+              className={buttonVariants({ variant: "ghost" })}
+              href="/stocks/TH/FIXTURE_TH_A"
+            >
+              {messages.stock}
+            </Link>
+
+            <Link
+              className={buttonVariants({ variant: "ghost" })}
+              href="/chat"
+            >
+              {messages.chat}
+            </Link>
+
+            <div className="w-full md:ml-auto md:w-80">
+              <StockSearch
+                variant="navbar"
+                labels={{
+                  title: messages.searchTitle,
+                  placeholder: messages.searchPlaceholder,
+                  button: messages.searchButton,
+                  loading: messages.searchLoading,
+                  noResults: messages.searchNoResults,
+                  error: messages.searchError,
+                  ambiguous: messages.searchAmbiguous,
+                  resultCount: messages.searchResultCount,
+                }}
+              />
+            </div>
           </nav>
         </header>
         <main id="main" tabIndex={-1}>
