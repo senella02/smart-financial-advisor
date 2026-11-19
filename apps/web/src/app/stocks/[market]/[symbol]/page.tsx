@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from "next/navigation";
 import { getMessages } from "../../../../messages/index";
-import { getDemoStock } from "../../../../server/research";
+import { getStock } from "../../../../server/research";
 
 export default async function StockPage({ params }: {
   params: Promise<{ market: string; symbol: string }>;
