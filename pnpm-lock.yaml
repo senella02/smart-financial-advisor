@@ -164,6 +164,7 @@ settings:
 
 overrides:
   minimatch@>=7.0.0 <11.0.1: 11.0.5
+  magic-string: 0.30.18
 
 importers:
 
@@ -1989,8 +1990,8 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  magic-string@1.4.5:
-    resolution: {integrity: sha512-oLLC2+YvQUfAa+vxoufE/yc1icb87M9iXIRqAoR/2EhE/8cb3SF/+Gi0c2By1B+5Vz2e2vQtUvHiu1+63Znh+w==}
+  magic-string@0.30.18:
+    resolution: {integrity: sha512-yi8swmWbO17qHhwIBNeeZxTceJMeBvWJaId6dyvTSOwTipqeHhMhOrz6513r1sOKnpvQ7zkhlG8tPrpilwTxHQ==}
 
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
@@ -2986,7 +2987,7 @@ snapshots:
       enhanced-resolve: 5.26.1
       jiti: 2.7.0
       lightningcss: 1.33.0
-      magic-string: 1.4.5
+      magic-string: 0.30.18
       source-map-js: 1.2.2
       tailwindcss: 4.3.5
 
@@ -3299,7 +3300,7 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.1.0
       estree-walker: 3.0.3
-      magic-string: 1.4.5
+      magic-string: 0.30.18
     optionalDependencies:
       vite: 8.3.6(@types/node@26.6.6)(jiti@2.7.0)
 
@@ -4255,7 +4256,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  magic-string@1.4.5:
+  magic-string@0.30.18:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.6.0
 
@@ -4856,7 +4857,7 @@ snapshots:
       chai: 6.3.0
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
-      magic-string: 1.4.5
+      magic-string: 0.30.18
       obug: 3.0.0
       picomatch: 4.0.7
       std-env: 4.3.0
