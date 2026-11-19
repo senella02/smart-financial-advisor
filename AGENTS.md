@@ -9,6 +9,7 @@ This is a new project built from scratch. The previous LLMFA project is a refere
 - [Open requirement questions](docs/requirements-questions.md)
 - [Source notes](docs/source-notes.md) when resolving conflicting or historical material
 - [Architecture decisions](docs/adr/README.md) before proposing or changing architecture
+- [Contracts and integration boundaries](docs/contracts-and-boundaries.md) for layer responsibilities, trust rules, and handoffs
 - [Agent guidance directory](.agents/README.md)
 - [Developer guide](docs/developer-guide.md) for setup, checks, and current implementation
 
@@ -22,6 +23,7 @@ This is a new project built from scratch. The previous LLMFA project is a refere
 
 - If `.ai-local/AGENTS.md` exists, read it before starting work and apply it as this checkout's personal workflow preferences alongside the shared project instructions. Its absence is normal; do not create it unless requested. Keep personal preferences in that Git-ignored folder rather than shared guidance.
 - Make the smallest complete change. Reuse existing project patterns before adding dependencies or abstractions.
+- Rebase feature branches you own onto their base branch when syncing changes. This keeps commit history linear and avoids merge commits.
 - Research current primary documentation when evaluating tools; check date, availability, pricing, data coverage, and limitations at decision time.
 - Follow the [ADR criteria and documentation homes](docs/adr/README.md) strictly. Keep conventions here or in supporting agent guidance, setup/operations in README or the developer guide, and task plans, allocations, and execution results in issues/PRs. Replace repeated explanations with links.
 - When the user resolves a question, update the requirement, its acceptance criteria, and the question record together.

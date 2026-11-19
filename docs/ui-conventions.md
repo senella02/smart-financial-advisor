@@ -1,24 +1,12 @@
 # Phase 1 UI conventions
 
-These conventions guide the next implementation of Home, Stock Detail, and chat. They describe a design target, not delivered behavior. Existing screens, components, and fixtures are disposable implementation material. [DESIGN.md](../DESIGN.md) owns the visual language; this document owns shared interaction and content conventions. Route composition belongs in the [Home](../apps/web/.impeccable/surfaces/src-app-page-tsx.md), [Stock Detail](../apps/web/.impeccable/surfaces/src-app-stocks-market-symbol-page-tsx.md), and [chat](../apps/web/.impeccable/surfaces/src-app-chat-page-tsx.md) briefs.
+These conventions define the Phase 1 interaction and content design. The functional requirements define feature scope and behavior, and the question record tracks unresolved rules. [Phase 1 scope](functional-requirements.md#1-scope-and-requirement-status), [Question record](requirements-questions.md)
 
-The [functional requirements](functional-requirements.md) remain authoritative. A convention below selects a presentation, not a new product capability or approval of every **Proposed detail** in the baseline. Unresolved product rules remain in the [question record](requirements-questions.md). No provider coverage, latency, or data freshness threshold is established here.
-
-## Requirement boundaries
-
-- **FR-01:** Display market, symbol, and company name together at stock selection and research entry points. Thai and US common stocks are the supported investment scope. An index in the Home overview is context, not a selectable investment. Search is an entry to Stock Detail, not discovery screening.
-- **FR-02, FR-05:** Home includes SET, SET50, Dow Jones, S&P 500, and Nasdaq. Its minute refresh cadence is separate from upstream data age. A quote's source time remains visible after a refresh.
-- **FR-03, FR-04:** Daily Brief has a Bangkok calendar date, short and full views, Thai and English publication versions, last successful update, next scheduled update, and a past-date selector. Only today's published brief offers AI follow-up cards. Yesterday's fallback keeps yesterday's date and offers no brief follow-up action.
-- **FR-11, FR-12:** Stock Detail includes the fixed daily bilingual summary, quote, price chart, financial statements, metrics, news, and stock-bound chat. Quote refresh is page-open or manual. It never implies daily-summary regeneration.
-- **FR-13, FR-14:** Main history combines both chat entry points. Stock history includes only conversations explicitly linked through application context. History lasts for the current browser session, with no login requirement.
-- **FR-19, FR-20:** Keep factual claims traceable to evidence, missing information explicit, risks visible, and visitor conversations separate from shared publications. Do not present definitive buy/sell instructions.
-- **FR-21:** Phase 1 UI, metadata, and accessible labels are Thai. UI strings use matching Thai and English dictionary keys. Publication-language controls affect only the shared publication. They are not an interface-language selector. Chat follows the requested supported answer language.
-
-Do not display empty or locked navigation for Watchlist, Portfolio, Investor Profile, or discovery. Do not add account controls, uploads, exports, Deep Research, broker actions, or restoration of earlier sessions. The full baseline retains later features; their UI is outside this pass.
+Use the visual design and route briefs alongside these shared conventions. [Visual design](../DESIGN.md), [Home](../apps/web/.impeccable/surfaces/src-app-page-tsx.md), [Stock Detail](../apps/web/.impeccable/surfaces/src-app-stocks-market-symbol-page-tsx.md), [Chat](../apps/web/.impeccable/surfaces/src-app-chat-page-tsx.md)
 
 ## Navigation and orientation
 
-Use a shared top navigation with **หน้าหลัก**, **ค้นหาหุ้น**, and **ถาม AI**. The stock-search control opens a labeled search region rather than navigating to a demo ticker. Search results identify company, symbol, and market. An ambiguous result requires an explicit selection; no guessed company or invented coverage claim.
+Limit navigation to Phase 1 features. Use a shared top navigation with **หน้าหลัก**, **ค้นหาหุ้น**, and **ถาม AI**. The stock-search control opens a labeled search region. Search results identify company, symbol, and market. An ambiguous result requires an explicit selection.
 
 Links navigate. Buttons change state or perform actions. The current route has a persistent visible and programmatic current state. Keep a skip link, one main landmark, one page heading, and ordered section headings. Support browser Back and direct links. A stock page starts with its identity and a route back to Home or search.
 
@@ -33,15 +21,15 @@ Use distinct labels for distinct clocks:
 - **ตรวจสอบล่าสุด** identifies the application's last successful fetch. It never replaces the source time.
 - **อัปเดตครั้งถัดไป** identifies a scheduled Daily Brief update. After a missed update, show that the update is delayed rather than counting below zero or claiming a successful update.
 
-Use `Asia/Bangkok` for publication dates and Thai-day boundaries. Display an explicit Gregorian year in date controls and full timestamps, with a Thai label identifying ค.ศ. Retain exchange-session dates when relevant. Do not imply that a US session and the Thai calendar day are identical. Source date-only values stay date-only; never manufacture midnight or an observation time.
+Display the Bangkok calendar date for publications. Show an explicit Gregorian year in date controls and full timestamps, with a Thai label identifying ค.ศ. Retain exchange-session dates when relevant. Display source dates that have no timestamp as dates.
 
-Keep an absolute timestamp available beside any relative age. Avoid an unqualified "live" badge. Closed-market, provider-delay, or stale labels require known metadata or the policy eventually resolved under Q04. A failed refresh can state **อัปเดตไม่สำเร็จ แสดงข้อมูลล่าสุดที่มี** without inventing an age threshold.
+Keep an absolute timestamp beside any relative age. Use closed-market, provider-delay, or stale labels only when source metadata or the agreed freshness policy supports them. After a failed refresh, say **อัปเดตไม่สำเร็จ แสดงข้อมูลล่าสุดที่มี** if previous data is still visible. [Q04 data coverage and freshness](requirements-questions.md#q04-supported-data-and-stock-coverage)
 
 Daily Brief language uses a labeled **ภาษาเนื้อหา** control with **ไทย** and **English**. Mark the English publication region with the correct language attribute. Short/full controls change reading depth within the same publication. Date changes select the latest successful publication for that date, not an intraday version browser.
 
-Today, previous-day fallback, archive, not-yet-published, and update-failed are distinct presentations. Selecting an archive removes brief-specific AI controls. General chat remains available for ordinary historical financial research. A new chat request uses today's available brief independently of the date being read on Home. If today's brief is absent, explain that limitation when relevant.
+Give today, previous-day fallback, archive, not-yet-published, and update-failed states distinct presentations. Show the actual publication date and make brief-specific AI controls available only for today's brief. Keep navigation to general chat available. [FR-03 Daily Brief publication](functional-requirements.md#fr-03-daily-brief-content-and-publication)
 
-An update notice must not move keyboard focus, reset an expanded article, or replace text under a reader mid-sentence. Keep the displayed snapshot and offer to load the newer publication. When accepted, update the content, dates, language pair, and sources together. This is a reading convention, not a change to the hourly publication schedule.
+Keep the displayed publication and offer to load the newer one without moving focus or resetting an expanded article. When the reader accepts the update, replace the content, dates, language pair, and sources together.
 
 ## Financial information
 
@@ -53,7 +41,7 @@ Price increases and decreases have a sign and a Thai direction label as well as 
 
 Stock Detail retains all required chart ranges: **1D**, **1M**, **1Y**, **5Y**, with Thai accessible names. Start with a price line chart suited to novice reading; volume can use an aligned lower plot when data exists. Candlesticks and technical overlays are not needed for the confirmed initial analysis. Label axes with date/time and currency, preserve gaps, and expose the visible series as an accessible table or equivalent values. Do not smooth a series into invented observations. Explain unavailable ranges instead of silently replacing them.
 
-Financial statements expose annual/quarterly controls and income statement, balance sheet, and cash flow views within up to four years of available history. Always retain P/E, P/BV, ROE, D/E, dividend yield, and market capitalization fields, including unavailable states. Metric help explains the term in plain Thai without calling an isolated ratio a buy/sell signal.
+Provide annual and quarterly controls for financial statements. Show an unavailable state for required metrics when data is missing. Explain each metric in plain Thai and describe its limits. [FR-12 Financial data and news](functional-requirements.md#fr-12-financial-data-and-news)
 
 Tables keep a caption, row headings, column headings, and units. On small screens, allow horizontal scrolling inside the labeled table region, with a visible overflow cue and keyboard access. The rest of the page reflows. Keep company identity or the metric label visible while comparing columns where feasible. Do not convert financial statements into repeated unlabeled cards or hide required periods to fit the viewport. See [W3C table guidance](https://www.w3.org/WAI/tutorials/tables/).
 
@@ -63,7 +51,7 @@ A material factual claim has a nearby citation link with an accessible source na
 
 Separate reported facts from interpretation through plain headings and language. Identify deterministic calculations and hypothetical examples when present. Do not invent confidence percentages, analyst ratings, financial figures, news, or provider capabilities to make a design look complete. Risk explanations remain visible in short and full analysis. Use a concise Thai research disclaimer near the answer area; a disclaimer does not replace specific uncertainty or risks.
 
-Comparison answers identify each company, market, metric, currency, and period. Do not imply that THB and USD prices or unlike reporting periods are directly comparable. Do not invent a comparison-stock limit while Q05 and Q08 remain open. If an eventual measured limit exists, explain it before submission.
+Identify each company, market, metric, currency, and period in comparison answers. Explain differences in currency or reporting period that affect the comparison. If a comparison limit is set, show it before submission. [Q05 chat and discovery boundaries](requirements-questions.md#q05-chat-and-discovery-boundaries)
 
 ## Chat entry points and history
 
@@ -73,15 +61,13 @@ Main chat offers grounded starting prompts such as explaining a financial term, 
 
 Stock chat displays a persistent identity line above the conversation and composer. A comparison request names the additional subject explicitly. Changing the stock switches its history view without rebinding an existing conversation. A mere ticker mention in main chat creates no stock-history association.
 
-The main history shows the same conversations represented in stock history, rather than copies. A compact stock-origin label is a selected presentation convention, not a new product rule. Show **ประวัติการสนทนาอยู่เฉพาะเซสชันนี้** near history without promising a precise browser-close or multi-tab lifetime before storage behavior is selected.
+Use a compact stock-origin label in main history. Show **ประวัติการสนทนาอยู่เฉพาะเซสชันนี้** near history. [Q03 access, persistence, and languages](requirements-questions.md#q03-access-persistence-and-languages)
 
 Keep the submitted question visible during a request. Show only real progress states, such as retrieval or answer generation when those signals exist; otherwise use a neutral pending message. Announce status changes without reading each streamed token. A recoverable error retains the draft and offers a labeled retry. Incomplete output must not look like a verified complete answer. Retry must not duplicate the visible question.
 
 Keep focus in the composer after sending and make the answer reachable in normal reading order. Auto-scroll only when the reader is already following the latest response. Offer a route to the latest answer when they have scrolled away. A sticky composer must remain usable with the mobile keyboard and must not cover the last answer, focused content, or source links.
 
 ## Components and feedback
-
-Reuse the locally owned Button and Card machinery where it fits the chosen design. Existing colors, radii, variants, fixture props, and page composition do not constrain the redesign. Add primitives only when a confirmed flow needs them; do not create a parallel component library or download a full kit.
 
 - Primary buttons name the next action. Secondary actions use quieter outlined or text treatments. Never give every section a primary button.
 - Cards group independent items such as suggested follow-up questions. A reading section, statement table, or answer does not require a card. Avoid nested cards.
@@ -101,9 +87,3 @@ Adopt WCAG 2.2 AA as the design target, without claiming certification or changi
 Check 320, 390, 768, 1024, and 1440 CSS pixel widths. Reflow ordinary content at 320 CSS pixels, including the equivalent 400% zoom case. Financial tables may scroll locally under the [two-dimensional-content exception](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html). Text enlargement must not clip Thai marks, truncate essential labels, or reorder the reading sequence. Test both long Thai UI labels and English publication content.
 
 Keyboard users can reach navigation, search results, date selection, publication controls, data controls, evidence links, history, and the composer. Check actual screen-reader output for context, table headings, pending status, and failures when these flows are implemented. No forced animation, auto-advancing carousel, or flashing ticker is needed. Honor reduced motion.
-
-## Decisions reserved for implementation
-
-Q04 still governs exact exchanges, supported data, source delay, stale thresholds, and unavailable-provider policy. Q05 and Q08 still govern measured comparison/request limits and evaluation targets. Q03 leaves history storage and multi-tab behavior to implementation; later account persistence remains open. Do not resolve those questions through UI copy, timers, badges, or fixtures.
-
-This design pass changes no provider, storage, runtime, financial formula, or trust boundary. It needs no new ADR. Keep future execution results in the relevant issue or PR. Before claiming the UI implements these conventions, inspect the real responsive screens and exercise the critical paths above. A successful build alone is insufficient evidence.

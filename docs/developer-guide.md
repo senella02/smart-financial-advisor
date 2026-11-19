@@ -1,6 +1,6 @@
 # Developer Guide
 
-This is a fixture-only scaffold for Phase 1 feature work. It runs without accounts, environment configuration, credentials, a database, or external market/AI services. The [requirements](functional-requirements.md) remain authoritative; this setup does not deliver their research features.
+The Phase 1 scaffold runs on marked demo data without accounts, credentials, environment configuration, a database, or external market and AI services. See [project status](../README.md#project-status) and the [functional requirements](functional-requirements.md).
 
 ## Bootstrap
 
@@ -31,7 +31,7 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000). Stop with Ctrl+C. Dependenc
 - `/stocks/US/FIXTURE_US_B`: fake US listing using the same shell.
 - `/chat`: main-chat and combined-history insertion points.
 
-All pages show an explicit localized **Demo** warning. Phase 1 ships Thai UI only. Thai/English dictionaries and a shared message accessor prepare for English UI later; no language selector is exposed. No real prices, returns, news, summaries, chat answers, refresh buttons, or writable financial API endpoints are supplied. The historical contract examples use dates in 2000 and are not today's data. Unknown listings return 404.
+All pages display a Thai **Demo** warning. Unknown listings return 404.
 
 ## Checks and testing scope
 
@@ -60,9 +60,14 @@ The setup uses ESLint 10. Its bundled `eslint-plugin-import`, `eslint-plugin-jsx
 
 ## Where to work
 
-Read the [contracts/boundary guide](contracts-and-boundaries.md). `packages/contracts/src/index.ts` owns shared schemas/types/ports; `fixtures.ts` owns machine-marked examples. `apps/web/src/server/research.ts` composes fixture adapters for the UI. Future external adapters stay server-only and must validate actual provider responses.
+Apply the [contracts and integration boundaries](contracts-and-boundaries.md) when changing shared contracts or adapter behavior.
 
-Home lives in `apps/web/src/app/page.tsx`, Stock Detail in `apps/web/src/app/stocks/[market]/[symbol]/page.tsx`, and main chat in `apps/web/src/app/chat/page.tsx`. Shared navigation is `apps/web/src/app/layout.tsx`, UI translation keys are in `apps/web/src/messages/th.json` and `en.json`, selected by `messages/index.ts`, and styles are `apps/web/src/app/globals.css`.
+- Under [`apps/web/src/app/`](../apps/web/src/app/), Home is in `page.tsx`, Stock Detail in `stocks/[market]/[symbol]/page.tsx`, and main chat in `chat/page.tsx`. Shared navigation lives in `layout.tsx`.
+- Put visitor-triggered server work in `apps/web/src/server/`. The stock detail entry point is `stock-detail.ts`, and `adapters/` contains the market-data and generation fixture adapters. Browser-facing Route Handlers go under `apps/web/src/app/api/` as features need them. [Web server directory](../apps/web/src/server/)
+- In [`packages/contracts/src/`](../packages/contracts/src/), `index.ts` defines shared schemas, inferred types, and provider interfaces. `fixtures.ts` holds marked examples, and `contracts.test.ts` tests the schemas.
+- Put page-specific components with their routes and shared components in [`apps/web/src/components/`](../apps/web/src/components/).
+- In [`apps/web/src/messages/`](../apps/web/src/messages/), `index.ts` reads the UI dictionaries. Add new UI copy to `th.json` and `en.json` with matching keys.
+- `apps/worker/` and `db/migrations/` are placeholders for background jobs and PostgreSQL migrations.
 
 Next's automatic agent-file generation is disabled so running dev does not inject tool instructions into shared guidance. `next-env.d.ts` and `.next` are generated locally and gitignored.
 

@@ -10,30 +10,26 @@ Related requirements: [FR-01–FR-03, FR-11, FR-14, FR-19–FR-21](../functional
 
 ## Context
 
-Market-data and generation providers remain unselected. The application needs stable internal meanings for stock identity, evidence, and unavailable data without treating a provider's response as its own domain model. Shared publications and visitor conversations also have different trust and privacy boundaries.
+External providers can represent stock identity, evidence, and unavailable data differently. The application needs one interpretation across consumers. Shared publications and visitor conversations also have different trust and privacy boundaries.
 
 ## Decision and rationale
 
-Use provider-neutral `MarketDataPort` and `GenerationPort` interfaces with shared Zod schemas and inferred TypeScript types in `packages/contracts`. Server-side adapters map and validate actual external responses into those contracts. The web application and worker use shared market-data semantics rather than separate provider implementations, following [ADR 0001](0001-nextjs-application-and-shared-workspace.md). The ports describe application needs, not an invented external provider API.
+Use provider-neutral `MarketDataPort` and `GenerationPort` interfaces with shared Zod schemas and inferred TypeScript types in `packages/contracts`. Server-side adapters validate external responses and map them into those contracts. The web application and worker share the same market-data integration, following [ADR 0001](0001-nextjs-application-and-shared-workspace.md).
 
 Keep company identity separate from listing identity, product market separate from exchange, source time separate from fetch time, and available zero separate from missing data or failure. This prevents provider-specific shortcuts from silently changing financial meaning throughout the UI and generation pipeline.
 
-Represent bilingual shared publications under one evidence snapshot with publication identity, date, publication time, and evidence cutoff. Keep shared publication inputs separate from chat and future account-private data; private context must not enter shared outputs or caches. This supports consistent shared content without allowing a personalized answer to alter a common publication.
+Keep shared publication and indexing inputs separate from visitor conversations and future account-private data. Shared generation and caches use public evidence only. [ADR 0004](0004-shared-publication-consistency.md) defines how publications and their evidence are kept consistent.
 
-Treat browser messages, submitted associations, storage, and retrieved text as untrusted. Schema validation checks shape, not authority or factual support. Resolve listing identity and current publication context from trusted server state before using them as AI evidence. The server boundary keeps provider credentials and trusted context resolution out of client control. Scheduler/job inputs are also untrusted at entry; worker execution must validate them and resolve authoritative evidence and publication state. Background shared publications and document indexes must not ingest session chat or future account-private data.
+Treat browser input, scheduler payloads, retrieved text, and provider output as untrusted. Resolve authoritative context and enforce access rules on the server. Keep provider credentials behind that boundary. Schema validation establishes data shape. Authorization and factual support require their own checks.
 
 ## Alternatives and tradeoffs
 
 - Passing raw provider responses through UI and AI code avoids mapping initially but couples consumers to upstream shapes and lets inconsistent identity, timestamps, and missing-data conventions spread.
-- TypeScript-only interfaces do not validate runtime external input. Shared runtime schemas add validation and mapping work but make those boundaries explicit. Zod itself was prescribed for setup, not chosen through a validator comparison.
+- TypeScript-only interfaces cover compile-time checks. Shared runtime schemas add validation and mapping work so both runtimes can check external inputs. The setup brief selected Zod.
 
 ## Consequences
 
-New providers can be integrated behind the internal ports, but each adapter still needs verified coverage, response validation, and error mapping. Contracts shared by the web application and worker require coordinated producer/consumer changes. Any Python processing boundary needs runtime validation too; TypeScript types do not cross that boundary.
-
-A common evidence snapshot cannot prove translation quality, citation support, or factual accuracy; generation consumers must check those separately. Keeping private data out of shared contracts is not an implemented account authorization system. Authentication, storage, retention, caching, and generation workflows remain unselected.
-
-Fixture adapters exercise these contracts during setup; their markers, example dates, and temporary restrictions belong in the implementation guides. This ADR does not select browser storage, a live provider, model, database, scheduler, or retrieval framework.
+Each provider adapter needs verified coverage, response validation, and error mapping. Compatible changes to shared contracts must account for both execution roles. Generation consumers must verify the relationship between claims and evidence. Fixture adapters can exercise the same contracts during development.
 
 ## References
 

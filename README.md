@@ -10,14 +10,14 @@ The code currently supplies only a **fixture scaffold** (SFA-5): three Thai page
 
 ## Local development
 
-Use the Node and pnpm versions pinned in [`.nvmrc`](.nvmrc) and [`package.json`](package.json). With those tools available:
+Install the pinned Node and pnpm versions in the [developer guide](docs/developer-guide.md#bootstrap). Then run the following commands.
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open [http://127.0.0.1:3000](http://127.0.0.1:3000). No credentials or environment configuration are needed. Run `pnpm check` for lint, typechecking, unit tests, and a production build. See the [developer guide](docs/developer-guide.md) for tool bootstrap, testing scope, routes, and compatibility notes.
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000). Run `pnpm check` for lint, typechecking, unit tests, and a production build. See the [developer guide](docs/developer-guide.md) for setup, routes, and code entry points.
 
 ## Documentation
 
@@ -26,14 +26,5 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000). No credentials or environme
 - [Visual design](DESIGN.md) and [UI conventions](docs/ui-conventions.md): selected working direction, Phase 1 interaction rules, and route briefs for the next UI implementation; design targets rather than implemented behavior.
 - [Source notes](docs/source-notes.md): source precedence, original PDF references, and historical context.
 - [Architecture decisions](docs/adr/README.md): significant architectural choices, supported rationale, and ADR criteria.
-- [Contracts and boundaries](docs/contracts-and-boundaries.md): current schemas, adapter usage, and implementation limits.
+- Read the layer responsibilities, trust rules, and handoffs in [Contracts and integration boundaries](docs/contracts-and-boundaries.md).
 - [AGENTS.md](AGENTS.md): contributor instructions, with supporting guidance in [.agents](.agents/README.md).
-
-## Repository layout
-
-- `apps/web/`: Next.js App Router page shells and server-only fixture adapters.
-- `packages/contracts/`: shared schemas, inferred types, internal ports, and marked examples.
-- `docs/`: requirements, implementation guides, and ADRs.
-- `report-documents/`: supplied source PDFs, preserved as historical evidence.
-
-The previous checkout at `/Users/thpalanand/Repo/llmfa-capstone` is read-only reference material and is not required to run this project.
