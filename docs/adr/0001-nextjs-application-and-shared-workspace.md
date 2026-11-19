@@ -4,13 +4,13 @@ Status: Accepted
 
 Date: 2026-11-07
 
-Decision source: Owner's [SFA-5 setup brief and acceptance](../source-notes.md#s4-owner-supplied-sfa-5-setup-brief) and [application/worker agreement](../source-notes.md#s6-owner-confirmed-application-and-worker-boundary) on 7 November 2026
+Decision sources are the owner's [framework and workspace choices](../source-notes.md#s4-owner-confirmed-application-framework-and-contract-choices) and [application and worker agreement](../source-notes.md#s6-owner-confirmed-application-and-worker-boundary) on 7 November 2026.
 
 Related requirements: [Phase 1 scope, publications, and grounded AI](../functional-requirements.md)
 
 ## Context
 
-Interactive requests and recurring jobs have different execution lifecycles. The application needs to serve requests while background work runs, fails, or retries. The setup brief selected the application framework and workspace, and the subsequent owner agreement selected separate background execution.
+Interactive requests and recurring jobs have different execution lifecycles. The application needs to serve requests while background work runs, fails, or retries.
 
 ## Decision and rationale
 

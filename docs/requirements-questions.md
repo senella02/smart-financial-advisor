@@ -4,7 +4,7 @@ Updated: 7 November 2026. Recorded answers below come from the project owner in 
 
 ## Baseline finalization
 
-On 7 November 2026, the project owner finalized the first requirements baseline and confirmed that Phase 1 is ready for implementation. Remaining subquestions are tracked for the affected implementation or release decision; later-feature questions remain deferred to their feature work. This status decision does not approve proposed details, resolve unanswered rules, or mark application acceptance scenarios as passed. The scope and acceptance-status distinction are recorded in the [requirements baseline](functional-requirements.md).
+On 7 November 2026, the project owner finalized the first [requirements baseline](functional-requirements.md). The answers below record which product decisions are settled and which still need review.
 
 ## Review focus
 
@@ -46,12 +46,12 @@ Answer: Partially resolved on 6 November 2026. The owner selected current FX wit
 
 Affected: FR-07, FR-09, FR-14, FR-17, FR-20, FR-21.
 
-- Phase 1 access is resolved: no login system, with Home, Stock Detail, and AI Q&A/comparison open to visitors. In the future account-based version, AI chat requires an account, guests may browse shared content, and saving account-private data requires sign-in. The future sign-in method and guest discovery access remain open.
-- Phase 1 visitor chat history is resolved: current browser session only, with no cross-session/device restoration. Storage technology and multi-tab behavior can be selected during implementation. Account-based synchronization and any later guest-to-account migration are not committed.
+- Phase 1 access is resolved: no login system, with Home, Stock Detail, and AI Q&A and comparison open to visitors. In the later account-based version, AI chat requires an account, guests may browse shared content, and saving account-private data requires sign-in. The sign-in method remains open.
+- Phase 1 visitor chat history lasts for the current browser session, with no cross-session or device restoration.
 - When introduced later, must Watchlist, Portfolio, Profile, and account-linked chat history persist across devices/sessions?
-- Language delivery was clarified by the owner on 7 November 2026: complete the Phase 1 website in Thai; prepare Thai/English JSON dictionaries with matching semantic keys and a shared accessor now, while deferring English UI and its selector. Components must not embed Thai UI copy. This does not change the separately confirmed Thai and English versions of shared Daily Brief short/full content and stock summaries; chat follows the user's requested supported language.
+- Is guest access to discovery allowed when discovery is introduced?
 
-Answer: Partially resolved on 6 November 2026. The owner accepted Thai UI, bilingual shared summaries and chat, account-free AI chat in Phase 1 and account-required AI chat later, and session-only visitor history. Combined and explicitly stock-linked history views are confirmed in Q05. On 7 November 2026, the owner requested Thai/English JSON key mappings, then clarified that Phase 1 must finish the Thai website and prepare for English without shipping English UI yet. English interface delivery, locale selection/persistence and full translation review are deferred; the dictionary foundation belongs in Phase 1. Shared publication/chat language requirements and session-only history remain unchanged. Future account details/discovery access remain open.
+Answer: Partially resolved on 6 November 2026. The owner confirmed account-free AI chat in Phase 1 and account-required AI chat in the later account-based version. Phase 1 history lasts for the current browser session. Q05 records the rules for combined and stock-linked history. On 7 November 2026, the owner clarified that Phase 1 ships a Thai interface. The English interface, selector, and locale persistence belong to a later release. Phase 1 includes Thai and English shared summaries and chat in the requested language. See [FR-21](functional-requirements.md#fr-21-access-and-languages).
 
 ### Q04 Supported data and stock coverage
 
@@ -62,7 +62,7 @@ Affected: FR-01-FR-02, FR-05, FR-07-FR-08, FR-12, FR-15-FR-16.
 - Stock Detail quote refresh is resolved: page open or explicit visitor request, with no automatic minute polling and no quote-triggered daily-summary regeneration. Later Watchlist refresh interval, historical news range, and upcoming-event feed ordering remain open.
 - Define minimum data needed to show or analyze a stock, stale-data labels, and behavior if a provider cannot serve a supported stock. Is dropping an otherwise valid result acceptable?
 
-Provider names and coverage counts in the slides remain candidates/claims to verify during architecture work. No provider has been selected or validated in this phase.
+The initial upstream and known fundamentals gap are recorded in [ADR 0003](adr/0003-market-data-and-news-provider-selection.md). Required coverage and acceptable source delay remain open product decisions.
 
 Answer: Partially resolved on 6 November 2026. The owner retained the chart ranges, statement-history depth, and financial metrics, confirmed annual/quarterly views and clear unavailable-data states, common-stock-only scope, page-open/manual Stock Detail quote refresh, and price/volume-only initial analysis. Exact exchange/data coverage, acceptable upstream freshness, and later Watchlist/event-feed details remain open.
 
@@ -76,15 +76,13 @@ Affected: FR-13-FR-16.
 - The current slide-based discovery flow shows the search plan before execution and requires confirmation. Conversation may refine criteria; a separate direct-filter editor is not a committed requirement.
 - The current slide-based guardrails prohibit definitive buy/sell instructions. They remain the baseline unless the owner changes that scope.
 
-Comparison/resource limits should be measured and made visible when implementation capacity is set. Discovery result count, ranking, and exact filter coverage remain product detail for that later feature group.
-
 Answer: Partially resolved on 6 November 2026. The owner confirmed combined main history, explicitly stock-linked history on Stock Detail, and session-only Phase 1 retention, with a possible stock-page origin label. The source-defined feature and guardrail boundaries remain in force. Measured operating limits and later Discovery detail remain open.
 
 ### Q06 Shared content dates and publication
 
 Affected: FR-02-FR-04, FR-11, FR-14.
 
-- Daily Brief publication is resolved: hourly every day, including weekends; retain the latest successful publication for each past date. Until today's first brief is ready, display the previous day's brief with its actual date. Intraday archive browsing is not required; precise hourly execution offset is an implementation detail.
+- The Daily Brief publishes hourly, including weekends. Retain the latest successful publication for each past date. Until today's first brief is ready, display the previous day's brief with its actual date. The archive offers one version per date.
 - Daily Brief Q&A context is resolved: support today's brief only, supplied automatically to chat each day. Past briefs are read-only and have no AI follow-up control. If today's brief is not yet available, report its absence; do not attach the previous-day fallback as today's context. This does not prohibit ordinary historical financial research.
 - Stock summary publication is resolved: generate on first open each Thai calendar day from latest available data, show as-of time, and keep the published summary unchanged until Thai midnight. An exchange that has not opened does not require an invented same-day opening price.
 
@@ -112,8 +110,6 @@ Affected: FR-02, FR-19-FR-20 and quality acceptance.
 - Delivery target is resolved: Phase 1 is a capstone prototype/demonstration. Device/concurrency expectations, measured latency targets, and operating budget remain to be set when designing and evaluating the implementation; no production service level has been committed.
 - What level of citation, financial-calculation, scope, and prompt-injection testing is required for acceptance? Which failures block release?
 - What deadline or assessment criteria constrain scope? Which remaining details may be explicitly deferred?
-
-**Proposed starting point:** Use fixed financial examples and dated evidence for acceptance. Measure latency, token/API cost, supported data coverage, citation correctness, and unauthorized personal-data access before committing targets. Historical benchmark scores are not new-project guarantees.
 
 Answer: Partially resolved on 6 November 2026. The owner confirmed Phase 1 as an account-free capstone prototype covering Home, Stock Detail, and AI chat. Watchlist, Profile, and Discovery follow; Portfolio is last. Personal widgets such as Home's portfolio overview follow their owning feature rather than being required in Phase 1. This does not remove later features from the target requirements or establish a release date. Quantitative quality targets, evaluation details, budget, and delivery date remain open.
 

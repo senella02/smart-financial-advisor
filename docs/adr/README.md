@@ -20,7 +20,7 @@ Examples that qualify include keeping UI and backend in one deployable, choosing
 - Standing contributor instructions: [AGENTS.md](../../AGENTS.md); source precedence and historical context: [source notes](../source-notes.md).
 - Setup, tooling compatibility, commands, and configuration details: [developer guide](../developer-guide.md), manifests, and configuration files.
 - Layer responsibilities, trust rules, and handoffs are documented in [Contracts and integration boundaries](../contracts-and-boundaries.md). Find schemas and adapter entry points in the [developer guide](../developer-guide.md#where-to-work).
-- Task-specific choices, temporary restrictions, and execution/test results: the issue or PR. Trivial choices need no separate record.
+- Follow the [documentation rules](../../AGENTS.md#documentation-rules) for temporary plans and task records.
 
 Do not create another document merely because a detail does not belong in an ADR. Keep it only if it helps someone use, maintain, or review the project, using its existing home.
 
@@ -50,6 +50,6 @@ Keep this index, links, and affected guides consistent. Never promote an unresol
 - [0003 Market data and news provider selection](0003-market-data-and-news-provider-selection.md). Accepted 14 November 2026. Yahoo Finance as the initial upstream behind a replaceable adapter, with fundamentals coverage still open.
 - [0004 Shared publication consistency](0004-shared-publication-consistency.md). Accepted 14 November 2026. Atomic publication, durable job coordination, and preservation of the last successful version.
 - [0005 Supabase PostgreSQL for shared and private data](0005-supabase-postgres-for-shared-and-private-data.md). Accepted 15 November 2026. PostgreSQL replaces SQLite as the target and serves both execution roles.
-- [0006 Vercel hosting and scheduled execution](0006-vercel-hosting-and-scheduled-publication-trigger.md). Hosting accepted 15 November 2026. Production scheduler open, with GitHub Actions recommended.
+- [0006 Vercel hosting and scheduled execution](0006-vercel-hosting-and-scheduled-publication-trigger.md). Hosting accepted 15 November 2026. Production scheduler open.
 
 Acceptance sources are recorded in each ADR and the [source register](../source-notes.md#source-register). For implemented behavior and commands, use the [developer guide](../developer-guide.md); accepted architecture does not imply implementation.

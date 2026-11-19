@@ -4,7 +4,7 @@ Status: Accepted
 
 Date: 2026-11-07
 
-Decision source: Owner's [SFA-5 setup brief and acceptance](../source-notes.md#s4-owner-supplied-sfa-5-setup-brief); worker trust-boundary clarification follows the [application/worker agreement](../source-notes.md#s6-owner-confirmed-application-and-worker-boundary) on 7 November 2026
+Decision sources are the owner's [contract choices](../source-notes.md#s4-owner-confirmed-application-framework-and-contract-choices) and [application and worker agreement](../source-notes.md#s6-owner-confirmed-application-and-worker-boundary) on 7 November 2026.
 
 Related requirements: [FR-01–FR-03, FR-11, FR-14, FR-19–FR-21](../functional-requirements.md)
 
@@ -25,11 +25,11 @@ Treat browser input, scheduler payloads, retrieved text, and provider output as 
 ## Alternatives and tradeoffs
 
 - Passing raw provider responses through UI and AI code avoids mapping initially but couples consumers to upstream shapes and lets inconsistent identity, timestamps, and missing-data conventions spread.
-- TypeScript-only interfaces cover compile-time checks. Shared runtime schemas add validation and mapping work so both runtimes can check external inputs. The setup brief selected Zod.
+- TypeScript-only interfaces cover compile-time checks. Shared runtime schemas add validation and mapping work so both runtimes can check external inputs.
 
 ## Consequences
 
-Each provider adapter needs verified coverage, response validation, and error mapping. Compatible changes to shared contracts must account for both execution roles. Generation consumers must verify the relationship between claims and evidence. Fixture adapters can exercise the same contracts during development.
+Each provider adapter needs verified coverage, response validation, and error mapping. Compatible changes to shared contracts must account for both execution roles. Generation consumers must verify the relationship between claims and evidence.
 
 ## References
 

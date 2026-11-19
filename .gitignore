@@ -8,7 +8,7 @@ test-results/
 !.env.example
 .DS_Store
 
-# Personal AI instructions (each contributor keeps their own).
+# Personal AI instructions and local working documents.
 /.ai-local/
 
 # impeccable-ignore-start

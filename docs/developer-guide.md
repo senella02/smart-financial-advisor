@@ -1,6 +1,6 @@
 # Developer Guide
 
-The Phase 1 scaffold runs on marked demo data without accounts, credentials, environment configuration, a database, or external market and AI services. See [project status](../README.md#project-status) and the [functional requirements](functional-requirements.md).
+Use this guide to run the project, verify changes, and find code entry points.
 
 ## Bootstrap
 
@@ -22,16 +22,13 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open [http://127.0.0.1:3000](http://127.0.0.1:3000). Stop with Ctrl+C. Dependency downloads are development/CI traffic; the app makes no live financial or LLM calls. `.env.example` is explanatory only; copying it is unnecessary. Future secrets must be server-only and kept in ignored `.env.local`, never `NEXT_PUBLIC_*`.
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000). Stop with Ctrl+C. Store local secrets in an ignored `.env.local` file and access them from server-side code. Next.js exposes variables prefixed with `NEXT_PUBLIC_` to the browser.
 
 ## Routes
 
-- `/`: Thai Home shell, index insertion point and Daily Brief insertion point.
-- `/stocks/TH/FIXTURE_TH_A`: fake Thai listing, quote/daily-summary/stock-chat insertion points.
-- `/stocks/US/FIXTURE_US_B`: fake US listing using the same shell.
-- `/chat`: main-chat and combined-history insertion points.
-
-All pages display a Thai **Demo** warning. Unknown listings return 404.
+- `/` opens Home.
+- `/stocks/[market]/[symbol]` opens Stock Detail for a listing.
+- `/chat` opens main chat.
 
 ## Checks and testing scope
 
@@ -44,30 +41,21 @@ pnpm build
 
 `pnpm check` aggregates **lint → typecheck → non-watch unit tests → production build**. Use `pnpm test` for the fast test loop while developing; run `pnpm check` before opening or updating a PR. `typecheck` generates Next route types before checking the contracts, tooling/tests, and web app. `lint` uses the ESLint CLI and Next flat config, never `next lint`. The production build checks Next.js compilation and bundling that unit tests do not exercise.
 
-Keep tests proportional to implemented behavior. Current unit tests protect financial value/missing-data validation, listing identity, dates and publication context, citation references, private/shared input boundaries, fixture-only adapter behavior, and translation-key parity. Contract tests validate schemas, not unimplemented services or live financial accuracy. Do not add coverage targets or tests for static placeholder copy and trivial accessors.
+Prioritize tests for financial values, listing identity, publication dates, citations, and private data isolation. Check keyboard navigation, focus, and error states in a browser when changing a user flow.
 
-Playwright is deferred while the pages are placeholders. Add a small browser suite alongside the first implemented critical user flow, such as opening stock research or submitting a chat question, and check keyboard access, focus, and error/unavailable states there. Until then, manually check navigation and keyboard access when changing page markup; unit tests and a build do not verify browser behavior. See [Playwright's guidance on testing user-visible behavior](https://playwright.dev/docs/best-practices#test-user-visible-behavior).
+CI runs a frozen install and `pnpm check` on pull requests and pushes to `main`. The workflow pins actions by commit and uses read-only permissions. [CI workflow](../.github/workflows/checks.yml)
 
-CI runs the frozen install and `pnpm check` on pull requests and pushes to `main`. Feature-branch pushes are checked when a PR is open, avoiding duplicate push/PR runs; GitHub documents [event and branch filtering](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/trigger-a-workflow). Actions are commit-pinned, permissions are read-only, and there are no browser downloads, deploy jobs, custom secrets, or publishing steps. Tooling compatibility notes are below. Exact versions live in manifests and the lockfile; execution results belong in the relevant PR.
-
-## Tooling compatibility and maintenance
-
-TypeScript uses side-by-side aliases: `@typescript/native` supplies the TypeScript 7 compiler (`tsc`), while `typescript` resolves to the TypeScript 6 API compatibility package for tooling such as `typescript-eslint`. Keep both aliases until API consumers support the newer compiler; see [Microsoft's side-by-side guidance](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0/#running-side-by-side-with-typescript-6.0).
-
-The setup uses ESLint 10. Its bundled `eslint-plugin-import`, `eslint-plugin-jsx-a11y`, and `eslint-plugin-react` versions declare peer ranges ending at ESLint 9. No peer-range override is configured. Recheck these installed plugin constraints and run affected checks when upgrading.
-
-`pnpm-workspace.yaml` temporarily overrides affected minimatch 7–10 versions to 11.0.5 for [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249). Remove the override when upstream ranges include a patched version and affected checks pass. Release-age exceptions are package/version-specific; native build permissions are limited to esbuild, sharp, and unrs-resolver. Review these settings when changing the associated packages rather than adding broad bypasses.
+Keep release-age exceptions specific to a package and version. Review native build permissions when changing the affected dependencies. [Workspace configuration](../pnpm-workspace.yaml)
 
 ## Where to work
 
 Apply the [contracts and integration boundaries](contracts-and-boundaries.md) when changing shared contracts or adapter behavior.
 
 - Under [`apps/web/src/app/`](../apps/web/src/app/), Home is in `page.tsx`, Stock Detail in `stocks/[market]/[symbol]/page.tsx`, and main chat in `chat/page.tsx`. Shared navigation lives in `layout.tsx`.
-- Put visitor-triggered server work in `apps/web/src/server/`. The stock detail entry point is `stock-detail.ts`, and `adapters/` contains the market-data and generation fixture adapters. Browser-facing Route Handlers go under `apps/web/src/app/api/` as features need them. [Web server directory](../apps/web/src/server/)
-- In [`packages/contracts/src/`](../packages/contracts/src/), `index.ts` defines shared schemas, inferred types, and provider interfaces. `fixtures.ts` holds marked examples, and `contracts.test.ts` tests the schemas.
+- Put visitor-triggered server work in `apps/web/src/server/`. The Stock Detail entry point is `stock-detail.ts`. Provider adapters live in `adapters/`. Browser-facing Route Handlers go under `apps/web/src/app/api/`. [Web server directory](../apps/web/src/server/)
+- In [`packages/contracts/src/`](../packages/contracts/src/), `index.ts` defines shared schemas, inferred types, and provider interfaces. `contracts.test.ts` tests the schemas.
 - Put page-specific components with their routes and shared components in [`apps/web/src/components/`](../apps/web/src/components/).
 - In [`apps/web/src/messages/`](../apps/web/src/messages/), `index.ts` reads the UI dictionaries. Add new UI copy to `th.json` and `en.json` with matching keys.
-- `apps/worker/` and `db/migrations/` are placeholders for background jobs and PostgreSQL migrations.
 
 Next's automatic agent-file generation is disabled so running dev does not inject tool instructions into shared guidance. `next-env.d.ts` and `.next` are generated locally and gitignored.
 
@@ -75,7 +63,7 @@ Next's automatic agent-file generation is disabled so running dev does not injec
 
 The web app uses [Tailwind CSS's PostCSS integration](https://tailwindcss.com/docs/installation/framework-guides/nextjs) and locally owned [shadcn/ui components](https://ui.shadcn.com/docs). Button and Card live in `apps/web/src/components/ui`; their upstream MIT license is kept alongside them. They were installed manually from the official `shadcn-ui/ui` repository's `new-york-v4` source. Local adaptations use the `@/lib/utils` class-merging helper, import only the Radix Slot primitive, render CardTitle as a semantic `h2`, and give titles/buttons relaxed line height for Thai text.
 
-For the next UI implementation, follow [DESIGN.md](../DESIGN.md), [UI conventions](ui-conventions.md), and their route briefs. Existing UI and fixtures are disposable placeholders, not design authority. Reuse component machinery where it fits, including Button variants for navigation links. Keep shared colors, font, and radius tokens in `apps/web/src/app/globals.css`, with component variants in their component files. Keep copy in the translation dictionaries. Preserve labeled sections and heading order; do not wrap every section in a Card.
+Follow the [visual design](../DESIGN.md), [UI conventions](ui-conventions.md), and route briefs. Reuse Button variants for navigation links. Keep shared color, font, and radius tokens in `apps/web/src/app/globals.css`. Keep component variants with their components.
 
 `apps/web/components.json` configures future component additions. From the repo root, run `pnpm dlx shadcn@4.23.0 add <component> -c apps/web` when a feature needs one. Review generated code, dependencies, and any global-style changes, retain exact direct dependency versions, and run the checks above. Component source is owned here, so upstream changes require review rather than arriving automatically through a package upgrade. No separate shared UI workspace package is needed for the single web app.
 
@@ -120,7 +108,7 @@ The repo-local manual-copy installation follows [upstream's instructions](https:
 .agents/skills/impeccable/scripts/impeccable context --target apps/web/src/app/page.tsx
 ```
 
-[PRODUCT.md](../PRODUCT.md) was initialized from the existing requirements with the owner's confirmation. It links to the authoritative docs rather than replacing them. Keep `PRODUCT.md` limited to durable product rules and requirements links. Implementation status belongs in task plans such as `plan.md`; experiments and scaffold choices are not product rules. The requested design pass established working conventions in [DESIGN.md](../DESIGN.md), rather than inferring them from the scaffold. It is a pre-implementation seed; capture actual tokens and review rendered screens after the first build. Design conventions and a build-path preference are not prerequisites for installing the skill. Use `$impeccable polish <target>` or `$impeccable audit <target>` in Codex, or ask another agent to read the shared skill and run that command.
+Impeccable reads [PRODUCT.md](../PRODUCT.md) and [DESIGN.md](../DESIGN.md) for product and design context. Use `$impeccable polish <target>` or `$impeccable audit <target>` in Codex.
 
 Automatic edit hooks are optional and harness-specific; this shared install uses manual checks. After changing UI, run `.agents/skills/impeccable/scripts/impeccable detect --json <changed targets>`. If a contributor wants automatic checks, use the skill's hooks setup for their harness. Codex requires approving a project hook through `/hooks`; manual copying alone does not install one. Do not confuse the skills' bundled agent briefs with registered harness subagents.
 
@@ -140,7 +128,3 @@ curl -fL https://github.com/tlaplus/tlaplus/releases/download/v1.7.4/tla2tools.j
 Verify SHA-256 `936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88` with `shasum -a 256` (macOS) or `sha256sum` (Linux) before use. This pin matches the vendored `statechart/scripts/run.ts`. Then set `TLA2TOOLS` to that file's absolute path for each checker invocation. Set `JAVA` if Java is not on PATH. Work on model copies in a scratch folder outside the repo; the output directory must be new or empty. The checker returns 0 for a pass, 1 for a detected violation, and 2 for a tool error. Its local Java RMI socket may require permission outside an agent sandbox.
 
 Optional SVG rendering uses `pele@1.9.0`, installed outside the app workspace only when requested, per [render.md](../.agents/skills/statechart/references/render.md). Optional video generation needs suitable rendering/encoding tools; `ketchup-video` specifies the artifact, not a bundled encoder. Formal-verification authoring selects a verifier for the actual target; installation does not create or prove a model of this application.
-
-## Target architecture and open choices
-
-Follow [ADR 0001](adr/0001-nextjs-application-and-shared-workspace.md) for the application/worker boundary and outstanding technology choices, and [ADR 0002](adr/0002-validated-contracts-and-data-trust-boundaries.md) for integration and trust boundaries. There is no worker, scheduler, ingestion, or publication execution in the current code, so no worker startup command exists. Product follow-ups remain in the [question record](requirements-questions.md).

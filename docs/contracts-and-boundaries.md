@@ -8,7 +8,7 @@ These rules apply across Phase 1 features. The architecture decisions explain wh
 - The web server validates visitor input, resolves authoritative listing and publication context, and calls the relevant adapters through shared interfaces.
 - The worker runs scheduled and durable jobs and writes shared publications. Shared server logic used by both runtimes stays independent of Next.js and browser APIs.
 - Only server-side adapters handle raw provider payloads. They validate those payloads and map them to shared contracts. Provider interfaces remain independent of provider selection.
-- The contracts package defines runtime schemas, types, provider interfaces, and marked fixtures. It performs no I/O.
+- The contracts package defines runtime schemas, types, and provider interfaces. It performs no I/O.
 
 ## Trust and privacy
 
@@ -21,7 +21,8 @@ Use only public evidence for shared publication generation and shared caches. Ke
 - Keep company identity separate from listing identity. Resolve the listing through a trusted identity source and keep its exchange distinct from its product market.
 - Keep the source observation time, application fetch time, and publication time distinct. A refresh preserves the source observation time. Shared publication dates use the Bangkok calendar.
 - Preserve an available zero as a value. Represent missing data and errors explicitly. Keep the units, currency, and reporting period attached to financial values where applicable.
-- Thai and English variants of a shared publication use the same evidence snapshot and cutoff. Preserve fixture markers wherever demo data crosses a boundary.
+- Thai and English variants of a shared publication use the same evidence snapshot and cutoff.
+- Preserve labels that identify synthetic data when it crosses a boundary.
 
 ## Handoffs between layers
 

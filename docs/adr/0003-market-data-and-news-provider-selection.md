@@ -25,7 +25,7 @@ Anonymous Yahoo Finance fundamentals requests returned authorization errors in t
 
 ## Consequences
 
-The Yahoo Finance integration depends on unofficial endpoints. Before relying on it in a hosted deployment, verify permitted use, current data coverage, and behavior from that runtime. Revisit the provider choice if access changes or the adapter cannot meet the required coverage. Keep endpoint details, cache settings, and test results in implementation documentation or the relevant PR.
+The Yahoo Finance integration depends on unofficial endpoints. Revisit the provider choice if access changes or the adapter cannot meet the required coverage.
 
 ## References
 

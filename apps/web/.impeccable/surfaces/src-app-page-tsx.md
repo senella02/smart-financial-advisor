@@ -25,8 +25,6 @@ FORM: Grounded candidate 5, public information and wayfinding. seed:4be8e5895fd0
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
 
-The FINISH line applies to a future UI build; this design-only pass does not claim that review has occurred.
-
 ## Composition
 
 ```text

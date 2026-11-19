@@ -2,11 +2,9 @@
 
 A web application for novice investors researching Thai and US common stocks. It provides evidence and explanations; it does not execute trades. This is a fresh implementation, with selective reuse from the previous LLMFA project only when useful.
 
-## Project status
+## Product scope
 
-The owner finalized the first [requirements baseline](docs/functional-requirements.md) on 7 November 2026 and confirmed readiness to implement Phase 1: Home shared content, Stock Detail, and AI Q&A/comparison without login. Later features and unresolved details are defined in the requirements and [question record](docs/requirements-questions.md).
-
-The code currently supplies only a **fixture scaffold** (SFA-5): three Thai page shells with translation dictionaries prepared for later English UI, shared contracts and fake examples, local checks, and CI. No live financial data, AI answers, accounts, chat persistence, or worker is implemented. The [accepted ADRs](docs/adr/README.md#decisions) describe the target architecture, including separate background execution.
+Phase 1 covers shared content on Home, Stock Detail, and AI Q&A and comparison without login. The owner finalized the first [requirements baseline](docs/functional-requirements.md) on 7 November 2026. The [question record](docs/requirements-questions.md) tracks remaining product decisions.
 
 ## Local development
 
@@ -23,7 +21,7 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000). Run `pnpm check` for lint, 
 
 - [Functional requirements](docs/functional-requirements.md): product scope, behavior, and acceptance criteria; specifications rather than implemented features.
 - [Question record](docs/requirements-questions.md): owner answers and unresolved decisions.
-- [Visual design](DESIGN.md) and [UI conventions](docs/ui-conventions.md): selected working direction, Phase 1 interaction rules, and route briefs for the next UI implementation; design targets rather than implemented behavior.
+- [Visual design](DESIGN.md) and [UI conventions](docs/ui-conventions.md) cover Phase 1 interactions and route design.
 - [Source notes](docs/source-notes.md): source precedence, original PDF references, and historical context.
 - [Architecture decisions](docs/adr/README.md): significant architectural choices, supported rationale, and ADR criteria.
 - Read the layer responsibilities, trust rules, and handoffs in [Contracts and integration boundaries](docs/contracts-and-boundaries.md).

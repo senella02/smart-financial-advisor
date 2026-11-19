@@ -25,8 +25,6 @@ FORM: Grounded candidate 5, public information and wayfinding. seed:4be8e5895fd0
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
 
-The FINISH line applies to a future UI build.
-
 ## Composition
 
 ```text
@@ -42,4 +40,4 @@ The FINISH line applies to a future UI build.
 
 Show empty session history, current conversation, pending request, insufficient evidence, unavailable today's brief, recoverable request error, and an explicitly stock-linked conversation. Explain unavailable brief context when relevant; keep ordinary financial Q&A available. A general ticker mention does not create a stock-history association. Old messages retain the dates and cutoffs that applied when generated.
 
-Reuse composer behavior from Stock Detail. No login prompt, file attachment, export, Deep Research, discovery screening, saved profile, or account-history promise. Do not choose a storage lifetime beyond the confirmed browser-session rule. Q05 and Q08 retain request/comparison limits; multi-tab behavior remains an implementation choice.
+Reuse composer behavior from Stock Detail and keep history within the current browser session. Main chat excludes login prompts, file attachments, exports, Deep Research, discovery screening, and saved profiles. Q05 and Q08 track request and comparison limits.

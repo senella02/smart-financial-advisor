@@ -3,27 +3,15 @@ name: Smart Financial Advisor
 description: Thai-first stock research with visible evidence and publication context
 ---
 
-<!-- SEED: design conventions prepared before implementation; capture the actual tokens and components after the first UI build. -->
-
 ## Overview
 
-Status: selected working conventions, 14 November 2026. Public information desk is the agent's choice after comparison, open to owner revision; no owner approval of the visual direction is implied. No application UI has been generated from this document. Existing UI and fixtures are disposable placeholders, not visual authority.
+Working design direction selected by the agent on 14 November 2026 and open to owner review.
 
 **Public information desk** is the selected visual direction. A compact indigo navigation band anchors open white reading areas on a cool pale ground. Plain Thai explanations lead research sections. A repeatable evidence row keeps source, relevant date, and publication context attached to the content they describe. This evidence row is the signature across Home, Stock Detail, and chat.
 
 The audience is a novice investor with limited time. Design for short reading and checking sessions in ordinary room or daylight conditions; this is a design assumption, not a confirmed device requirement. A light presentation supports this scene. Dark mode and theme settings are outside this first convention set.
 
-The [requirements](docs/functional-requirements.md) own behavior. [UI conventions](docs/ui-conventions.md) map the confirmed Phase 1 scope to interactions and content. This document specifies the visual target. It does not turn proposed requirements into confirmed product rules or claim that the target already ships.
-
-Directions compared:
-
-- **Public information desk.** Indigo, cool pale ground, one Thai-capable sans family, moderate density. Home puts a compact index strip above a dated Daily Brief and a smaller follow-up area. Evidence rows make source time and publication time distinguishable. It balances market scanning with novice reading. Its risk is an institutional tone if labels become bureaucratic or text gets too dense.
-- **Guided research notebook.** Teal, open reading column, annotated sources, lower density. The short explanation leads, with indices secondary and questions following each topic. It supports novice comprehension but makes repeated quote and period checking slower. Its familiar learning-app structure provides less visual distinction.
-- **Market update board.** Slate, white data rows, amber update notices, higher density. Market state and source times lead before explanation. Its aligned rows make changes easy to scan, but the monitoring emphasis gives novice explanations less priority.
-
-All directions retain standard web navigation, buttons, inputs, and tabs. The comparison rejects a trading-terminal costume, decorative charts, a marketing hero, and equal-sized cards as the organizing principle. Evidence, language controls, and publication state distinguish this product more usefully than decorative finance motifs.
-
-The palette and sizes below are design starting values for implementation, not extracted production tokens. Check them against real Thai and English publication content in the first build. Do not generate a second competing master file from a skill's search defaults.
+The [functional requirements](docs/functional-requirements.md) define product behavior. The [UI conventions](docs/ui-conventions.md) define interactions and content across Phase 1 routes.
 
 ## Colors
 
@@ -54,7 +42,7 @@ Text roles above target at least 4.5:1 on white, background, and selected surfac
 
 Use **Sarabun** for Thai and Latin UI, headings, publications, and values. Its multiscript coverage and available weights are recorded in [Google Fonts' description](https://github.com/google/fonts/blob/main/ofl/sarabun/DESCRIPTION.en_us.html) and [font metadata](https://github.com/google/fonts/blob/main/ofl/sarabun/METADATA.pb). Use a regular-width face, no decorative display pairing. The intended font stack is Sarabun, Tahoma, Arial, sans-serif.
 
-Use weights 400 for reading text, 500 for controls, 600 for section headings, and 700 sparingly for page headings or the main quote. Integrate through the existing framework's [font self-hosting support](https://nextjs.org/docs/app/getting-started/fonts) during implementation. Preserve the font license; add no font-service runtime dependency.
+Use weights 400 for reading text, 500 for controls, 600 for section headings, and 700 sparingly for page headings or the main quote.
 
 Starting type scale:
 
@@ -91,7 +79,7 @@ Standalone controls have a 44px minimum target in each dimension. Input and butt
 
 ## Components
 
-These are component conventions for the selected visual target, not a catalogue of implemented components. Reuse the locally owned Button and Card machinery where it fits; adapt their styles to the roles above rather than treating scaffold defaults as normative. Add other primitives only when a confirmed flow needs them. [UI conventions](docs/ui-conventions.md#components-and-feedback) own interaction and feedback details.
+Use the [UI conventions](docs/ui-conventions.md#components-and-feedback) for interaction and feedback details.
 
 - **Buttons and links.** Primary actions use `primary` with white text, `primary-hover` on hover, and `primary-active` when pressed. Quieter actions use outlined or text treatments; outlined controls use `control-border`. Use the control typography and 6px radius, with padding that preserves the 44px minimum target and allows Thai labels to wrap. Links navigate and remain visibly identifiable; buttons perform actions. Apply the shared focus ring. Pending actions retain their label and width; disabled actions explain the reason when it is not obvious.
 - **Cards.** Reserve cards for independent items such as suggested follow-up questions. Use `surface`, a 12px radius, and 16–24px internal spacing, with a separator or background change before adding a shadow. Do not nest cards or wrap ordinary publications, answers, and statement tables in cards. Use semantic headings within each group.
@@ -106,8 +94,6 @@ These are component conventions for the selected visual target, not a catalogue 
 - Show a short explanation before optional detail without hiding material risks or missing data.
 - Use open sections, tables, and lists for reading and comparison. Use cards when an item is independently actionable.
 - Keep Thai UI and bilingual publication controls distinct. Test both scripts and long labels.
-- Render real content or an explicit unavailable state. Any later demonstration data must be visibly identified as synthetic.
-- Do not preserve fixture tickers, fixture dates, current CSS, or current component composition as design requirements.
+- Render real content or an explicit unavailable state. Visibly label synthetic data in demonstrations.
 - Do not add buy/sell calls, performance promises, confidence scores, fabricated figures, or "live" badges unsupported by evidence.
 - Do not add later-phase navigation, accounts, personalization controls, theme switching, or decorative onboarding.
-- Inspect the implemented screens before treating these starting values as a captured design system. A build and a token file do not establish readability or accessibility.

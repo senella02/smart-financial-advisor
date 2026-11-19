@@ -23,5 +23,3 @@ The [functional requirements](docs/functional-requirements.md) are authoritative
 - Never invent financial figures, citations, provider capabilities, or accounting rules.
 - Distinguish missing data and source timestamps from application refresh times.
 - Keep private portfolio/profile data out of shared AI outputs and caches.
-
-Keep this file limited to confirmed, durable product rules and links to their authoritative requirements. Implementation status belongs in task plans such as `plan.md`. Temporary experiments, scaffold choices, and observed code are not product rules. Establish design conventions separately through requested design work.
