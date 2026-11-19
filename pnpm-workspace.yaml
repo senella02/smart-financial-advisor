@@ -7,7 +7,6 @@ engineStrict: true
 # shortcut: patch vulnerable lint globs until upstream ranges include minimatch 11.
 overrides:
   'minimatch@>=7.0.0 <11.0.1': 11.0.5
-  magic-string: 0.30.18
 onlyBuiltDependencies:
   - esbuild
   - sharp

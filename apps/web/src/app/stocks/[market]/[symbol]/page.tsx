@@ -1,14 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { notFound } from "next/navigation";
 import { getMessages } from "../../../../messages/index";
-import { getStock } from "../../../../server/research";
+import { getDemoStock } from "../../../../server/research";
 
 export default async function StockPage({ params }: {
   params: Promise<{ market: string; symbol: string }>;
 }) {
   const { messages } = await getMessages();
   const { market, symbol } = await params;
-  const stock = await getStock(market, symbol);
+  const stock = await getDemoStock(market, symbol);
   if (!stock) notFound();
 
   return (
