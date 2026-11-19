@@ -45,6 +45,5 @@ Keep this index, links, and affected guides consistent. Never promote an unresol
 
 - [0001 Next.js application, background worker, and shared workspace](0001-nextjs-application-and-shared-workspace.md) — Accepted, 7 November 2026; one web application/backend, separate background execution, and shared market-data logic.
 - [0002 Validated contracts and data trust boundaries](0002-validated-contracts-and-data-trust-boundaries.md) — Accepted, 7 November 2026; provider-neutral integration and shared/private data separation.
-- [0003 Market Data and News Provider Selection](0003-market-data-and-news-provider-selection.md) — Accepted, 14 November 2026; hybrid provider architecture covering live Thai/US quotes, indices, OHLCV charts, news, and contract boundaries for fundamentals.
 
 Acceptance sources are recorded in each ADR and the [source register](../source-notes.md#source-register). For implemented behavior and commands, use the [developer guide](../developer-guide.md); accepted architecture does not imply implementation.
