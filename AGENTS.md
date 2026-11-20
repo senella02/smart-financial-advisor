@@ -42,3 +42,9 @@ Read the references relevant to the task.
 - Put product behavior and release acceptance in the functional requirements. Record open product decisions in the question record. Keep standing conventions in agent guidance and repeatable setup and operations in the developer guide. Follow the [ADR criteria and documentation homes](docs/adr/README.md) for accepted architectural choices.
 - When the user asks for an implementation plan or you need to save implementation details for later work, write them under `.ai-local/temp-docs/`. This directory is Git-ignored. Keep its contents local and never stage or force-add them. Keep shared documents independent of these files.
 - Record lasting decisions and procedures in their authoritative documents. Use issues and PRs for assignments and execution results.
+
+### Research and design workflow
+
+1. **Research.** Define the question and comparison criteria before gathering evidence. Record sources, observations, tradeoffs, and unknowns in [research reports](docs/research/). Finish the evidence pass without choosing a design. A research-only request ends with the report.
+2. **Design.** Use the research to write a separate, proposed [RFC](docs/rfcs/). Start from what the project already does and reuse what meets the requirement. For each proposed change, explain the problem it solves, the evidence behind it, and why the existing approach is insufficient. If a missing fact could change the choice, return to research and record that finding before updating the RFC.
+3. **Implementation.** Start when the requested scope includes implementation. Use the RFC for design rationale and the [ADR criteria](docs/adr/README.md#when-an-adr-is-warranted) for accepted architectural decisions.

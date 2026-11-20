@@ -1,6 +1,6 @@
 # Remaining Requirement Questions
 
-Updated: 7 November 2026. Recorded answers below come from the project owner in the requirements kickoff. Subquestions remain open unless resolved explicitly. These questions clarify the finalized feature set; they do not propose an additional feature backlog.
+Updated: 20 November 2026. Recorded answers below come from the project owner in the requirements kickoff. Subquestions remain open unless resolved explicitly. These questions clarify the finalized feature set; they do not propose an additional feature backlog.
 
 ## Baseline finalization
 
@@ -85,10 +85,11 @@ Affected: FR-02-FR-04, FR-11, FR-14.
 - The Daily Brief publishes hourly, including weekends. Retain the latest successful publication for each past date. Until today's first brief is ready, display the previous day's brief with its actual date. The archive offers one version per date.
 - Daily Brief Q&A context is resolved: support today's brief only, supplied automatically to chat each day. Past briefs are read-only and have no AI follow-up control. If today's brief is not yet available, report its absence; do not attach the previous-day fallback as today's context. This does not prohibit ordinary historical financial research.
 - Stock summary publication is resolved: generate on first open each Thai calendar day from latest available data, show as-of time, and keep the published summary unchanged until Thai midnight. An exchange that has not opened does not require an invented same-day opening price.
+- Stock summary waiting and generation scope are resolved: until today's summary is published, show the latest earlier summary with its actual date. Generate lazily, only on first open and at most once per listing per Thai date, with no further daily cap. Advance generation, including always producing mega-cap summaries, is deferred; Phase 1 generates no summary without an open.
 
 No historical-brief chat workflow is required. Use the latest successful current-day publication for a new request. Retain actual dates/cutoffs when displaying older conversation messages so an answer from a previous request is not presented as newly generated context.
 
-Answer: Resolved on 6 November 2026. The owner accepted Daily Brief scheduling, latest-version archiving, dated previous-day fallback, and the Thai-calendar-day/latest-data/fixed-daily-stock-summary rule. The owner then required today's-only Daily Brief Q&A with automatic daily context, declining the proposed archived-brief chat workflow. Implementation must keep the previous-day display fallback separate from current-day AI context.
+Answer: Resolved on 6 November 2026. The owner accepted Daily Brief scheduling, latest-version archiving, dated previous-day fallback, and the Thai-calendar-day/latest-data/fixed-daily-stock-summary rule. The owner then required today's-only Daily Brief Q&A with automatic daily context, declining the proposed archived-brief chat workflow. Implementation must keep the previous-day display fallback separate from current-day AI context. On 20 November 2026, the owner chose to show the latest earlier stock summary with its date while today's is prepared, kept generation lazy with no extra daily cap, and deferred advance generation, including mega-cap stocks, to a later improvement.
 
 ### Q07 Personalization and personal-data controls
 
