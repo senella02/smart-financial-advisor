@@ -2,7 +2,9 @@
 
 This is a new project built from scratch. The previous LLMFA project is a reference, not the starting architecture. Reuse isolated assets or code only when they fit the current requirements and save effort.
 
-## Read first
+## Project references
+
+Read the references relevant to the task.
 
 - [Project overview](README.md)
 - [Functional requirements](docs/functional-requirements.md)
@@ -13,11 +15,12 @@ This is a new project built from scratch. The previous LLMFA project is a refere
 - [Agent guidance directory](.agents/README.md)
 - [Developer guide](docs/developer-guide.md) for setup, checks, and code entry points
 
-## Project boundaries
+## Task scope
 
-- Implement requested work within [Phase 1 scope](docs/functional-requirements.md#1-scope-and-requirement-status). The product researches Thai/US common stocks and does not execute trades. Later features are not implicitly authorized by their presence in the full baseline.
+- For research, brainstorming, and reviews of requirements, design, or architecture, consider any part of the product relevant to the request.
+- Let the request set implementation scope. When planning or sequencing implementation, use the current delivery milestone as the default if the request leaves priorities open. [Delivery scope](docs/functional-requirements.md#1-scope-and-requirement-status)
 - Use the requirements for publication dates, refresh rules, history, languages, access, and portfolio accounting; preserve stable requirement IDs. Distinguish confirmed rules, proposed details, unresolved questions, and implemented behavior.
-- Follow [source precedence](docs/source-notes.md#source-precedence) when historical material conflicts. Follow the [accepted architecture](docs/adr/README.md#decisions); it is a target, not proof that a worker or live integrations exist.
+- Follow [source precedence](docs/source-notes.md#source-precedence) when historical material conflicts. Use the [accepted architecture](docs/adr/README.md#decisions) as the baseline for analysis and implementation. Check the code to establish what is implemented.
 
 ## Working agreements
 

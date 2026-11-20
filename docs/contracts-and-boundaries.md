@@ -1,6 +1,6 @@
 # Contracts and integration boundaries
 
-These rules apply across Phase 1 features. The architecture decisions explain why the boundaries exist. The functional requirements define product behavior. [ADR 0001](adr/0001-nextjs-application-and-shared-workspace.md), [ADR 0002](adr/0002-validated-contracts-and-data-trust-boundaries.md), [Phase 1 scope](functional-requirements.md#1-scope-and-requirement-status)
+These rules describe the application's integration and trust boundaries. The architecture decisions explain why the boundaries exist. The functional requirements define product behavior. [ADR 0001](adr/0001-nextjs-application-and-shared-workspace.md), [ADR 0002](adr/0002-validated-contracts-and-data-trust-boundaries.md), [Functional requirements](functional-requirements.md)
 
 ## Layer responsibilities
 

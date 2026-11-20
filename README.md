@@ -2,9 +2,9 @@
 
 A web application for novice investors researching Thai and US common stocks. It provides evidence and explanations; it does not execute trades. This is a fresh implementation, with selective reuse from the previous LLMFA project only when useful.
 
-## Product scope
+## Requirements and delivery
 
-Phase 1 covers shared content on Home, Stock Detail, and AI Q&A and comparison without login. The owner finalized the first [requirements baseline](docs/functional-requirements.md) on 7 November 2026. The [question record](docs/requirements-questions.md) tracks remaining product decisions.
+The [requirements baseline](docs/functional-requirements.md), finalized on 7 November 2026, describes the full product. Phase 1 is the first delivery milestone and covers shared content on Home, Stock Detail, and AI Q&A and comparison without login. The [question record](docs/requirements-questions.md) tracks remaining product decisions.
 
 ## Local development
 

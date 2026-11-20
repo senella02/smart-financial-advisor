@@ -14,7 +14,7 @@ The application contains six main areas: Home, My Watchlist, Portfolio, Stock De
 
 Portfolio records are user-entered current holdings, including separate purchase positions. The system does not submit orders or perform real trading. A transaction ledger, sales accounting, realized gains, cash balances, and dividends received are outside the current scope.
 
-The owner prioritized Home, Stock Detail, and grounded AI Q&A first, followed by Watchlist, Investor Profile, and Discovery, then Portfolio. AI assistance with maintaining holdings remains outside the current baseline.
+The delivery sequence is Home, Stock Detail, and grounded AI Q&A first, followed by Watchlist, Investor Profile, and Discovery, then Portfolio. This baseline describes requirements across the full delivery sequence. AI assistance with maintaining holdings remains outside the current baseline.
 
 **Phase 1:** Deliver Home's shared market content and Daily Brief, Stock Detail, and AI Q&A/comparison in the main and stock-page chat entry points. There is no login system; visitors can use these AI features without signing in. The Home portfolio overview, saved Watchlist, Investor Profile, Portfolio, and discovery screening arrive in later groups. Phase 1 answers and Daily Brief follow-ups work without these personal contexts and do not invent saved preferences or holdings. Require an account for AI chat when the future account-based version is introduced, as specified in FR-21.
 
