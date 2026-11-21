@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1440" height="800" viewBox="0 0 1440 800" role="img" aria-labelledby="title description">
+  <title id="title">Figure 1. Smart Financial Advisor system architecture</title>
+  <desc id="description">The full product target design. Guests and signed-in investors use Next.js on Vercel. Next.js reads account-private records and public evidence and triggers first-open stock summaries in Airflow. Airflow schedules ingestion, indexing, and publication using public evidence only. Supabase PostgreSQL holds private account records separately from public evidence and publications. Pinecone indexes public passages for scoped retrieval.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M1 1 L9 5 L1 9" fill="none" stroke="#516680" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <!-- https://airflow.apache.org/images/airflow-icon.svg -->
+    <symbol id="logo-airflow" viewBox="0 0 175 175" fill="none">
+      <g clip-path="url(#clip0)">
+      <path d="M4.18587 172.44L86.3959 88.1685C86.9109 87.6406 87.0096 86.8244 86.5801 86.2249C81.5792 79.2442 72.3564 78.0343 68.9375 73.3445C58.8101 59.4522 56.2405 51.5891 51.8887 52.0768C51.5847 52.1109 51.3137 52.2745 51.1001 52.4934L21.4015 82.9367C4.31645 100.45 1.86636 139.01 1.41703 171.298C1.39673 172.757 3.1669 173.484 4.18587 172.44Z" fill="#017CEE"/>
+      <path d="M172.44 170.357L88.1685 88.1466C87.6406 87.6316 86.8244 87.5328 86.2249 87.9623C79.2443 92.9633 78.0344 102.186 73.3445 105.605C59.4522 115.732 51.5891 118.302 52.0768 122.654C52.1109 122.958 52.2745 123.229 52.4935 123.442L82.9367 153.141C100.45 170.226 139.01 172.676 171.298 173.125C172.757 173.146 173.484 171.376 172.44 170.357Z" fill="#00AD46"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M82.9363 153.141C73.3696 143.809 68.9312 125.346 87.2715 87.2725C57.4647 100.593 47.0194 118.103 52.1578 123.116L82.9363 153.141Z" fill="#04D659"/>
+      <path d="M170.355 2.10462L88.1451 86.376C87.6301 86.9039 87.5314 87.72 87.9609 88.3195C92.9618 95.3002 102.185 96.5101 105.603 101.2C115.731 115.092 118.301 122.955 122.652 122.468C122.956 122.434 123.227 122.27 123.441 122.051L153.139 91.6077C170.225 74.0942 172.675 35.5346 173.124 3.24627C173.144 1.78719 171.374 1.0601 170.355 2.10462Z" fill="#00C7D4"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M153.14 91.6077C143.807 101.174 125.344 105.613 87.2705 87.2725C100.591 117.079 118.101 127.525 123.114 122.386L153.14 91.6077Z" fill="#11E1EE"/>
+      <path d="M2.10315 4.18733L86.3745 86.3973C86.9024 86.9123 87.7185 87.0111 88.3181 86.5816C95.2987 81.5807 96.5086 72.3579 101.198 68.939C115.091 58.8116 122.954 56.242 122.466 51.8902C122.432 51.5862 122.268 51.3152 122.05 51.1016L91.6063 21.403C74.0928 4.31792 35.5331 1.86783 3.2448 1.4185C1.78572 1.39819 1.05863 3.16836 2.10315 4.18733Z" fill="#E43921"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M91.6057 21.4025C101.172 30.7352 105.611 49.1977 87.2705 87.2714C117.077 73.9511 127.523 56.4408 122.384 51.4281L91.6057 21.4025Z" fill="#FF7557"/>
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M21.4025 82.9368C30.7352 73.3701 49.1977 68.9317 87.2714 87.272C73.951 57.4652 56.4408 47.0199 51.4281 52.1583L21.4025 82.9368Z" fill="#0CB6FF"/>
+      <circle cx="87.2838" cy="87.2606" r="3.67606" transform="rotate(-0.709386 87.2838 87.2606)" fill="#4A4848"/>
+      </g>
+      <defs>
+      <clipPath id="clip0">
+      <rect width="175" height="175" fill="white"/>
+      </clipPath>
+      </defs>
+    </symbol>
+    <!-- https://vercel.com/geist/brands/assets/nextjs-symbol-black.svg -->
+    <symbol id="logo-nextjs" viewBox="0 0 100 100" fill="none">
+      <mask id="next-js__a" width="100" height="100" x="0" y="0" maskUnits="userSpaceOnUse" style="mask-type:alpha"><circle cx="50" cy="50" r="50" fill="black" style="fill:black;fill-opacity:1;"/></mask><g mask="url(#next-js__a)"><circle cx="50" cy="50" r="48.335" fill="black" stroke="black" stroke-width="3.33" style="fill:black;fill-opacity:1;stroke:black;stroke-opacity:1;"/><path fill="url(#next-js__b)" d="M83.06 87.51 38.41 30H30v39.98h6.73V38.55l41.05 53.03a50 50 0 0 0 5.28-4.07"/><rect width="6.667" height="40" x="63.889" y="30" fill="url(#next-js__c)"/></g><defs><linearGradient id="next-js__b" x1="60.556" x2="80.278" y1="64.722" y2="89.167" gradientUnits="userSpaceOnUse"><stop stop-color="white" style="stop-color:white;stop-opacity:1;"/><stop offset=".604" stop-color="white" stop-opacity="0" style="stop-color:none;stop-opacity:0;"/><stop offset="1" stop-color="white" stop-opacity="0" style="stop-color:none;stop-opacity:0;"/></linearGradient><linearGradient id="next-js__c" x1="67.222" x2="67.111" y1="30" y2="59.375" gradientUnits="userSpaceOnUse"><stop stop-color="white" style="stop-color:white;stop-opacity:1;"/><stop offset="1" stop-color="white" stop-opacity="0" style="stop-color:none;stop-opacity:0;"/></linearGradient></defs>
+    </symbol>
+    <!-- https://vercel.com/geist/brands/assets/vercel-symbol-black.svg -->
+    <symbol id="logo-vercel" viewBox="0 0 115 100" fill="none">
+      <path fill="black" fill-rule="evenodd" d="M57.5 0 115 100H0z" clip-rule="evenodd" style="fill:black;fill-opacity:1;"/>
+    </symbol>
+    <!-- https://supabase.com/brand-assets/supabase-icon-green-transparent.svg -->
+    <symbol id="logo-supabase" viewBox="0 0 109 113" fill="none">
+      <path d="M63.7076 110.284C60.8481 113.885 55.0502 111.912 54.9813 107.314L53.9738 40.0627L99.1935 40.0627C107.384 40.0627 111.952 49.5228 106.859 55.9374L63.7076 110.284Z" fill="url(#paint0_linear)"/>
+      <path d="M63.7076 110.284C60.8481 113.885 55.0502 111.912 54.9813 107.314L53.9738 40.0627L99.1935 40.0627C107.384 40.0627 111.952 49.5228 106.859 55.9374L63.7076 110.284Z" fill="url(#paint1_linear)" fill-opacity="0.2"/>
+      <path d="M45.317 2.07103C48.1765 -1.53037 53.9745 0.442937 54.0434 5.041L54.4849 72.2922H9.83113C1.64038 72.2922 -2.92775 62.8321 2.1655 56.4175L45.317 2.07103Z" fill="#3ECF8E"/>
+      <defs>
+      <linearGradient id="paint0_linear" x1="53.9738" y1="54.974" x2="94.1635" y2="71.8295" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#249361"/>
+      <stop offset="1" stop-color="#3ECF8E"/>
+      </linearGradient>
+      <linearGradient id="paint1_linear" x1="36.1558" y1="30.578" x2="54.4844" y2="65.0806" gradientUnits="userSpaceOnUse">
+      <stop/>
+      <stop offset="1" stop-opacity="0"/>
+      </linearGradient>
+      </defs>
+    </symbol>
+    <!-- https://www.pinecone.io/images/brand/pinecone-logomark-black.svg -->
+    <symbol id="logo-pinecone" viewBox="0 0 59.13 64.09">
+      <defs>
+          <style>
+            .cls-1 {
+              fill-rule: evenodd;
+            }
+
+            .cls-1, .cls-2 {
+              fill: #1c1c1c;
+            }
+          </style>
+        </defs>
+        <g id="Layer_2-2" data-name="Layer 2">
+          <g>
+            <path class="cls-1" d="M18.62,43.16l2,3.46,5.52-3.18-1.31,7.44,3.94.69,1.31-7.44,4.1,4.88,3.05-2.57-7.12-8.49c-.47-.56-1.27-.7-1.9-.33l-9.58,5.54Z"/>
+            <path class="cls-1" d="M21.92,24.45l2,3.46,5.52-3.18-1.31,7.44,3.94.69,1.31-7.44,4.1,4.88,3.05-2.57-7.12-8.49c-.47-.56-1.27-.7-1.9-.33l-9.58,5.54Z"/>
+            <path class="cls-1" d="M53.39,30.09l-3.46,2,3.18,5.52-7.44-1.31-.69,3.94,7.44,1.31-4.88,4.1,2.57,3.05,8.49-7.12c.56-.47.7-1.27.33-1.9l-5.54-9.58Z"/>
+            <path class="cls-1" d="M25.22,5.74l2,3.46,5.52-3.18-1.31,7.44,3.94.69,1.31-7.44,4.1,4.88,3.05-2.57L36.7.54c-.47-.56-1.27-.7-1.9-.33l-9.58,5.54Z"/>
+            <circle class="cls-2" cx="25.14" cy="60.59" r="3.5"/>
+            <path class="cls-1" d="M9.02,22.26l2.57,3.06-4.88,4.1,7.44,1.31-.69,3.94-7.44-1.31,3.18,5.52-3.46,1.99L.2,31.27c-.36-.63-.22-1.43.34-1.9l8.48-7.11Z"/>
+            <path class="cls-1" d="M24.87,8.73l-.35,3.98-6.34-.55,4.34,6.19-3.28,2.29-4.34-6.19-1.65,6.15-3.85-1.04,2.87-10.7c.19-.7.85-1.17,1.58-1.11l11.03.97Z"/>
+            <path class="cls-1" d="M43.13,11.95l-1.03,3.86,6.15,1.65-6.19,4.34,2.29,3.28,6.19-4.34-.55,6.34,3.98.34.97-11.03c.06-.73-.4-1.39-1.11-1.58l-10.69-2.86Z"/>
+            <path class="cls-1" d="M16,59l1.03-3.86-6.15-1.65,6.19-4.34-2.29-3.28-6.19,4.34.55-6.34-3.98-.34-.97,11.03c-.06.73.4,1.39,1.11,1.58l10.69,2.86Z"/>
+            <path class="cls-1" d="M34.27,62.22l.35-3.98,6.34.55-4.34-6.19,3.28-2.29,4.34,6.19,1.65-6.15,3.85,1.04-2.87,10.7c-.19.7-.85,1.17-1.58,1.11l-11.03-.97Z"/>
+          </g>
+        </g>
+    </symbol>
+    <symbol id="icon-person" viewBox="0 0 24 24">
+      <circle cx="12" cy="7" r="3.5"/>
+      <path d="M4.5 21v-2.5a7.5 7.5 0 0 1 15 0V21"/>
+    </symbol>
+    <symbol id="icon-signed-in" viewBox="0 0 24 24">
+      <circle cx="9" cy="7" r="3.5"/>
+      <path d="M2 21v-2.5a7 7 0 0 1 11-5.7M14.5 18.5l3 3 5-6"/>
+    </symbol>
+    <symbol id="icon-filing" viewBox="0 0 24 24">
+      <path d="M5 2.5h9l5 5v14H5zM14 2.5v5h5M8.5 12h7M8.5 16h7"/>
+    </symbol>
+    <style>
+      text { font-family: Arial, sans-serif; fill: #172b43; }
+      .title { font-size: 36px; font-weight: 700; }
+      .subtitle { font-size: 20px; fill: #496079; }
+      .section { font-size: 15px; font-weight: 700; letter-spacing: 1.3px; }
+      .name { font-size: 25px; font-weight: 700; }
+      .label { font-size: 19px; font-weight: 700; }
+      .body, .edge { font-size: 17px; fill: #344d67; }
+      .card { fill: white; stroke: #c2d0df; stroke-width: 1.5; }
+      .link { fill: none; stroke: #516680; stroke-width: 2; marker-end: url(#arrow); }
+      .both { marker-start: url(#arrow); }
+      .icon-tile { fill: #fff; stroke: #d3dee9; stroke-width: 1; }
+      .role-icon { fill: none; stroke: #345982; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </defs>
+  <rect width="1440" height="800" fill="#fff"/>
+  <text x="42" y="56" class="title">Smart Financial Advisor system architecture</text>
+  <text x="43" y="88" class="subtitle">Figure 1 · Full product design · Phase 2 target</text>
+
+  <rect x="42" y="123" width="236" height="98" rx="12" class="card"/>
+  <rect x="60" y="135" width="27" height="27" rx="7" fill="#edf4fc"/>
+  <use xlink:href="#icon-person" x="64" y="139" width="19" height="19" class="role-icon" aria-hidden="true"/>
+  <text x="98" y="155" class="label">Guests</text>
+  <text x="60" y="185" class="body">Home and Stock Detail</text>
+
+  <rect x="295" y="123" width="323" height="98" rx="12" class="card"/>
+  <rect x="313" y="135" width="27" height="27" rx="7" fill="#edf4fc"/>
+  <use xlink:href="#icon-signed-in" x="317" y="139" width="19" height="19" class="role-icon" aria-hidden="true"/>
+  <text x="351" y="155" class="label">Signed-in investors</text>
+  <text x="313" y="182" class="body">Chat, Watchlist, Portfolio and Profile</text>
+  <text x="313" y="205" class="body">Signed-in Discovery access proposed</text>
+
+  <rect x="836" y="123" width="562" height="98" rx="12" class="card"/>
+  <rect x="856" y="135" width="27" height="27" rx="7" fill="#edf4fc"/>
+  <use xlink:href="#icon-filing" x="860" y="139" width="19" height="19" class="role-icon" aria-hidden="true"/>
+  <text x="894" y="155" class="label">Public evidence sources</text>
+  <text x="856" y="185" class="body">US SEC EDGAR, Thai SEC iDISC and permitted news releases</text>
+
+  <rect x="42" y="266" width="576" height="253" rx="14" fill="#edf4fc" stroke="#a9c0da" stroke-width="1.5"/>
+  <rect x="836" y="266" width="562" height="253" rx="14" fill="#edf7f3" stroke="#a8cbbd" stroke-width="1.5"/>
+  <path d="M160 221 V266" class="link"/>
+  <path d="M456 221 V266" class="link"/>
+  <path d="M1117 221 V266" class="link"/>
+  <path d="M618 377 H836" class="link"/>
+  <text x="727" y="341" class="edge" text-anchor="middle">First-open stock summary</text>
+  <text x="727" y="364" class="edge" text-anchor="middle">Durable job ID</text>
+  <text x="727" y="405" class="edge" text-anchor="middle">Authenticated REST API</text>
+
+  <rect x="481" y="282" width="50" height="50" rx="11" class="icon-tile"/>
+  <use xlink:href="#logo-nextjs" x="491" y="292" width="30" height="30" aria-hidden="true"/>
+  <rect x="541" y="282" width="50" height="50" rx="11" class="icon-tile"/>
+  <use xlink:href="#logo-vercel" x="552" y="293" width="28" height="28" aria-hidden="true"/>
+  <text x="62" y="295" class="section">INTERACTIVE REQUESTS</text>
+  <text x="62" y="330" class="name">Next.js on Vercel</text>
+  <text x="62" y="361" class="body">Serves the UI and API, resolves financial context, and checks access</text>
+  <line x1="62" y1="381" x2="598" y2="381" stroke="#bdd0e3"/>
+  <text x="62" y="410" class="body">Proposed Supabase Auth for sign-in</text>
+  <text x="62" y="438" class="body">Market data, events and FX via server adapters</text>
+  <text x="62" y="466" class="body">Model via Vercel AI SDK · Private inputs require approval</text>
+  <text x="62" y="494" class="body">Resolves public evidence and validates citations</text>
+
+  <rect x="1327" y="282" width="50" height="50" rx="11" class="icon-tile"/>
+  <use xlink:href="#logo-airflow" x="1335" y="290" width="34" height="34" aria-hidden="true"/>
+  <text x="856" y="295" class="section">BACKGROUND WORK</text>
+  <text x="856" y="330" class="name">Apache Airflow</text>
+  <text x="856" y="361" class="body">Schedules news, filings and the hourly Daily Brief</text>
+  <line x1="856" y1="381" x2="1378" y2="381" stroke="#bfd8ce"/>
+  <text x="856" y="410" class="body">Extracts and indexes evidence, supports backfills and reindexing</text>
+  <text x="856" y="438" class="body">Dispatches first-open summaries and recovers interrupted jobs</text>
+  <text x="856" y="466" class="body">TypeScript worker publishes Thai and English together</text>
+  <text x="856" y="494" class="body">Model via Vercel AI SDK · Public evidence only</text>
+
+  <path d="M101 519 V648" class="link both"/>
+  <path d="M531 519 V623" class="link both"/>
+  <path d="M1103 519 V623" class="link both"/>
+  <text x="119" y="574" class="edge">Authorized account access</text>
+  <text x="549" y="561" class="edge">Read public evidence and publications</text>
+  <text x="549" y="586" class="edge">Search eligible passages and record jobs</text>
+  <text x="1121" y="561" class="edge">Store and index public evidence</text>
+  <text x="1121" y="586" class="edge">Claim jobs and commit publications</text>
+
+  <rect x="42" y="648" width="354" height="111" rx="12" fill="#f1edf8" stroke="#beafd5" stroke-width="1.5"/>
+  <text x="60" y="677" class="section">ACCOUNT-PRIVATE STORAGE</text>
+  <use xlink:href="#logo-supabase" x="60" y="685" width="25" height="25" aria-hidden="true"/>
+  <text x="97" y="706" class="label">Supabase PostgreSQL</text>
+  <text x="60" y="731" class="body">Watchlist, holdings, profile and saved chats</text>
+
+  <rect x="428" y="623" width="970" height="153" rx="12" fill="#f0f5fa" stroke="#b0c3d6" stroke-width="1.5"/>
+  <text x="448" y="652" class="section">PUBLIC EVIDENCE AND SHARED PUBLICATIONS</text>
+  <rect x="448" y="670" width="535" height="87" rx="9" class="card"/>
+  <use xlink:href="#logo-supabase" x="466" y="681" width="25" height="25" aria-hidden="true"/>
+  <text x="503" y="702" class="label">Supabase PostgreSQL</text>
+  <text x="466" y="730" class="body">Versioned evidence, citation locations, jobs and publications</text>
+  <rect x="1001" y="670" width="377" height="87" rx="9" class="card"/>
+  <use xlink:href="#logo-pinecone" x="1019" y="681" width="25" height="25" aria-hidden="true"/>
+  <text x="1056" y="702" class="label">Pinecone</text>
+  <text x="1019" y="730" class="body">Public passage vectors and scope metadata</text>
+</svg>

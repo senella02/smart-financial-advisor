@@ -1,65 +1,48 @@
-# ADR 0003 Market Data and News Provider Selection
+# ADR 0003 Market data and news provider selection
 
 Status: Accepted
 
 Date: 2026-11-14
 
-Decision source: Project owner request to evaluate live Thai/US provider options, rate limits, and regulatory constraints, and record the architecture decision.
+Updated: 2026-11-20
 
-Related requirements: [FR-01, FR-02, FR-05, FR-11](file:///F:/Engineering/Y4_2569_T1/smart-financial-advisor/docs/functional-requirements.md), [ADR 0002](file:///F:/Engineering/Y4_2569_T1/smart-financial-advisor/docs/adr/0002-validated-contracts-and-data-trust-boundaries.md).
+Decision sources: The owner requested the initial provider decision on 14 November 2026 and authorized finalizing the filing and financial data source design in chat on 20 November 2026. [Source register](../source-notes.md#s7-filing-and-financial-data-sources)
+
+Related requirements: [FR-01 stock identity](../final/functional-requirements.md#fr-01-supported-stock-identity), [FR-02 data freshness](../final/functional-requirements.md#fr-02-data-freshness-and-incomplete-data), [FR-12 financial data and news](../final/functional-requirements.md#fr-12-financial-data-and-news), and [FR-19 grounded answers and citations](../final/functional-requirements.md#fr-19-grounded-answers-and-citations)
 
 ## Context
 
-Phase 1 requires a single source-integration layer providing:
-- Quotes, identity validation, and OHLCV history (1D, 1M, 1Y, 5Y) for Thai (SET) and US common stocks.
-- 5 major market indices: SET, SET50, Dow Jones, S&P 500, and Nasdaq.
-- Financial statements (annual/quarterly up to 4 years) and key metrics (P/E, P/BV, ROE, D/E, dividend yield, market cap).
-- Company news and broad market news with verifiable publishers and source URLs.
-
-Key constraints:
-- Operating budget (Q08) is zero/unconfirmed; expensive commercial vendor licenses (Bloomberg, Refinitiv, official SET data feed licenses) are out of scope.
-- Thai market coverage is strictly required alongside US markets.
-- In accordance with project rules, the application must never fabricate financial figures, must distinguish observation times from fetch times, and must handle provider errors gracefully with explicit `unavailable` results.
+The application needs Thai and US market data behind one internal contract. Coverage and access vary by data type, especially for financial statements and valuation metrics.
 
 ## Decision and rationale
 
-We adopt a **Hybrid Provider Adapter Architecture** centered around the public Yahoo Finance engine for market quotes, OHLCV charts, and news, backed by typed schema contracts and verified local statement fixtures where upstream access is restricted:
+Use Yahoo Finance as the initial upstream for instrument search, quotes, indices, price history, and news. The original evaluation exercised representative Thai and US symbols and indices. A shared adapter keeps the upstream response shapes out of application logic and allows other providers to fill coverage gaps.
 
-1. **Market Quotes, 5 Major Indices, and OHLCV Price/Volume History:**
-   - **Engine:** Yahoo Finance v8 Chart Endpoint (`query1.finance.yahoo.com/v8/finance/chart/{symbol}`).
-   - **Live verification:** Successfully tested on live network with `PTT.BK` (SET), `AAPL` (Nasdaq), `^SET.BK`, `^SET50.BK`, `^DJI`, `^GSPC`, and `^IXIC`.
-   - **Coverage & Delays:** Native 15-minute delayed quotes for SET (Thailand) and near-instant/minute quotes for US exchanges. Native timestamps and currency keys (`THB`/`USD`) are preserved directly without overwriting fetch times.
+The Phase 1 scheduled news corpus starts with official releases whose terms permit ingestion and the intended AI use. [FR-03](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication)
 
-2. **Stock Search, Company Identity, and News:**
-   - **Engine:** Yahoo Finance Search & News API (`query2.finance.yahoo.com/v1/finance/search`).
-   - **Identity Rule:** Ambiguous queries return candidate lists or reject match without guessing. Unsupported instrument types (e.g. mutual funds, crypto, futures) are filtered out to satisfy the common-stock restriction.
-   - **News:** Provides live headlines, publisher metadata, original source URLs, and publication timestamps.
+Anonymous Yahoo Finance fundamentals requests returned authorization errors in the original evaluation. Stock Detail, chat, and publication workflows obtain statements and metrics through shared server-side adapters. [Market data research](../research/thai-and-us-market-data.md), [ADR 0002](0002-validated-contracts-and-data-trust-boundaries.md)
 
-3. **Financial Statements & Deep Valuation Metrics:**
-   - **Provider constraint:** Direct anonymous access to Yahoo's `quoteSummary` endpoint returns HTTP 401 Unauthorized without session cookies/crumbs.
-   - **Contract compliance:** When live fundamental data cannot be authorized or retrieved, the adapter explicitly yields `{ status: "unavailable", reason: "PROVIDER_RESTRICTED" }` or serves audited static fixtures (`@sfa/contracts/fixtures`) for verified demo securities. No financial values are invented or defaulted to zero.
+### Filings and fundamentals
 
-4. **Rate Limiting and Cache Boundary:**
-   - All external calls are mediated through Next.js server-side adapters (`apps/web/src/server/adapters/`).
-   - Server-side caching (TTL 60s for quotes, 300s for news) prevents redundant outbound requests and adheres to rate limits (estimated ~2,000 req/hr/IP).
+- **US.** Use SEC EDGAR for filings and Company Facts for standard financial figures. Use the filed report for items outside Company Facts coverage. EDGAR supplies structured figures and the source documents that support citations. [EDGAR APIs](https://www.sec.gov/search-filings/edgar-application-programming-interfaces), [US sample](../research/thai-and-us-market-data.md#us-filings-and-financial-facts)
+- **Thailand.** Use Thai SEC iDISC as the primary source for annual and interim filings. Use the issuer's published copy when it matches the applicable filing. Extract and verify Thai statement figures from those filings where structured coverage is missing. The iDISC sample includes recent annual and interim filings. The SEC Open Data One Report API can supplement annual figures where its issuer, period, and field coverage is verified. [Thai filing and API coverage](../research/thai-and-us-market-data.md#thai-sec-open-data-one-report-coverage)
+- **Thai structured feeds.** Keep the SET Financial Statement API and SETSMART Company Fundamental Data under evaluation. Either can supplement the Thai filing path if access, coverage, and rights for storage, display, and AI use are confirmed. The filing path can operate independently of a SET agreement. [SET Financial Statement API](https://www.set.or.th/app/online-data/financial-statement), [SETSMART Company Fundamental Data](https://www.set.or.th/app/online-data/fundamental-data?lang=en)
+
+When sources disagree, reconcile issuer, reporting period, reporting basis, currency, unit, and filing version. Use the applicable audited or reviewed filing for figures on that basis. Use reported metrics or deterministic calculations from verified inputs. Mark figures unavailable when they or their inputs cannot be verified. Preserve the source and version for figures taken from filings. [Financial data boundaries](../contracts-and-boundaries.md#financial-and-publication-meaning), [Source reconciliation example](../research/thai-and-us-market-data.md#proposed-source-precedence)
 
 ## Alternatives and tradeoffs
 
-- **Alpha Vantage / Finnhub:**
-  - *Tradeoff:* Excellent US stock coverage, but virtually zero or extremely restricted coverage for Thai common stocks (SET) on free plans. Also strictly constrained by rate limits (e.g. 25 requests/day or 5 calls/min on Alpha Vantage), making it unusable as a primary unified source.
-- **Official SET Data Feed / SET Link API:**
-  - *Tradeoff:* Legally compliant official data, but requires enterprise contracts, corporate approval, and subscription fees incompatible with zero-budget development.
-- **Financial Modeling Prep (FMP):**
-  - *Tradeoff:* Excellent 4-year financial statement tables, but free tier limits historical depth and restricts Thai ticker coverage.
+- A single licensed provider could simplify integration and offer formal access terms. Its Thai and US coverage and cost would need to fit the project.
+- A provider mix can fill gaps without replacing the primary adapter. It adds work to reconcile listing identity, source timestamps, units, and reporting periods.
 
 ## Consequences
 
-- The application achieves immediate zero-cost integration for live Thai and US quotes, OHLCV charts across all required ranges (1D/1M/1Y/5Y), 5 major indices, and news.
-- The system must respect upstream terms of service; scraping or bypassing authentication challenges is prohibited by agent guidelines.
-- Unofficial endpoint changes could cause disruptions; downstream consumers must always rely on `@sfa/contracts` boundaries and handle `unavailable` statuses cleanly.
+The Yahoo Finance integration depends on unofficial endpoints. Revisit the provider choice if access changes or the adapter cannot meet the required coverage.
+
+The Thai filing path requires extraction and validation work. Coverage, revision lag, and extraction accuracy still need measurement. A structured feed can reduce that work if it meets the coverage and usage requirements. [Q04](../requirements-questions.md#q04-supported-data-and-stock-coverage)
 
 ## References
 
-- [Functional Requirements FR-01, FR-02, FR-05, FR-11](file:///F:/Engineering/Y4_2569_T1/smart-financial-advisor/docs/functional-requirements.md)
-- [ADR 0002 Validated contracts and data trust boundaries](file:///F:/Engineering/Y4_2569_T1/smart-financial-advisor/docs/adr/0002-validated-contracts-and-data-trust-boundaries.md)
-- [Requirements Questions Q04, Q08](file:///F:/Engineering/Y4_2569_T1/smart-financial-advisor/docs/requirements-questions.md)
+- [ADR 0002 Validated contracts and data trust boundaries](0002-validated-contracts-and-data-trust-boundaries.md)
+- [Q04 Supported data and stock coverage](../requirements-questions.md#q04-supported-data-and-stock-coverage)
+- [Q08 Release quality and evaluation](../requirements-questions.md#q08-release-quality-and-evaluation)

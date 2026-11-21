@@ -4,13 +4,13 @@ Read [AGENTS.md](../AGENTS.md) for repository-wide instructions and documentatio
 
 ## Shared changes
 
-- Before changing a shared interface, identify its producers and consumers and agree on the smallest schema/example change with affected contributors. Update contracts, fixtures, adapters, UI, relevant tests, and docs together. Current shapes and limits are in the [contract guide](../docs/contracts-and-boundaries.md).
+- Coordinate shared-interface changes with affected contributors. Follow the [contract change rules](../docs/contracts-and-boundaries.md#contract-changes) and the trust boundaries on that page.
 - Keep downloaded direct dependencies exact and commit lockfile updates. `workspace:*` links local packages. Review compatibility notes and run affected [checks](../docs/developer-guide.md#checks-and-testing-scope) on tooling changes; routine version changes do not need an ADR.
-- Keep fixture data visibly marked as demo data. Preserve semantic sections, keyboard access, and visible focus when replacing page placeholders.
+- Label synthetic data where users see it. Preserve semantic sections, keyboard access, and visible focus.
 
 ## UI design reference
 
-The selected working visual direction is in [DESIGN.md](../DESIGN.md). Read [UI conventions](../docs/ui-conventions.md) and the linked route briefs before implementing Home, Stock Detail, or chat. They describe the next UI target; existing UI and fixtures are disposable placeholders. Requirements retain authority over scope and behavior. Keep this design reference separate from product rules in PRODUCT.md.
+Read the [visual design](../DESIGN.md), [UI conventions](../docs/phase-1-planning/ui-conventions.md), and linked route briefs before changing Home, Stock Detail, or chat. Follow the [Phase 1 requirements](../docs/phase-1-planning/functional-requirements.md) for scope and behavior.
 
 ## Project skills
 
@@ -21,6 +21,6 @@ Shared skills are vendored in [skills/](skills/) for every contributor. Agents w
 - Writing and review: [technical-writing](skills/technical-writing/SKILL.md), [unslop](skills/unslop/SKILL.md), [benchmark-checklist](skills/benchmark-checklist/SKILL.md), [correct](skills/correct/SKILL.md), [sharpen](skills/sharpen/SKILL.md), [bro](skills/bro/SKILL.md), [in-your-own-words](skills/in-your-own-words/SKILL.md), and [ketchup](skills/ketchup/SKILL.md) / [ketchup-video](skills/ketchup-video/SKILL.md).
 - Verification authoring: [create-verification-skill](skills/create-verification-skill/SKILL.md) / [maintain-verification-skill](skills/maintain-verification-skill/SKILL.md), their [formal](skills/create-formal-verification-skill/SKILL.md) [counterparts](skills/maintain-formal-verification-skill/SKILL.md), and [statechart](skills/statechart/SKILL.md).
 
-These are available workflows, not a mandate to run them all. Pstack's `disable-model-invocation: true` is preserved: invoke those skills explicitly when needed. Project requirements, authorized scope, ADR criteria, and privacy rules take precedence over generic recommendations. [PRODUCT.md](../PRODUCT.md) contains only confirmed, durable product rules and requirements links. Keep implementation status in task plans such as `plan.md`. Do not promote temporary experiments, scaffold choices, or observed code into product requirements. Establish design conventions through requested design work. Do not create parallel requirements merely because a skill suggests them.
+Invoke Pstack skills marked `disable-model-invocation: true` explicitly when needed. Follow the project's scope, requirements, privacy rules, and [documentation rules](../AGENTS.md#documentation-rules) when applying skills.
 
 Add `.agents/skills/<skill-name>/SKILL.md` with `name` and `description` frontmatter only when a repeatable project workflow justifies it. Keep supporting scripts and references in that skill folder; do not copy standing instructions or the old project's skill collection.

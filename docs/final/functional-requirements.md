@@ -1,10 +1,10 @@
-# Smart Financial Advisor Functional Requirements
+# Final functional requirements
 
 Version: 2.0 (first finalized requirements baseline for the new project)
 
 Updated: 7 November 2026
 
-Status: Finalized by the project owner; ready to implement Phase 1.
+Status: Finalized by the project owner.
 
 Smart Financial Advisor helps novice investors with limited time understand market developments, research individual stocks, discover stocks that match their stated interests, and assess their manually recorded holdings. The application provides evidence and explanations so users can make their own decisions.
 
@@ -14,23 +14,17 @@ The application contains six main areas: Home, My Watchlist, Portfolio, Stock De
 
 Portfolio records are user-entered current holdings, including separate purchase positions. The system does not submit orders or perform real trading. A transaction ledger, sales accounting, realized gains, cash balances, and dividends received are outside the current scope.
 
-The full feature baseline includes all six areas. The agreed implementation order is Home, Stock Detail, and grounded AI Q&A first; Watchlist, Investor Profile, and Discovery next; Portfolio last. These groups define priority, not release dates. Portfolio is low priority; future AI assistance with maintaining holdings is a direction, not a current requirement.
+The end of Phase 2 is the target for delivering the full account-based product. Watchlist, Investor Profile, and Discovery follow the capstone prototype, with Portfolio last. The [Phase 1 requirements](../phase-1-planning/functional-requirements.md) cover the prototype. AI assistance with maintaining holdings remains outside the current baseline. [Delivery phases](final-architecture.md#delivery-phases)
 
-**Phase 1:** Deliver Home's shared market content and Daily Brief, Stock Detail, and AI Q&A/comparison in the main and stock-page chat entry points. There is no login system; visitors can use these AI features without signing in. The Home portfolio overview, saved Watchlist, Investor Profile, Portfolio, and discovery screening arrive in later groups. Phase 1 answers and Daily Brief follow-ups work without these personal contexts and do not invent saved preferences or holdings. Require an account for AI chat when the future account-based version is introduced, as specified in FR-21.
-
-The main chatbot page shows history from both chat entry points. Stock Detail shows only conversations explicitly linked to that stock through application context. Phase 1 history lasts for the current browser session only; new sessions do not restore earlier history.
+The main chatbot page shows history from both chat entry points. Stock Detail shows only conversations explicitly linked to that stock through application context.
 
 Shared Daily Brief and stock summaries have Thai and English versions. Chat automatically receives today's Daily Brief as context. Past briefs may be read, but AI Q&A about an archived Daily Brief is outside scope.
 
-**Phase 1 interface delivery:** Finish Home, Stock Detail, and chat in Thai. Prepare Thai/English translation keys and dictionaries now, keeping user-facing UI copy out of components. English interface delivery, its language selector, locale persistence, and full translation review are deferred. This UI delivery order does not defer the separately confirmed bilingual shared publications or requested-language chat behavior. See FR-21.
-
-Phase 1 targets a capstone prototype/demonstration. Stock Detail quotes load when the page opens and when the visitor explicitly requests a refresh; they do not poll every minute. Daily stock summaries use price and volume analysis initially, without requiring RSI, MACD, or EMA. Home's one-minute index refresh remains a separate requirement.
-
-This is a new implementation. Named technologies in the source material describe candidates or historical implementations, not required architecture. Data coverage and observable behavior govern implementation choices.
+Stock Detail refreshes quotes on page open or explicit request. Home refreshes indices every minute.
 
 **Baseline** requirements below reflect the current slides, with recorded project-owner decisions taking precedence. **Proposed detail** sections add precise validation or acceptance rules for review; they are not approved additions. Acceptance scenarios that exercise a proposed detail are also proposed. A **Pending** reference identifies a product rule that must be resolved before the affected acceptance criteria are complete. All acceptance scenarios are specifications, not executed application tests.
 
-Source references use S1 for the current slide deck, S2 for the outdated v1.4 requirements, and S3 for the previous project's final report. [Source notes](source-notes.md) identify files, page numbers, conflicts, and historical lessons. [Open questions](requirements-questions.md) contain the outstanding decisions.
+Source references use S1 for the current slide deck, S2 for the outdated v1.4 requirements, and S3 for the previous project's final report. [Source notes](../source-notes.md) identify files, page numbers, conflicts, and historical lessons. [Open questions](../requirements-questions.md) contain the outstanding decisions.
 
 ## 2 Shared behavior
 
@@ -58,27 +52,35 @@ Pending: Q04 for exact data coverage, later Watchlist refresh rules, and accepta
 
 ### FR-03 Daily Brief content and publication
 
-**Baseline:** Generate one shared Daily Brief for each calendar date in `Asia/Bangkok`, with Thai and English versions. The brief covers important news from midnight Thai time through its latest successful update and is updated hourly as new news arrives. Users selecting the same date, language, and publication version see the same content. Both language versions describe the same publication's facts and evidence cutoff rather than different or personalized briefings.
+**Baseline:** Publish one shared Daily Brief per `Asia/Bangkok` calendar date and update it hourly. The roundup covers important news since Bangkok midnight. In Phase 2, the brief becomes a market report with the roundup, a timestamped market snapshot, and filing-backed analysis where relevant. Both languages use the same facts, sources, and evidence cutoff. Users who select the same date, language, and publication version see identical content.
 
-**Confirmed publication rules:** Update hourly every day, including weekends. Retain the latest successful publication for each past date; browsing older intraday versions is not required. Until today's first brief is ready, display the previous day's latest brief with its actual date and update time. Do not relabel yesterday's content as today's. If no previous brief exists, show a not-yet-published state.
+**Confirmed publication rules:** Schedule the Daily Brief for `:25` every hour in `Asia/Bangkok`, including weekends. Check approved news sources at `:00` and `:30` every hour. When publication starts, use the latest completed news batch available at that moment and select eligible stories published since Bangkok midnight. A batch still running can contribute to a later brief within that same Thai day. A completed check with no new stories counts as a successful check. When news ingestion fails and no newer completed batch is available, keep the last successful brief with its original timestamp and mark the update as delayed.
+
+Retain the latest successful publication for each past date; browsing older intraday versions is not required. Until today's first brief is ready, display the previous day's latest brief with its actual date and update time. Do not relabel yesterday's content as today's. If no previous brief exists, show a not-yet-published state.
 
 The AI scores news importance before selecting major stories. Coverage includes global market-moving news; US stocks, Treasury yields and Federal Reserve policy; Thai markets, the baht, Thai government bond yields and policy; major economic releases, central-bank decisions and earnings; and geopolitical, trade and energy developments with market impact. The selection criteria may be refined through testing.
 
+The final market snapshot uses the Home market indices in FR-05. Show observed moves with source timestamps and identify closed markets, delayed data, or unavailable values where applicable. The model may request a bounded number of read-only filing lookups for verified issuers relevant to selected stories. Cite the filing and reporting period when using a reported financial figure. When market data or a filing lookup is unavailable, retain the supported coverage and show the gap. Attribute a market move to an event only when the evidence supports that explanation. [FR-05](#fr-05-market-overview) · [FR-19](#fr-19-grounded-answers-and-citations)
+
 Provide a short version of a few lines and a longer version users can open, each available in Thai and English. Show the last successful update and time until the next scheduled update. Users can select a past date to read its brief. Archived briefs are read-only: no AI follow-up action is available for a past date.
 
-Chat automatically receives today's latest successful Daily Brief at the start of a request, without requiring the visitor to select or paste it. Only today's brief can be used for Daily Brief Q&A. If today's publication is not ready, identify that context as unavailable; do not attach yesterday's fallback as today's brief. This restriction applies to Daily Brief Q&A, not to ordinary historical stock/financial questions.
+Chat automatically receives today's latest successful Daily Brief when preparing a financial research answer. The visitor does not need to select or paste it. Only today's brief can be used for Daily Brief Q&A. If today's publication is not ready, identify that context as unavailable; do not attach yesterday's fallback as today's brief. This restriction applies to Daily Brief Q&A, not to ordinary historical stock/financial questions.
 
 **Proposed detail:** New updates may consolidate repeated stories and correct earlier content. A successful hourly update replaces the published version atomically; a failure leaves the previous successful version readable and marks the update as delayed. No-news and not-yet-published states have clear messages. Shared brief content excludes personal information.
 
 **Acceptance:** Two users opening the same date, language, and publication version see identical short and full content. Thai and English versions preserve the same material facts, sources, and cutoff. An hourly publication includes newly selected stories within that Thai calendar day. Updates are scheduled on weekends as well as weekdays. Selecting a past date shows that date's latest successful publication without an AI follow-up control. At a new day's rollover, the previous brief remains labeled with its date until today's first brief is ready. An AI request uses today's brief automatically or identifies it as unavailable; it never treats the displayed prior-day fallback as today's context. A failed update does not erase the previous publication or claim a new successful update.
 
-Source: S1 pp. 4-5, 7; daily schedule, archive version policy, rollover behavior, bilingual publication, and today's-only automatic chat context confirmed by the owner on 6 November 2026. The precise hourly execution offset is an implementation detail.
+**Final market report acceptance.** On an earnings day, show the roundup and market snapshot. Tie any filing-backed figures to the correct issuer and reporting period. A completed news check with zero new stories still allows an update to the market snapshot. On a closed-market day, retain the observation time of the last available value and identify the market as closed where that status is known. If a filing lookup fails or reaches its limit, publish the supported coverage and show the evidence gap. If the evidence establishes a price move but leaves its cause uncertain, report the move without attributing it to the story. The worker excludes evidence dated after the publication cutoff.
+
+For example, if the `09:00` news batch is still running when the `09:25` brief job starts and the `08:30` batch has completed, the job uses the `08:30` batch. A newly ingested story can appear in a later brief for the same date. If ingestion fails and there is no newer completed batch, the displayed brief keeps its timestamp and shows a delay. A completed batch with zero new stories does not show an ingestion failure.
+
+Source: S1 pp. 4-5, 7. The owner confirmed the daily schedule, archive version policy, rollover behavior, bilingual publication, and today's-only automatic chat context on 6 November 2026. The owner confirmed the ingestion timing, latest-completed-batch rule on 21 November 2026. [Q04](../requirements-questions.md#q04-supported-data-and-stock-coverage) · [Q06](../requirements-questions.md#q06-shared-content-dates-and-publication)
 
 ### FR-04 Daily Brief follow-up cards
 
 **Baseline:** Generate follow-up cards from today's Daily Brief topics. Cards suggest useful questions, areas to examine, and possible effects. Selecting a card lets the user ask the AI about the topic, including its effect on Portfolio and Watchlist when those later features are available. Archived briefs and the previous-day fallback have no Daily Brief AI follow-up action.
 
-**Proposed detail:** Selecting a current-day card opens a supported chat entry point with the chosen topic and today's brief context. Personal impact analysis is generated for the requesting user when personal contexts exist. Phase 1 or an empty Portfolio/Watchlist produces an appropriate general explanation without invented holdings. A stale card from a previous date does not initiate archived-brief Q&A.
+**Proposed detail:** Selecting a current-day card opens a supported chat entry point with the chosen topic and today's brief context. Personal impact analysis is generated for the requesting user when personal contexts exist. An empty Portfolio or Watchlist produces an appropriate general explanation without invented holdings. A stale card from a previous date does not initiate archived-brief Q&A.
 
 **Acceptance:** Selecting a current-day card about an economic development carries that development into chat without requiring the user to retype it. Selecting a past brief does not expose an AI follow-up control. A request explicitly asking about an archived Daily Brief explains that Daily Brief Q&A supports today only. Another user's holdings never appear in the resulting answer.
 
@@ -95,8 +97,6 @@ Source: S1 pp. 4, 7; today's-only brief Q&A confirmed by the owner on 6 November
 Source: S1 p. 5. Display details are also present in S2 p. 3; provider feasibility is pending Q04.
 
 ### FR-06 Portfolio overview on Home
-
-**Delivery:** Deferred with Portfolio; not part of Phase 1 Home.
 
 **Baseline:** Show total portfolio value, unrealized price profit/loss for current holdings against cost converted at current FX, daily price movement in THB and percent against previous closing prices, and the holdings with the strongest movement today. Refresh prices every minute. Price P/L excludes FX gains/losses under FR-22.
 
@@ -154,13 +154,15 @@ Use FR-22 for THB conversion and unrealized price P/L. Pending: Q01-Q02 for conc
 
 ### FR-11 Shared daily stock summary
 
-**Baseline:** Provide a short daily summary of the selected stock in Thai and English, covering latest financial performance, notable news, price and volume trends, strengths, and risks. Phase 1 uses price and volume analysis only; RSI, MACD, EMA, and other technical indicators are not required initially. Generate the summary on first open each Thai calendar day using the latest available data, show its as-of time, and reuse the published summary unchanged until midnight in `Asia/Bangkok` for all users. Language versions use the same evidence snapshot and preserve the same material facts and risks. A new Thai date becomes eligible for a new summary on first open.
+**Baseline:** Provide a short daily summary of the selected stock in Thai and English, covering latest financial performance, notable news, price and volume trends, strengths, and risks. Generate the summary on first open each Thai calendar day using the latest available data, show its as-of time, and reuse the published summary unchanged until midnight in `Asia/Bangkok` for all users. Language versions use the same evidence snapshot and preserve the same material facts and risks. A new Thai date becomes eligible for a new summary on first open.
 
 The shared summary is separate from personalized chat. Use financial-report evidence and the latest available market/news data at generation time, retaining their as-of dates and financial periods. Do not require that calendar day's opening quote if the stock's market has not opened or is closed. Refreshing a displayed quote does not regenerate the shared daily summary. The owner confirmed this latest-available-data rule and Thai calendar boundary on 6 November 2026, replacing the older opening-price assumption.
 
-**Proposed detail:** Show generation time and the as-of date/period of the evidence. Concurrent first requests produce one shared published result. If generation fails, leave financial data and chat usable and show a retryable error.
+Until today's summary is published, show the stock's latest earlier summary with its actual publication date and as-of time, and indicate that today's summary is being prepared. Never present an earlier summary as today's. Generate summaries only on first open, at most once per listing per Thai date. Advance generation, including always producing summaries for mega-cap stocks, is deferred. The owner confirmed the earlier-summary display, lazy generation, and deferral of advance generation on 20 November 2026.
 
-**Acceptance:** Two users opening the same stock, Thai date, and language receive the same published summary with its as-of time, even if a quote or news changes later that day. Selecting Thai or English preserves its evidence cutoff and material facts. The first opening after Thai midnight can generate the next day's summary. Closed-market data retains its actual timestamp rather than being described as a new opening price. A personalized chat response does not change the shared summary. Unsupported conclusions are omitted or explicitly qualified.
+**Proposed detail:** Show generation time and the as-of date/period of the evidence. Concurrent first requests produce one shared published result. If generation fails, leave financial data, chat, and any earlier summary usable and show a retryable error.
+
+**Acceptance:** Two users opening the same stock, Thai date, and language receive the same published summary with its as-of time, even if a quote or news changes later that day. While today's summary is being prepared or after it fails, a stock with an earlier summary shows that summary labelled with its own date, and a stock without one shows a preparing or retryable state rather than a blank panel. Viewing a stock page does not generate summaries for other stocks. Selecting Thai or English preserves its evidence cutoff and material facts. The first opening after Thai midnight can generate the next day's summary. Closed-market data retains its actual timestamp rather than being described as a new opening price. A personalized chat response does not change the shared summary. Unsupported conclusions are omitted or explicitly qualified.
 
 Source: S1 p. 13; bilingual versions, Thai-day, latest-data, and fixed-daily-publication rules confirmed by the owner on 6 November 2026.
 
@@ -174,11 +176,19 @@ Source: S1 p. 13; bilingual versions, Thai-day, latest-data, and fixed-daily-pub
 
 These views/fields are required. Clearly identify unavailable data rather than silently removing a required field or fabricating its value.
 
-**Proposed detail:** Label currency, units, financial reporting period, and missing data. Ratios retain their period/basis. Distinguish an unavailable range or shorter available reporting history from a valid empty result.
+Show the reporting period, currency, units, and reporting basis for verified statement figures. Link to the supporting filing for figures sourced from a filing. Ratios retain their reporting period or calculation basis. [Filing and financial data sources](../adr/0003-market-data-and-news-provider-selection.md#filings-and-fundamentals)
+
+**Confirmed filing ingestion:** Check US SEC EDGAR hourly from 06:00 through 23:00, inclusive, Monday through Friday in `America/New_York`. Refresh Company Facts for issuers with new or amended filings. Check Thai SEC iDISC and verified issuer sources at 09:00, 14:00, and 22:00 Monday through Friday in `Asia/Bangkok`. Process new and amended filings in either market and retain the last complete version if processing fails. [Q04](../requirements-questions.md#q04-supported-data-and-stock-coverage)
+
+**Proposed detail:** Distinguish an unavailable range or shorter available reporting history from a valid empty result.
 
 **Acceptance:** Users can select each required chart range, switch between annual and quarterly statements within up to four years of available history, and locate each required financial metric. A quote loads when the page opens; an explicit refresh requests an updated quote without regenerating the daily stock summary. Merely leaving Stock Detail open for one minute does not trigger automatic quote polling. Missing history, a missing range, or an unavailable metric has an explicit state; missing values are not replaced with zero. Users can distinguish a current quote from a prior reporting-period figure and inspect evidence underlying the daily summary.
 
-Source: S1 p. 13; S2 pp. 3-4 data details explicitly retained by the project owner on 6 November 2026, with annual/quarterly views, page-open/manual quote refresh, and price/volume-only initial analysis subsequently confirmed. Exact provider coverage remains in Q04.
+For a statement figure sourced from a filing, users can follow its source link and verify the value using the displayed period, reporting basis, currency, and units.
+
+The US check follows Eastern time across daylight-saving changes. The Thai check follows Bangkok time. A new or amended filing updates the searchable evidence after processing succeeds. An unchanged filing creates no new version, and a failed import leaves the last complete version available.
+
+Source: S1 p. 13 and S2 pp. 3-4 data details retained by the project owner on 6 November 2026. S7 records the 20 November filing source decision. The owner confirmed the filing check schedules on 21 November 2026. Wider provider coverage remains in Q04.
 
 ### FR-13 Stock-bound chat
 
@@ -198,19 +208,21 @@ Source: S1 pp. 7-9, 13; history views confirmed by the project owner on 6 Novemb
 
 **Baseline:** Main chat supports stock questions, stock comparisons, and stock discovery. Provide prompt shortcuts such as "Help me choose stocks" and "I do not know where to start." Use relevant financial documents, prices, and news to answer.
 
-Both chat entry points automatically receive today's Daily Brief and have the user's Watchlist, Portfolio, and enabled Investor Profile available when those later features are introduced. Context relevance does not mean every answer must mention every holding. Archived briefs are not supported Daily Brief Q&A context.
+Both chat entry points automatically include today's published Daily Brief when preparing a financial research answer. If today's brief is unavailable, chat states the limitation when relevant and can still answer from other financial evidence. Chat uses the Investor Profile only when the user enables it. Watchlist and Portfolio context require the user to attach them to the specific question. [FR-03](#fr-03-daily-brief-content-and-publication) · [FR-17](#fr-17-profile-questionnaire-and-control) · [FR-20](#fr-20-personal-context-isolation)
 
-**Phase 1:** Main chat and stock-bound chat operate without login or saved personal context. Today's Daily Brief is attached automatically when published; selected-stock context applies on Stock Detail. If today's brief is unavailable, chat states that limitation when relevant and can still answer from other available financial evidence. Discovery screening and personal-context integration are delivered later.
+**Final account-based version:** Main chat and stock-bound chat both require sign-in. The server checks authentication before accepting a chat request. Follow-up cards that open chat use the same sign-in rule. [FR-21](#fr-21-access-and-languages)
 
 **Confirmed history behavior:** The main chatbot page displays the visitor's conversations from both the main chatbot and Stock Detail pages. Stock Detail displays only conversations explicitly linked to the selected stock. The same conversation is represented in both views rather than copied into unrelated histories. A text mention of a ticker does not link a general conversation to that stock. An origin label for stock-page conversations is a proposed presentation detail, not an additional required feature.
 
-Phase 1 history is retained only for the current browser session. Keep it available when navigating between the two entry points during that session. New sessions start without the previous session's history; restoring history across browser restarts or synchronizing devices is outside Phase 1. The storage mechanism and multi-tab behavior are implementation details, not a selected technology.
+**Final account-based history:** Saving signed-in chat history is opt-in. Unsaved chats last only for the current signed-in browser session. Saved conversations expire 90 days after their last message. Users can delete one conversation or clear all history sooner. [FR-20](#fr-20-personal-context-isolation)
 
 **Proposed detail:** Clarify ambiguous questions before performing the wrong analysis. Explain unsupported requests and offer a relevant stock/financial-research next step. Comparisons identify companies, metrics, periods, and currencies so differences are interpretable. Show progress and a recoverable failure state during long requests.
 
-**Acceptance:** A user can compare two supported stocks and trace material factual claims to evidence. Missing profile or holdings do not prevent a general financial question. A broad prompt can lead to a useful clarification rather than invented recommendations. After a conversation on stock A's detail page, that conversation appears in the main history and stock A's history for the current session. Conversations linked only to stock B and unlinked general chats mentioning A do not appear in stock A's history. A new session does not show the previous session's conversations. Opening either chat entry point in Phase 1 does not prompt for login.
+**Acceptance:** A user can compare two supported stocks and trace material factual claims to evidence. A user with an empty profile or portfolio can ask a general financial question. Chat can ask for clarification on a broad prompt. After a conversation on stock A's detail page, that conversation appears in both the main history and stock A's history. Stock A's history excludes conversations linked only to stock B and unlinked general chats mentioning A.
 
-Language and access follow FR-21. File uploads, exports, a separate Deep Research mode, and long-term user memory are outside the current feature baseline. Comparison/resource limits are set during implementation evaluation under Q05 and Q08. Source: S1 pp. 7-10, 14; combined/per-stock history, explicit stock association, session-only retention, and account-free Phase 1 confirmed by the project owner on 6 November 2026.
+**Final account-based acceptance:** A new signed-in browser session does not restore unsaved chats. A saved conversation expires when 90 days elapse after its last message. Deleting one conversation removes it from both history views and preserves unrelated conversations. Clearing history removes the user's saved conversations and current session history from both views.
+
+Language and access follow FR-21. File uploads, exports, a separate Deep Research mode, and long-term user memory are outside the current feature baseline. Comparison limits remain open in Q05 and Q08. Source: S1 pp. 7-10, 14. The owner confirmed combined and per-stock history and explicit stock association on 6 November 2026.
 
 ### FR-15 Discovery plan and user confirmation
 
@@ -246,11 +258,15 @@ Pending: Q04-Q05 for result count, ranking, provider validation, and incomplete-
 - Investment horizon: under 1 year, 1-3 years, or over 3 years.
 - Interested markets: Thailand, US, or both; optional selection of multiple industries.
 
-**Proposed detail:** With profile use disabled, subsequent requests omit saved profile values from personalization and discovery defaults. Users can still state preferences in the current conversation. Turning use off does not imply deleting saved data; deletion and prior-conversation effects are pending Q07.
+**Confirmed account defaults:** The questionnaire is optional. Investor Profile use is off by default and starts only when the user enables it. Turning it off stops profile use in new requests and Discovery defaults. The server also excludes saved profile details carried by earlier messages or summaries when it builds model context. Users can still state preferences in the current conversation. Disabling AI use preserves the saved profile under the applicable retention policy.
 
-**Acceptance:** A user can change their profile and disable its use. Subsequent newly built AI context reflects that state. Discovery allows custom preferences instead of the saved profile.
+**Confirmed retention and deletion:** Keep the current saved profile until the user deletes it or closes the account. Deleting it removes the profile and summaries derived from it. Earlier chat transcripts remain visible to the user while retained under FR-14. Permanently exclude details from the deleted profile from future model context, including details in those transcripts, and offer to delete affected conversations. [FR-20](#fr-20-personal-context-isolation)
 
-Pending: Q07 for the default state, optional completion, persistence, deletion, and conversation-history behavior. Source: S1 pp. 3, 7, 15-16.
+**Acceptance:** A signed-in user can skip the questionnaire and use chat. Completing a profile leaves AI use off until the user enables it. A user can change the profile and disable its use. In an existing conversation, the next request after disabling omits saved profile fields and any earlier chat content that would disclose them to the model. Discovery allows custom preferences instead of the saved profile.
+
+**Profile deletion acceptance:** Deleting the profile removes its record and derived summaries and offers deletion of affected conversations. An earlier conversation can still be viewed while it is retained. Continuing that conversation or creating a new profile does not put data from the deleted profile back into a model request.
+
+Pending: Q03 for cross-device behavior. Source: S1 pp. 3, 7, 15-16. The owner confirmed the account defaults and retention rules on 21 November 2026. [Q07](../requirements-questions.md#q07-personalization-and-personal-data-controls)
 
 ### FR-18 Profile effects on answers
 
@@ -268,35 +284,41 @@ Source: S1 pp. 15-16.
 
 **Baseline:** Support financial factual claims with retrieved evidence and verifiable citations. Treat system instructions separately from user/retrieved data. When evidence is insufficient, state that the information was not found instead of guessing. Check citation quality and retrieve again when supporting evidence is inadequate. Include a risk disclaimer and do not issue definitive buy/sell instructions.
 
-**Proposed detail:** A citation points to the actual source supporting its associated claim. Distinguish sourced facts, deterministic calculations, interpretations, and hypothetical scenarios. Check dates and units before comparisons. Bound retrieval retries; if evidence remains inadequate, provide a limited answer or an explicit inability to verify it. Confidence thresholds and retry budgets belong to a later implementation/evaluation decision.
+**Proposed detail:** A citation points to the actual source supporting its associated claim. Distinguish sourced facts, deterministic calculations, interpretations, and hypothetical scenarios. Check dates and units before comparisons. Bound retrieval retries. If evidence remains inadequate, provide a limited answer or state that it could not be verified.
 
 **Acceptance:** A missing financial figure is reported as unavailable. A malicious instruction embedded in a retrieved report cannot change application scope or reveal another user's data. A citation to unrelated material does not count as supporting evidence. A request for a guaranteed profitable trade receives research context and risks without a guarantee or definitive trade instruction.
 
-Source: S1 pp. 8-9. Historical citation and arithmetic failures in S3 pp. 43-45 inform the proposed checks.
+Source: S1 pp. 8-9. Historical citation and arithmetic failures in S3 pp. 43-45 inform the checks. [Q08](../requirements-questions.md#q08-release-quality-and-evaluation)
 
 ### FR-20 Personal context isolation
 
-**Baseline:** AI uses the requesting user's personal context and the application-selected stock where applicable. Portfolio and Watchlist remain independent. Shared Daily Brief and stock summaries are common content. In Phase 1, account-based personal context is absent; a visitor's chat history still belongs to that visitor and is never a public/shared history.
+**Baseline:** AI uses the requesting user's personal context and the application-selected stock where applicable. Portfolio and Watchlist remain independent. Shared Daily Brief and stock summaries are common content.
 
 **Proposed detail:** Only an authorized user may access or modify their personal records. Shared outputs and caches must not include private holdings, profile values, or private chat content. Validate user ownership and stock identity outside model-generated text. Do not permit retrieved text or model output to authorize changes to a user's holdings.
 
+**Confirmed account context controls:** For a signed-in request, verify ownership on the server before reading any personal records. Include only relevant Investor Profile fields when profile use is enabled. Include Watchlist or Portfolio context only when the user attaches that data to the current question. Earlier attachments do not authorize reuse on a new request. Apply the same permissions to account data carried by earlier messages and summaries. Send personal context only to a model service whose terms permit that use.
+
+**Confirmed account deletion rules:** Remove deleted or expired chat data and derived summaries from active application storage and future model context immediately. Account deletion removes the profile, saved chats, and their derived summaries. Keep app-controlled backups for at most 30 days. Before serving traffic after a restore, reapply deletions and enforce chat expirations. Disclose the selected model provider's retention terms separately from the app's deletion and backup policy. [Q07](../requirements-questions.md#q07-personalization-and-personal-data-controls)
+
 **Acceptance:** User A cannot retrieve user B's holdings through chat, a record identifier, or shared content. Editing holdings requires a supported user action. A profile change does not regenerate or personalize a shared stock summary.
 
-**Phase 1 acceptance:** A visitor can see only the current session's conversations. Shared briefs and stock summaries do not contain session chat text, and a different session cannot retrieve private conversations by knowing a stock or conversation identifier.
+**Account context acceptance:** When a user attaches their Watchlist to one question, the model receives only the permitted Watchlist context for that question. A subsequent question without the attachment omits Watchlist data, including details carried in earlier messages. Portfolio follows the same rule independently.
 
-Access follows FR-21. Pending: Q03 and Q07 for sign-in method, storage, deletion, and privacy controls. Source: S1 pp. 6-9; isolation details are proposed consequences of adding personal data.
+**Account deletion acceptance:** A deleted or expired conversation and its summaries are absent from the next history lookup and model request. Account deletion also removes the saved profile and its summaries. A restore from before a deletion or expiry does not make that data visible or usable in model requests. The retention disclosure states the app's backup window and the selected provider's retention terms separately.
+
+Access follows FR-21. Pending: Q03 for sign-in method and cross-device behavior, and Q07 for the model provider approved for private data. Source: S1 pp. 6-9. The owner confirmed the profile and chat deletion rules on 21 November 2026. [Q08](../requirements-questions.md#q08-release-quality-and-evaluation)
 
 ## 10 Confirmed access, language, and valuation rules
 
 ### FR-21 Access and languages
 
-**Confirmed by project owner on 6 November 2026:** Phase 1 has no login system. Visitors may browse Home and Stock Detail and use AI Q&A/comparison in either chat entry point without an account. In the future account-based version, AI chat requires an account; guests may still browse shared content. Saving account-based personal data requires sign-in in that later version. Phase 1 visitor chat history is session-only under FR-14 rather than requiring a login that does not exist.
+**Confirmed by project owner on 6 November 2026:** Guests can browse shared content on Home and Stock Detail. Both chat entry points and all account-private data require sign-in in the final version. Discovery access remains open in Q03.
 
-The interface ships in Thai for Phase 1; English UI is delivered later (owner clarification, 7 November 2026). Prepare matching semantic keys in `th.json` and `en.json` and a shared message accessor now. Components consume dictionary values rather than embedding Thai UI copy. Do not expose a language selector or require locale persistence in Phase 1. Shared Daily Brief short/full content and daily stock summaries have Thai and English versions that users can select. Chat answers in Thai or English according to the user's request. A future sign-in provider is not selected by this requirement. Discovery screening is outside Phase 1; future guest access to it remains open in Q03.
+The final interface supports Thai and English with language selection and locale persistence. Users can select Thai or English versions of both Daily Brief reading lengths and daily stock summaries. Chat answers in Thai or English according to the user's request.
 
-**Proposed detail:** In the account-based version, saving Watchlist, Portfolio, Profile, or account-linked chat history prompts sign-in. No login or account-migration flow is added to Phase 1 by these later requirements. Shared language versions remain common content rather than personalized summaries.
+**Proposed detail:** Saving Watchlist, Portfolio, Profile, or account-linked chat history prompts sign-in.
 
-**Acceptance:** A Phase 1 visitor can open Home, Stock Detail, and either AI chat entry point without signing in. Users can select Thai or English shared summaries and receive chat answers in the requested supported language. History views follow FR-14 and the agreed visitor persistence policy. In the later account-based version, an unauthenticated request cannot access account-private records or use account-required AI chat. Language support and factual consistency must be tested even when provided by a multilingual model. Phase 1 navigation, page labels, metadata and accessibility labels render in Thai, with `html lang="th"` and no interface-language selector. Thai and English dictionaries retain the same nonempty keys; English UI completeness and language switching are later-release acceptance, not Phase 1 release gates. UI translation does not translate provider content or regenerate a shared publication. Thai UI text and financial units remain readable.
+**Acceptance:** Guests can browse shared content. Opening either chat entry point or selecting a chat follow-up prompts sign-in. The server rejects unauthenticated requests to chat or account-private records. Users can switch the interface language, select either language for shared publications, and receive chat answers in the requested supported language. Shared variants preserve the same material facts. Translation preserves provider content and shared publications, and Thai text and financial units remain readable.
 
 ### FR-22 Current-FX valuation
 
@@ -317,22 +339,8 @@ Label the gain/loss as price P/L with FX excluded, and label converted cost as u
 
 ## 11 Quality and release acceptance
 
-Phase 1 is a capstone prototype/demonstration, as confirmed by the owner on 6 November 2026. It is evaluated against the applicable functional acceptance scenarios; this requirements baseline does not promise a production availability or concurrency target.
+The confirmed update cadences are hourly Daily Brief updates, one-minute refreshes for Home indices and portfolio prices, and page-open/manual refresh for Stock Detail quotes. News ingestion follows [FR-03](#fr-03-daily-brief-content-and-publication), and filing ingestion follows [FR-12](#fr-12-financial-data-and-news). Watchlist is limited to 20 stocks. Provider data delay is not a guaranteed application latency.
 
-The confirmed update cadences are hourly Daily Brief updates, one-minute refreshes for Home indices and later portfolio prices, and page-open/manual refresh for Stock Detail quotes. Watchlist is limited to 20 stocks. Provider data delay is not a guaranteed application latency.
+**Proposed quality baseline:** Keep ordinary data views usable when AI generation fails; expose useful progress and recoverable errors; preserve saved records on failed writes; support keyboard operation, labeled controls, readable financial units, and non-color indicators. Use transport security and keep credentials outside source control. Measurable acceptance targets remain subject to Q08; architectural choices follow the [ADR criteria](../adr/README.md).
 
-**Proposed quality baseline:** Keep ordinary data views usable when AI generation fails; expose useful progress and recoverable errors; preserve saved records on failed writes; support keyboard operation, labeled controls, readable financial units, and non-color indicators. Use transport security and keep credentials outside source control. Measurable acceptance targets remain subject to Q08; architectural choices follow the [ADR criteria](adr/README.md).
-
-Do not inherit the old sub-3-second chat target, sub-200-ms cache response, sub-8-second screening target, mandatory secondary model provider, specific TLS version, cache technology, or monthly ingestion schedule without a fresh decision.
-
-The owner finalized this first requirements baseline on 7 November 2026 and confirmed readiness to implement Phase 1. Remaining questions are explicit follow-ups, not blockers to starting Phase 1. Proposed details and acceptance scenarios remain proposed until agreed; finalization does not silently resolve unanswered rules or establish release acceptance.
-
-Resolve the following during the affected implementation or before the affected feature is released:
-
-1. Resolve or explicitly defer remaining Q01–Q08 details and update the affected requirements and acceptance criteria. Later-feature questions remain deferred to their feature work.
-2. Complete daily portfolio formulas and review fixed numerical examples, including multiple positions, missing data, zero denominators, and Thai/US market dates. The confirmed unrealized current-FX examples have been checked arithmetically.
-3. Agree on required stocks, financial fields, history, freshness, and missing-data behavior. Verify provider feasibility during architecture selection.
-4. Complete remaining personal-data handling and conversation controls; preserve the agreed session-only history and explicit stock links. Select a sign-in provider when planning the later account-based version.
-5. Review acceptance scenarios for the six product areas and AI guardrails with the product owner.
-
-The [accepted architecture](adr/README.md#decisions) supports the agreed behavior; further architectural choices are recorded separately when warranted. Application acceptance scenarios, including bilingual AI and data isolation checks, must be executed before the affected feature is released. The [current fixture scaffold](developer-guide.md) supplies setup and contract checks only; no research features or external provider verification have been completed.
+Resolve or explicitly defer the open [requirement questions](../requirements-questions.md#decisions-and-remaining-questions) for each feature before release. Run the applicable acceptance scenarios, including bilingual AI and data isolation checks.
