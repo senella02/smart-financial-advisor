@@ -22,13 +22,9 @@ Apply the relevant shared behavior and acceptance scenarios below with the Phase
 
 ## Daily Brief and Stock Detail pilot
 
-### FR-03 Daily Brief news corpus
+### FR-03 Daily Brief sources
 
-**Confirmed Phase 1 news corpus:** Start with official releases covering Bank of Thailand and Federal Reserve policy decisions, major inflation and jobs releases, and material earnings disclosures for the six pilot issuers in FR-12. Include a source only after confirming its terms permit automated fetching, storage, and the intended AI use. Keep the original source URL and publication time. [Q04](../requirements-questions.md#q04-supported-data-and-stock-coverage) · [FR-12](#fr-12-financial-data-and-filings)
-
-In the pilot, a permitted official release is eligible with its original URL and publication time. A source with unverified permissions stays out of scheduled ingestion and the Daily Brief evidence corpus.
-
-The final Daily Brief's market snapshot and bounded filing lookups are part of Phase 2. [Final delivery phases](../final/final-architecture.md#delivery-phases)
+During the hourly run, the worker fetches global stock index observations and approved news feeds through the shared market data adapter. Enable sources after confirming terms for automated fetching, publication, and the intended AI use. Keep the original URL and source timestamp. The worker sends the validated inputs to Gemini in one call and stores the published result and job state in Supabase. [FR-03](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication) · [Market coverage RFC](../rfcs/daily-brief-market-coverage.md)
 
 ### FR-11 Shared daily stock summary
 

@@ -1,0 +1,226 @@
+<mxfile host="app.diagrams.net" compressed="false">
+  <diagram id="scheduled-evidence-ingestion" name="Scheduled evidence ingestion">
+    <mxGraphModel dx="1552" dy="1546" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1570" pageHeight="820" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="sections" parent="0" style="locked=1;" value="Section backgrounds" />
+        <mxCell id="sources" parent="sections" style="rounded=1;arcSize=8;fillColor=#f3f6fa;strokeColor=#b8c9d9;" value="" vertex="1">
+          <mxGeometry height="356" width="238" x="40" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="airflow" parent="sections" style="rounded=1;arcSize=8;fillColor=#f0f8f4;strokeColor=#a8cbbc;" value="" vertex="1">
+          <mxGeometry height="622" width="552" x="314" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="storage" parent="sections" style="rounded=1;arcSize=8;fillColor=#eef7f9;strokeColor=#a3c8d1;" value="" vertex="1">
+          <mxGeometry height="622" width="290" x="902" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="web" parent="sections" style="rounded=1;arcSize=8;fillColor=#eff5fc;strokeColor=#a8c0df;" value="" vertex="1">
+          <mxGeometry height="622" width="300" x="1230" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="1" parent="0" value="Ingestion and retrieval" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=34;fontColor=#182d40;fontStyle=1;spacing=0;" value="Scheduled evidence ingestion and RAG" vertex="1">
+          <mxGeometry height="46" width="1200" x="40" y="24" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=16;fontColor=#304c66;fontStyle=0;spacing=0;" value="Smart Financial Advisor · Proposed Phase 2 architecture" vertex="1">
+          <mxGeometry height="26" width="1250" x="41" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="sources-heading" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#304c66;fontStyle=1;spacing=0;" value="Public evidence sources" vertex="1">
+          <mxGeometry height="28" width="204" x="57" y="133" as="geometry" />
+        </mxCell>
+        <mxCell id="airflow-heading" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#236653;fontStyle=1;spacing=0;" value="Apache Airflow · Ingestion and indexing" vertex="1">
+          <mxGeometry height="28" width="518" x="331" y="133" as="geometry" />
+        </mxCell>
+        <mxCell id="storage-heading" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#1a6371;fontStyle=1;spacing=0;" value="Storage and publication" vertex="1">
+          <mxGeometry height="28" width="256" x="919" y="133" as="geometry" />
+        </mxCell>
+        <mxCell id="web-heading" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=17;fontColor=#285b94;fontStyle=1;spacing=0;" value="Next.js web app on Vercel" vertex="1">
+          <mxGeometry height="28" width="266" x="1247" y="133" as="geometry" />
+        </mxCell>
+        <mxCell id="news" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#304c66;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Official news releases&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Permitted sources&lt;/span&gt;" vertex="1">
+          <mxGeometry height="59" width="204" x="57" y="213" as="geometry" />
+        </mxCell>
+        <mxCell id="us" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#304c66;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;US SEC EDGAR&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Filings and Company Facts&lt;/span&gt;" vertex="1">
+          <mxGeometry height="59" width="204" x="57" y="297" as="geometry" />
+        </mxCell>
+        <mxCell id="thai" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#304c66;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Thai SEC iDISC&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Verified issuer sources&lt;/span&gt;" vertex="1">
+          <mxGeometry height="59" width="204" x="57" y="381" as="geometry" />
+        </mxCell>
+        <mxCell id="scheduler" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=14;fontColor=#236653;fontStyle=1;spacing=0;" value="Airflow scheduler triggers each ingestion DAG" vertex="1">
+          <mxGeometry height="26" width="510" x="331" y="166" as="geometry" />
+        </mxCell>
+        <mxCell id="news-dag" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#236653;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;News ingestion DAG&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Every hour at :00 and :30&lt;br&gt;Asia/Bangkok&lt;/span&gt;" vertex="1">
+          <mxGeometry height="69" width="219" x="331" y="208" as="geometry" />
+        </mxCell>
+        <mxCell id="us-dag" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#236653;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;US filing ingestion DAG&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Weekdays, hourly 06:00–23:00&lt;br&gt;America/New_York&lt;/span&gt;" vertex="1">
+          <mxGeometry height="69" width="219" x="331" y="292" as="geometry" />
+        </mxCell>
+        <mxCell id="thai-dag" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#236653;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Thai filing ingestion DAG&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Weekdays at 09:00, 14:00 and 22:00&lt;br&gt;Asia/Bangkok&lt;/span&gt;" vertex="1">
+          <mxGeometry height="69" width="219" x="331" y="376" as="geometry" />
+        </mxCell>
+        <mxCell id="backfill" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#236653;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Backfill and reindex DAG&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Operator-triggered, bounded scope&lt;/span&gt;" vertex="1">
+          <mxGeometry height="72" width="219" x="331" y="486" as="geometry" />
+        </mxCell>
+        <mxCell id="extract" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#236653;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Fetch, extract and validate&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Check for changes and extract text&lt;br&gt;from HTML or PDF (OCR as needed)&lt;br&gt;Chunk and validate reporting scope&lt;/span&gt;" vertex="1">
+          <mxGeometry height="93" width="224" x="621" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="embed" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#236653;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Embed changed passages&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Multilingual embeddings&lt;br&gt;for public evidence&lt;/span&gt;" vertex="1">
+          <mxGeometry height="72" width="224" x="621" y="453" as="geometry" />
+        </mxCell>
+        <mxCell id="activate" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#236653;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Activate document version&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Verify vector coverage and visibility,&lt;br&gt;then mark eligible in Supabase&lt;/span&gt;" vertex="1">
+          <mxGeometry height="81" width="224" x="621" y="617" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence" parent="1" style="shape=cylinder3;size=11;boundedLbl=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#1a6371;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Supabase PostgreSQL&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Versioned passages, verified figures,&lt;br&gt;citation locations and eligibility&lt;/span&gt;" vertex="1">
+          <mxGeometry height="96" width="247" x="923" y="192" as="geometry" />
+        </mxCell>
+        <mxCell id="index" parent="1" style="shape=cylinder3;size=11;boundedLbl=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#1a6371;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Pinecone vector index&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Public vectors, passage IDs&lt;br&gt;and scope metadata&lt;/span&gt;" vertex="1">
+          <mxGeometry height="74" width="247" x="923" y="452" as="geometry" />
+        </mxCell>
+        <mxCell id="publications" parent="1" style="shape=cylinder3;size=11;boundedLbl=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#1a6371;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Supabase PostgreSQL&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Shared Daily Brief and stock summaries&lt;/span&gt;" vertex="1">
+          <mxGeometry height="67" width="247" x="923" y="645" as="geometry" />
+        </mxCell>
+        <mxCell id="stock" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#285b94;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Stock Detail&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Verified figures, issuer news&lt;br&gt;and the published stock summary&lt;/span&gt;" vertex="1">
+          <mxGeometry height="82" width="257" x="1251" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="chat" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#285b94;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Chat · server retrieval&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Resolve scope, search eligible versions&lt;br&gt;and load passages and citations&lt;/span&gt;" vertex="1">
+          <mxGeometry height="101" width="257" x="1251" y="425" as="geometry" />
+        </mxCell>
+        <mxCell id="home" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#285b94;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Home · Daily Brief&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Show the latest valid publication&lt;/span&gt;" vertex="1">
+          <mxGeometry height="72" width="257" x="1251" y="643" as="geometry" />
+        </mxCell>
+        <mxCell id="batch" parent="1" style="shape=cylinder3;size=11;boundedLbl=1;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#8a5723;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Completed news batch&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Supabase · successful news checks,&lt;br&gt;even when no stories are new&lt;/span&gt;" vertex="1">
+          <mxGeometry height="65" width="247" x="923" y="345" as="geometry" />
+        </mxCell>
+        <mxCell id="worker" parent="1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ffffff;strokeColor=#8a5723;strokeWidth=1.3;fontColor=#182d40;fontSize=14;fontFamily=Arial;align=center;verticalAlign=middle;spacing=5;" value="&lt;b&gt;Airflow publication worker&lt;/b&gt;&lt;br&gt;&lt;span style=&#39;font-size:12px&#39;&gt;Daily Brief reads the completed news batch.&lt;br&gt;Stock summaries read public evidence.&lt;/span&gt;" vertex="1">
+          <mxGeometry height="60" width="247" x="923" y="555" as="geometry" />
+        </mxCell>
+        <mxCell id="news-to-news-dag" edge="1" parent="1" source="news" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#304c66;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="news-dag" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="us-to-us-dag" edge="1" parent="1" source="us" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#304c66;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="us-dag" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="thai-to-thai-dag" edge="1" parent="1" source="thai" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#304c66;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="thai-dag" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="news-dag-to-extract" edge="1" parent="1" source="news-dag" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#236653;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.5;entryX=0;entryY=0.23;" target="extract" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="577" y="242" />
+              <mxPoint x="577" y="301" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="us-dag-to-extract" edge="1" parent="1" source="us-dag" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#236653;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="extract" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="thai-dag-to-extract" edge="1" parent="1" source="thai-dag" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#236653;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.5;entryX=0;entryY=0.77;" target="extract" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="577" y="410" />
+              <mxPoint x="577" y="352" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="backfill-to-extract" edge="1" parent="1" source="backfill" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#236653;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.65;entryX=0.25;entryY=1;dashed=1;" target="extract" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="598" y="533" />
+              <mxPoint x="598" y="397" />
+              <mxPoint x="677" y="397" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="extract-to-evidence" edge="1" parent="1" source="extract" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#236653;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.3;entryX=0;entryY=0.68;" target="evidence" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="877" y="308" />
+              <mxPoint x="877" y="257" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="evidence-to-embed" edge="1" parent="1" source="evidence" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#236653;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=0;exitY=0.9;entryX=0.68;entryY=0;" target="embed" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="886" y="278" />
+              <mxPoint x="886" y="418" />
+              <mxPoint x="773" y="418" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="embed-to-index" edge="1" parent="1" source="embed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#236653;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="index" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="index-to-activate" edge="1" parent="1" source="index" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#236653;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=0;exitY=0.87;entryX=1;entryY=0.4;" target="activate" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="876" y="516" />
+              <mxPoint x="876" y="649" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="activate-to-evidence" edge="1" parent="1" source="activate" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#236653;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=0;exitY=0.35;entryX=0;entryY=0.33;dashed=1;" target="evidence" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="608" y="645" />
+              <mxPoint x="608" y="198" />
+              <mxPoint x="893" y="198" />
+              <mxPoint x="893" y="224" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="evidence-to-batch" edge="1" parent="1" source="evidence" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8a5723;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="batch" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="batch-to-worker" edge="1" parent="1" source="batch" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8a5723;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.5;entryX=1;entryY=0.3;" target="worker" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1181" y="378" />
+              <mxPoint x="1181" y="573" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="evidence-to-worker" edge="1" parent="1" source="evidence" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8a5723;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=0;exitY=0.47;entryX=0;entryY=0.35;dashed=1;" target="worker" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="909" y="237" />
+              <mxPoint x="909" y="576" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="worker-to-publications" edge="1" parent="1" source="worker" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#8a5723;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="publications" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-to-stock" edge="1" parent="1" source="evidence" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#285b94;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="stock" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="index-to-chat" edge="1" parent="1" source="index" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#285b94;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.5;entryX=0;entryY=0.5;startArrow=block;startFill=1;" target="chat" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence-to-chat" edge="1" parent="1" source="evidence" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#285b94;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.85;entryX=0;entryY=0.25;" target="chat" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1214" y="274" />
+              <mxPoint x="1214" y="450" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="publications-to-home" edge="1" parent="1" source="publications" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#285b94;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="home" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="publications-to-stock" edge="1" parent="1" source="publications" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#285b94;strokeWidth=2;jumpStyle=arc;jumpSize=6;endArrow=block;endFill=1;fontColor=#182d40;labelBackgroundColor=#ffffff;fontFamily=Arial;fontSize=12;exitX=1;exitY=0.19;entryX=0.8;entryY=1;" target="stock" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1201" y="657" />
+              <mxPoint x="1201" y="611" />
+              <mxPoint x="1550" y="611" />
+              <mxPoint x="1550" y="316" />
+              <mxPoint x="1457" y="316" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="guardrail" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Arial;fontSize=14;fontColor=#236653;fontStyle=1;spacing=0;" value="Retrieval keeps the previous complete version eligible until the new version is searchable." vertex="1">
+          <mxGeometry height="22" width="1470" x="41" y="768" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

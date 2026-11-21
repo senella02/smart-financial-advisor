@@ -14,7 +14,7 @@ Shared content may be generated in multiple languages and refreshed while reader
 
 ## Decision and rationale
 
-Store a durable publication under a stable key. Commit its language variants, evidence snapshot, and associated metadata in one transaction. A reader sees a complete version with one evidence cutoff. Failed attempts preserve the last successful publication.
+Store a durable publication under a stable key. Commit its language variants and shared evidence metadata in one transaction. The Daily Brief stores the cutoff and citations with the published result. Its live source payloads are part of the generation attempt. The stock summary stores its evidence snapshot. A reader sees a complete version with one evidence cutoff. Failed attempts preserve the last successful publication.
 
 Recurring jobs claim work in durable storage before generating content. Claims prevent overlapping work and allow recovery after an interrupted run. Retrying a completed job is safe. A superseded attempt cannot commit over a newer publication. Run scheduled jobs independently of interactive reads, following [ADR 0001](0001-nextjs-application-and-shared-workspace.md).
 

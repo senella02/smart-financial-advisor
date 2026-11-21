@@ -40,9 +40,9 @@ Render Markdown โดยปิด raw HTML และกรอง URL schemes; �
 
 ### Schedule และ first-open
 
-คงตารางที่ตกลงแล้ว: ข่าว `:00/:30` กรุงเทพฯ; Daily Brief `:25` ทุกชั่วโมงรวมสุดสัปดาห์; US filings ทุกชั่วโมง 06:00–23:00 วันทำงานตาม New York; Thai filings 09:00/14:00/22:00 วันทำงานตามกรุงเทพฯ ตารางไม่เท่ากับเวลาเริ่มจริง ต้องวัด dispatch/queue delay ด้วย [FR-03/FR-12](../final/functional-requirements.md) เป็นแหล่งข้อกำหนดหลัก
+คงตารางที่ตกลงแล้ว: งานเก็บข่าวสำหรับค้นหลักฐาน `:00/:30` กรุงเทพฯ; Daily Brief `:25` ทุกชั่วโมงรวมสุดสัปดาห์; US filings ทุกชั่วโมง 06:00–23:00 วันทำงานตาม New York; Thai filings 09:00/14:00/22:00 วันทำงานตามกรุงเทพฯ ตารางไม่เท่ากับเวลาเริ่มจริง ต้องวัด dispatch/queue delay ด้วย [FR-03/FR-12](../final/functional-requirements.md) เป็นแหล่งข้อกำหนดหลัก
 
-Phase 1 ทำ Daily Brief จากข่าวในชุด pilot ส่วน Phase 2 เพิ่มภาพรวมตลาดพร้อมเวลาของข้อมูล และจำกัดการค้น filings เฉพาะบริษัทในข่าวที่เลือก ใช้หลักฐานและ cutoff เดียวกันทั้งสองภาษา [Daily Brief requirements](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication)
+Worker ดึงดัชนีโลกและข่าวจากฟีดที่อนุมัติผ่าน shared adapter ตอนรัน เรียก Gemini ครั้งเดียวต่อความพยายามสร้าง และใช้หลักฐานกับ cutoff เดียวกันทั้งสองภาษา [Daily Brief requirements](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication)
 
 เมื่อเปิด Stock Detail จริง browser จึงขอ summary; server resolve listing และบันทึก durable job ที่ unique ตาม listing + Thai date จากนั้นส่ง job ID ไป queue ของ Phase 1 หรือ authenticated Airflow API ตาม final design รอ acknowledgement ของการส่งงานภายใน timeout แต่ไม่รอ generation หากส่งไม่สำเร็จยังมี job ให้ recovery sweep เก็บต่อ ไม่พึ่ง promise ที่ปล่อยทิ้งหลัง response
 

@@ -4,7 +4,9 @@ These diagrams show the proposed architecture at the end of Phase 2. Airflow run
 
 ## Scheduled evidence ingestion
 
-Airflow ingests public news and filings for retrieval-augmented generation (RAG). The Daily Brief reads completed news batches from Supabase independently of vector indexing.
+Airflow ingests public news and filings for retrieval-augmented generation (RAG). The Daily Brief fetches its inputs separately during the publication run.
+
+The [earlier draw.io diagram](diagrams/scheduled-evidence-ingestion.drawio) records the previous ingestion design. The [publication flow](#shared-publications) below shows the current Daily Brief inputs.
 
 ```mermaid
 flowchart TB
@@ -18,13 +20,12 @@ flowchart TB
     NewsJob & USJob & THJob --> Ingest["Airflow tasks · fetch changes, extract and validate"]
     Bulk["Operator-triggered backfill and reindex DAG"] -->|Reuse the ingestion and embedding steps| Ingest
     Ingest --> Evidence[("Supabase PostgreSQL<br/>Versioned passages, verified figures and citations")]
-    Evidence -->|News check completed| Batch["Mark news batch complete for the Daily Brief"]
     Evidence --> Embed["Embed changed public passages"]
     Embed --> Index[("Pinecone · vectors, passage IDs and scope metadata")]
     Index -->|Confirm all required vectors are searchable| Ready["Activate the version for retrieval in Supabase"]
 ```
 
-A news check with zero new stories still completes. Keep the previous complete version eligible for retrieval if extraction or indexing fails. Limit concurrent backfills and reindexing to leave capacity for routine refreshes and publications. [News corpus](functional-requirements.md#fr-03-daily-brief-content-and-publication) · [Filing coverage](functional-requirements.md#fr-12-financial-data-and-news) · [Indexing and recovery](final-architecture.md#public-evidence-ingestion-and-rag)
+A news check with zero new stories still completes. Keep the previous complete version eligible for retrieval if extraction or indexing fails. Limit concurrent backfills and reindexing to leave capacity for routine refreshes and publications. [Evidence retrieval](../rfcs/financial-evidence-retrieval.md#target-design-with-pinecone-vector-search) · [Filing coverage](functional-requirements.md#fr-12-financial-data-and-news) · [Indexing and recovery](final-architecture.md#public-evidence-ingestion-and-rag)
 
 ## Shared publications
 
@@ -39,19 +40,17 @@ flowchart TB
     Brief -->|Daily Brief job by scheduled hour| Worker["TypeScript publication worker<br/>Claim job and fix evidence cutoff"]
     Summary -->|Stock summary job by listing and Bangkok date| Worker
     Worker <-->|Claim and track job| Jobs
-    News[("Supabase · latest completed news batch")] -->|Read at Daily Brief job start| Worker
     Evidence[("Supabase · verified figures, filing passages and issuer news")] -->|Stock summary evidence| Worker
-    Market["Market data adapter"] -->|Brief market snapshot and stock summary observations| Worker
-    Worker <-->|Daily Brief only| Research["Model via Vercel AI SDK<br/>Score news, then request filings for selected stories"]
-    Research <-->|Bounded read-only lookups| Filing["Worker validates issuer, reporting period and cutoff"]
-    Filing <-->|Read eligible public filing evidence| Evidence
-    Worker -->|Generate from frozen evidence| Model["Model via Vercel AI SDK"]
-    Model -->|Structured output| Publish["Worker validates claims and citations<br/>Commits both languages and their common evidence snapshot"]
+    Market["Shared market data adapter"] -->|Live global indices and approved feeds for Daily Brief| Worker
+    Market -->|Market observations for stock summary| Worker
+    Worker -->|One Gemini call per Daily Brief attempt| Model["Model via Vercel AI SDK"]
+    Worker -->|Generate stock summary from frozen evidence| Model
+    Model -->|Structured output| Publish["Worker validates claims and citations<br/>Commits both languages with a common cutoff"]
     Publish --> Publications[("Supabase PostgreSQL · shared publications")]
     Publications --> Read["Home and Stock Detail show the latest valid publication<br/>Chat resolves today's Daily Brief"]
 ```
 
-The brief uses eligible stories published since Bangkok midnight. The worker selects stories after scoring and permits filing lookups only for their resolved issuers. If market data or filing evidence is unavailable, the brief shows the gap alongside supported coverage. If no newer completed news batch is available after an ingestion failure, the last successful brief keeps its timestamp and Home shows the delay. [FR-03](functional-requirements.md#fr-03-daily-brief-content-and-publication) · [Publication workflow](../rfcs/ai-workflow-orchestration.md#three-workflow-shapes)
+The Brief uses eligible stories published since Bangkok midnight. The worker fetches the feeds and index observations directly, then calls Gemini with tools disabled. A valid Brief shows supported coverage and source gaps. If an attempt cannot publish, the last successful Brief keeps its timestamp and Home shows the delay. [FR-03](functional-requirements.md#fr-03-daily-brief-content-and-publication) · [Publication workflow](../rfcs/ai-workflow-orchestration.md#three-workflow-shapes)
 
 Next.js records first-open jobs by listing and Bangkok date. Stock Detail polls the server for today's summary and shows a dated earlier summary or a preparing state while it waits. [FR-11](functional-requirements.md#fr-11-shared-daily-stock-summary) · [Airflow job execution](final-architecture.md#airflow-schedules-and-job-execution)
 
@@ -119,7 +118,7 @@ Use the same current USD/THB rate for portfolio cost and value. Discovery uses s
 
 | Workflow | Inputs |
 | --- | --- |
-| Daily Brief | Eligible news since Bangkok midnight and timestamped market observations. The worker selects stories after model scoring and accepts bounded requests for public filing evidence for those issuers. Both languages use the same selected news, market snapshot, validated filing evidence, citations, and cutoff. |
+| Daily Brief | Validated feed items published since Bangkok midnight and timestamped global stock index observations. One Gemini call produces both languages from the same evidence and cutoff. |
 | Stock summary | Resolved listing, observed prices and volume, verified figures and filing passages, issuer news, and source references and timestamps. |
 | AI Q&A and comparison | The investor's message, requested language, permitted history, resolved stock context when applicable, and today's Daily Brief when available. Server tools can add quotes, figures, and cited passages. Comparisons retrieve each issuer separately and align periods, currencies, and units in code. |
 | Personal context in chat | Relevant fields from an enabled Investor Profile and any Watchlist or Portfolio context attached to the current question. The server applies current permissions when replaying earlier messages and sends private context only under approved model terms. |

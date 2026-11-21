@@ -6,7 +6,7 @@ Proposed · 20 November 2026
 
 The application has five AI workflows: stock Q&A, comparison, the Daily Brief, the daily stock summary, and Discovery. They differ in trigger, audience, and whether they wait for a person. The research report compares them and records what plain TypeScript with a model SDK, LangGraph.js, and the Vercel Workflow SDK provide. The code has a fixture `GenerationPort` for the two publications and no model SDK yet. This proposal builds on the accepted web and worker split, the publication guarantees, and the evidence retrieval RFC. [Orchestration research](../research/ai-workflow-orchestration.md), [ADR 0001](../adr/0001-nextjs-application-and-shared-workspace.md), [ADR 0004](../adr/0004-shared-publication-consistency.md), [Evidence retrieval RFC](financial-evidence-retrieval.md)
 
-The workflows below describe the proposed Phase 2 product with signed-in chat and Airflow. Phase 1 uses guest sessions, PostgreSQL full-text search, Vercel Schedules, Queues, and Functions, and a news-only Daily Brief. Both phases use the same durable publication guarantees and server-side evidence checks. [Security and context RFC](architecture-security-and-context.md) · [Phase 1 architecture](../phase-1-planning/architecture.md) · [Phase 1 requirements](../phase-1-planning/functional-requirements.md#daily-brief-and-stock-detail-pilot)
+The workflows below describe the proposed Phase 2 product with signed-in chat and Airflow. Phase 1 uses guest sessions, PostgreSQL full-text search, Vercel Schedules, Queues, and Functions, and the direct-fetch Daily Brief. Both phases use the same durable publication guarantees and server-side evidence checks. The market coverage RFC details the Brief's inputs and generation flow. [Security and context RFC](architecture-security-and-context.md) · [Phase 1 architecture](../phase-1-planning/architecture.md) · [Phase 1 requirements](../phase-1-planning/functional-requirements.md#daily-brief-and-stock-detail-pilot) · [Market coverage RFC](daily-brief-market-coverage.md)
 
 ## Proposed design and rationale
 
@@ -17,12 +17,11 @@ The five workflows reduce to three shapes. Each shape is an ordinary async TypeS
 **Publication pipeline for the Daily Brief and stock summary.** The worker controls the sequence.
 
 1. Claim the Daily Brief job for its scheduled hourly slot or the stock-summary job for its listing and Bangkok date. Successful hourly jobs update the Daily Brief for that date.
-2. Assemble evidence and set its cutoff. For a Daily Brief, set the cutoff at job start and read the latest news batch completed by then. For the final report, also capture the market snapshot through the shared market data adapter. Use observations at or before the cutoff and preserve their source times. For a stock summary, assemble evidence for the resolved listing. [FR-03](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication)
-3. For the brief, ask the model to score each eligible story's importance as structured output. Select stories in code. For the final report, let the model request read-only filing lookups for issuers resolved by the worker from the selected stories. The tool reads eligible public figures and passages from the filing corpus. Validate issuer, reporting period, and cutoff for each request. Enforce a total call budget and deadline in the worker, including tool calls issued in parallel. Treat an exhausted budget or unavailable lookup as an evidence gap and continue with the validated results. [Evidence retrieval](financial-evidence-retrieval.md#target-design-with-pinecone-vector-search) · [Operating limits](../requirements-questions.md#q08-release-quality-and-evaluation)
-4. Freeze the resulting evidence snapshot. Generate both languages and the brief's follow-up cards as structured output from that snapshot. Every material factual claim references an evidence ID. Final generation uses the frozen snapshot with tool access disabled.
-5. Validate claims, citations, source times, and consistency between languages. Commit both variants and their shared evidence snapshot in one transaction.
+2. Assemble and freeze the evidence. For a Daily Brief, fetch global index observations and approved news feeds through the shared market data adapter during the run. Set the cutoff when collection ends and keep the source timestamps. For a stock summary, assemble evidence for the resolved listing. [Market coverage RFC](daily-brief-market-coverage.md#fetch-index-observations-and-news-at-run-time)
+3. Generate both languages as structured output from the frozen inputs with tools disabled. For the Daily Brief, one Gemini call per generation attempt returns both reading lengths and the follow-up cards. Every material factual claim references an evidence ID.
+4. Validate claims, citations, source times, and consistency between languages. Commit both variants and their shared evidence snapshot in one transaction.
 
-Stock summaries use the evidence assembled in step 2. Unavailable market observations or optional filing evidence limit the coverage of an otherwise valid brief. If news ingestion fails without a newer completed batch, or generation or validation fails, the last successful publication remains available. The durable claim lets a failed run restart from the beginning. [FR-03](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication) · [FR-04](../final/functional-requirements.md#fr-04-daily-brief-follow-up-cards) · [FR-11](../final/functional-requirements.md#fr-11-shared-daily-stock-summary)
+An unavailable source limits the coverage of an otherwise valid Brief. If the available inputs, generation, or validation prevent publication, the last successful publication remains available. The durable claim lets a failed run restart from the beginning. [FR-03](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication) · [FR-04](../final/functional-requirements.md#fr-04-daily-brief-follow-up-cards) · [FR-11](../final/functional-requirements.md#fr-11-shared-daily-stock-summary)
 
 **First-open trigger for the stock summary.** The summary is generated lazily, at most once per listing per Thai date, so the daily cost depends on how many distinct stocks visitors open, not on the catalog size. The trigger has three parts:
 
@@ -67,7 +66,6 @@ Only the server executes the screen, after the investor confirms the stored plan
 Use the Vercel AI SDK core for the model steps:
 
 - `streamText` with a step limit runs the chat tool loop.
-- `generateText` with a step limit runs the Daily Brief filing lookups. The worker also enforces the total call budget and deadline.
 - `generateText` with `Output.object()` produces the intent classification, publication output, and screening plans. The classification call uses the chat model with tools disabled.
 
 Next.js Route Handlers can stream progress during the tool loop. Material claims and citations reach the browser after validation. The SDK keeps the provider replaceable behind `GenerationPort`. Keep the model ID in configuration. Evaluate paid Gemini for the final version and confirm that the chosen service permits the intended use and retention of private data. [Final model design](../final/final-architecture.md#runtime-and-data-flow) · [Phase 1 model choice](../phase-1-planning/architecture.md#retrieval-and-generation)
@@ -86,7 +84,7 @@ LangGraph.js would add three things for these workflows. Each one is already cov
 
 - **`interrupt()` for the Discovery wait.** The application still needs a plan record so confirmation names an exact version. A checkpoint would add `checkpoints`, `checkpoint_blobs`, and `checkpoint_writes` tables holding serialized graph state beside it. Resuming reruns the interrupted node from its start, which adds an idempotency requirement that a conditional status update avoids. [LangGraph interrupts](https://docs.langchain.com/oss/javascript/langgraph/interrupts)
 - **Resume from a checkpoint after a failure.** A publication run is a few model calls under a claim that already makes a restart safe. Repeating those calls costs less than a second store of execution state.
-- **Graph state for loops.** The SDK's tool loop covers chat and the brief's bounded filing lookups. The citation retry is one bounded loop in code.
+- **Graph state for loops.** The SDK's tool loop covers chat. The chat citation retry is one bounded loop in code.
 
 LangGraph would also bring `@langchain/core` model bindings alongside the SDK. LangChain itself recommends LangGraph when an application needs "explicit control over state and control flow." Here that control is a short sequence of function calls plus three tables the requirements need anyway. [LangGraph overview](https://docs.langchain.com/oss/javascript/langgraph/overview)
 
@@ -101,7 +99,7 @@ LangGraph would also bring `@langchain/core` model bindings alongside the SDK. L
 
 ## Evidence needed to confirm the design
 
-- **Daily Brief evidence and run time.** Replay earnings days, macro-event days, and quiet days with and without filing lookups. Compare useful new facts backed by primary sources, citation errors, publication delay, and cost. Test a closed market, missing sources, and an exhausted lookup budget. Check model quota under concurrent chat traffic.
+- **Daily Brief evidence and run time.** Replay earnings days, macro-event days, and quiet days. Measure supported coverage, citation errors, publication delay, and cost. Test a closed market, a failed feed, and a successful empty feed. Check model quota under concurrent chat traffic.
 - **Thai output quality.** Check Thai brief and chat output from the default model on labeled examples.
 - **Intent routing.** In Thai and English, check that stock questions reach scoped retrieval, broad questions ask for clarification, and image requests receive the scope response. Check that clarification, refusal, and invalid or failed classification cause zero financial lookups. Measure the extra model call's latency and cost.
 - **Chat tool loop.** Prototype the loop with its step limit, then check that an unavailable or stale tool result reaches the answer as a stated gap. Confirm that a citation to evidence outside the request is rejected.

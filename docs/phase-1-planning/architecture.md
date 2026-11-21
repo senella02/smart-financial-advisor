@@ -23,9 +23,9 @@ flowchart LR
 
     Web -->|Record summary jobs and read publications| DB[("Supabase PostgreSQL")]
     Worker -->|Claim jobs and publish results| DB
-    DB -->|Latest completed news batch| Worker
     IngestWorker -->|Store public evidence and index for full-text search| DB
-    Web --> Market["Yahoo Finance"]
+    Web --> Market["Shared market data adapter"]
+    Worker -->|Global indices and approved feeds for Daily Brief| Market
     Worker -->|Stock-summary data| Market
     IngestWorker --> News["Permitted official news releases"]
     IngestWorker --> Filings["US SEC EDGAR and Thai SEC iDISC"]
