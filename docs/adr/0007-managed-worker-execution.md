@@ -4,6 +4,8 @@ Status: Proposed
 
 Date: 2026-11-20
 
+On 21 November 2026, the owner selected Vercel for Phase 1 and retained this proposal for a later comparison if Vercel misses runtime or publication targets. [ADR 0006](0006-vercel-hosting-and-scheduled-publication-trigger.md#consequences)
+
 Decision source: Architecture research requested by the owner on 20 November 2026; runner selection remains for team discussion.
 
 Related requirements: [FR-03](../functional-requirements.md#fr-03-daily-brief-content-and-publication), [FR-11](../functional-requirements.md#fr-11-shared-daily-stock-summary)
@@ -28,7 +30,7 @@ Adds a deployment and provider dependency, compute/invocation costs, and runner 
 
 ## References
 
-- [Thai comparison and context/security proposal](../research/architecture-options-th.md)
+- [Architecture options for team discussion](../research/architecture-options.md)
 - [Trigger.dev schedules](https://trigger.dev/docs/tasks/scheduled)
 - [Trigger.dev idempotency](https://trigger.dev/docs/idempotency)
 - [Trigger.dev pricing](https://trigger.dev/pricing)

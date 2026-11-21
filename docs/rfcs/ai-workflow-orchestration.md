@@ -15,7 +15,7 @@ The five workflows reduce to three shapes. Each shape is an ordinary async TypeS
 **Publication pipeline for the Daily Brief and stock summary.** The worker runs a fixed sequence:
 
 1. Claim the job for its date, and for its listing when it is a stock summary.
-2. Assemble one evidence snapshot with its cutoff.
+2. Assemble one evidence snapshot with its cutoff. For a Daily Brief job, read the latest completed news batch available at job start. The ingestion failure and rollover rules are in [FR-03](../functional-requirements.md#fr-03-daily-brief-content-and-publication).
 3. For the brief only, ask the model to score each news item's importance as structured output, then select stories in code.
 4. Generate the Thai and English variants and the follow-up cards from that snapshot as structured output. Every claim references an evidence ID.
 5. Validate the output and commit both variants in one transaction.
@@ -34,10 +34,10 @@ While the job runs, the panel shows the stock's latest earlier summary with its 
 
 **Chat request pipeline for Q&A and comparison.** The web server runs these steps for each message:
 
-1. Resolve context in code: the stock-page binding, today's brief through `DailyBriefLookupSchema`, and later the enabled personal context.
+1. In the final account-based version, verify sign-in for both chat entry points. Validate the request and apply the provider data restrictions to the message and history. Resolve the stock-page binding and today's brief through `DailyBriefLookupSchema` in code. Apply the user's current context choices to account data and replayed history. [FR-20](../functional-requirements.md#fr-20-personal-context-isolation) · [FR-21](../functional-requirements.md#fr-21-access-and-languages)
 2. Run a bounded tool loop in which the model chooses among quote, financials, filing search, and news tools. Each tool handler applies the entity, period, and cutoff filters from the retrieval RFC.
-3. Check in code that every citation points to evidence returned during this request, and retry once when support is inadequate.
-4. Stream the answer and append it to session history.
+3. Check that every citation points to evidence returned during this request and that the evidence supports the material claim. The proposed pipeline retries once when support is inadequate. [FR-19](../functional-requirements.md#fr-19-grounded-answers-and-citations)
+4. Return the checked answer or report the evidence gap. Append the result to session history.
 
 The model is needed here because the evidence depends on the question. The loop has a step limit, and the tools return explicit unavailable or stale results that the answer must report. That addresses the main failure in the previous capstone's evaluation. [FR-13](../functional-requirements.md#fr-13-stock-bound-chat), [FR-14](../functional-requirements.md#fr-14-general-financial-questions-and-comparison), [FR-19](../functional-requirements.md#fr-19-grounded-answers-and-citations), [Capstone lessons](../research/ai-workflow-orchestration.md#lessons-from-the-previous-project)
 
@@ -61,11 +61,11 @@ Use the Vercel AI SDK core for the model steps:
 - `streamText` with an `isStepCount` stop condition runs the chat tool loop.
 - `generateText` with `Output.object()` produces structured publication and plan output.
 
-The SDK streams into Next.js Route Handlers and keeps the provider replaceable behind `GenerationPort`. The owner chose the Gemini API and Vercel AI SDK on 20 November 2026. The default model is `gemini-3.5-flash-lite` on the Gemini API free tier, through `@ai-sdk/google`. Keep the model ID in configuration so a paid tier or another model needs no code change.
+Next.js Route Handlers can stream progress during the tool loop. Material claims and citations reach the browser after validation. The SDK keeps the provider replaceable behind `GenerationPort`. The owner chose the Gemini API and Vercel AI SDK on 20 November 2026. The default model is `gemini-3.5-flash-lite` on the Gemini API free tier, through `@ai-sdk/google`. Keep the model ID in configuration so a paid tier or another model needs no code change.
 
 The free-tier terms have two consequences:
 
-- Google may use and human-review prompts, and the terms say not to send personal information. Personal context must therefore move to paid-tier terms or another provider before Portfolio, Profile, or account-linked chat enters a prompt.
+- Google may use and human-review prompts. The unpaid terms prohibit sending sensitive, confidential, or personal information. This applies to messages and history in guest chat as well as to future account features. [FR-20](../functional-requirements.md#fr-20-personal-context-isolation)
 - The free-tier rate limits are unverified. The design checks below must confirm they cover an hourly brief alongside chat.
 
 [Default model research](../research/ai-workflow-orchestration.md#default-model), [AI SDK tool calling](https://ai-sdk.dev/docs/ai-sdk-core/tools-and-tool-calling), [AI SDK structured data](https://ai-sdk.dev/docs/ai-sdk-core/generating-structured-data), [ADR 0002](../adr/0002-validated-contracts-and-data-trust-boundaries.md)

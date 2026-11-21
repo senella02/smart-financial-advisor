@@ -1,6 +1,6 @@
 # Remaining Requirement Questions
 
-Updated: 20 November 2026. Recorded answers below come from the project owner in the requirements kickoff. Subquestions remain open unless resolved explicitly. These questions clarify the finalized feature set; they do not propose an additional feature backlog.
+Updated: 21 November 2026. Recorded answers below come from the project owner. Subquestions remain open unless resolved explicitly. These questions clarify the finalized feature set; they do not propose an additional feature backlog.
 
 ## Baseline finalization
 
@@ -46,25 +46,27 @@ Answer: Partially resolved on 6 November 2026. The owner selected current FX wit
 
 Affected: FR-07, FR-09, FR-14, FR-17, FR-20, FR-21.
 
-- Phase 1 access is resolved: no login system, with Home, Stock Detail, and AI Q&A and comparison open to visitors. In the later account-based version, AI chat requires an account, guests may browse shared content, and saving account-private data requires sign-in. The sign-in method remains open.
+- The Phase 1 prototype allows visitors to use Home, Stock Detail, and both AI chat entry points without signing in. The final account-based version requires sign-in for main and stock-bound chat and for saving account-private data. Guests can browse shared content. The sign-in method remains open. [FR-21](functional-requirements.md#fr-21-access-and-languages)
 - Phase 1 visitor chat history lasts for the current browser session, with no cross-session or device restoration.
-- When introduced later, must Watchlist, Portfolio, Profile, and account-linked chat history persist across devices/sessions?
+- In the final version, signing in allows users to opt into saved chat history under [FR-14](functional-requirements.md#fr-14-general-financial-questions-and-comparison). Which account features must restore data across devices, including saved chat history? Which Watchlist and Portfolio data must persist across sessions?
 - Is guest access to discovery allowed when discovery is introduced?
 
 Answer: Partially resolved on 6 November 2026. The owner confirmed account-free AI chat in Phase 1 and account-required AI chat in the later account-based version. Phase 1 history lasts for the current browser session. Q05 records the rules for combined and stock-linked history. On 7 November 2026, the owner clarified that Phase 1 ships a Thai interface. The English interface, selector, and locale persistence belong to a later release. Phase 1 includes Thai and English shared summaries and chat in the requested language. See [FR-21](functional-requirements.md#fr-21-access-and-languages).
 
 ### Q04 Supported data and stock coverage
 
-Affected: FR-01-FR-02, FR-05, FR-07-FR-08, FR-12, FR-15-FR-16.
+Affected: FR-01-FR-03, FR-05, FR-07-FR-08, FR-12, FR-15-FR-16.
 
 - Instrument scope is resolved: Thai/US common stocks only, excluding preferred shares, warrants, DW, DR/DRx and the other asset classes excluded in section 1 of the requirements. Exact exchange/data coverage remains open.
 - Required financial-data scope is resolved: 1D/1M/1Y/5Y charts, annual and quarterly income statement/balance sheet/cash flow within up to four years of available history, and P/E, P/BV, ROE, D/E, dividend yield, and market cap. Required unavailable data must be clearly identified. Phase 1 summaries use price/volume only; RSI/MACD/EMA are not required.
 - Stock Detail quote refresh is resolved: page open or explicit visitor request, with no automatic minute polling and no quote-triggered daily-summary regeneration. Later Watchlist refresh interval, historical news range, and upcoming-event feed ordering remain open.
 - Define minimum data needed to show or analyze a stock, stale-data labels, and behavior if a provider cannot serve a supported stock. Is dropping an otherwise valid result acceptable?
 
-- Filing and financial data source selection is resolved. Use US SEC EDGAR and Company Facts for US filings and figures. Use Thai SEC iDISC and verified copies of issuer filings for Thai evidence and figures. The SEC Open Data One Report API is a possible annual supplement. SET structured feeds remain under evaluation. Yahoo Finance remains the initial market data and news provider. [ADR 0003](adr/0003-market-data-and-news-provider-selection.md#filings-and-fundamentals)
+- Filing and financial data source selection is resolved. Use US SEC EDGAR and Company Facts for US filings and figures. Use Thai SEC iDISC and verified copies of issuer filings for Thai evidence and figures. The SEC Open Data One Report API is a possible annual supplement. SET structured feeds remain under evaluation. Yahoo Finance remains the initial market data provider. [ADR 0003](adr/0003-market-data-and-news-provider-selection.md#filings-and-fundamentals)
+- Filing ingestion timing is resolved. Check US filings hourly from 06:00 through 23:00 Eastern time on weekdays. Check Thai filings at 09:00, 14:00, and 22:00 Bangkok time on weekdays. [FR-12](functional-requirements.md#fr-12-financial-data-and-news)
+- The pilot corpus is resolved. Start with AAPL, JPM, WMT, ADVANC, KBANK, and PTT. Seed the latest annual filing, latest available interim filing, and matching prior-year interim filing for each issuer. Ingest official policy, economic, and material earnings releases only where terms allow the intended use. Verify permissions per source before enabling ingestion. Broader news coverage and expanded issuer coverage remain open. [FR-03](functional-requirements.md#fr-03-daily-brief-content-and-publication) · [FR-12](functional-requirements.md#fr-12-financial-data-and-news)
 
-Answer: The owner confirmed the data views, instrument scope, and Stock Detail refresh behavior on 6 November 2026 and authorized finalizing the filing and financial data sources on 20 November 2026. Exact exchange and issuer coverage, minimum usable data, acceptable source delay, and later Watchlist and event-feed details remain open.
+Answer: The owner confirmed the data views, instrument scope, and Stock Detail refresh behavior on 6 November 2026, authorized the filing and financial data sources on 20 November 2026, and confirmed filing timing and the six-issuer and official-release pilot on 21 November 2026. Source permission checks, coverage beyond the pilot, minimum usable data, acceptable source delay, and later Watchlist and event-feed details remain open.
 
 ### Q05 Chat and discovery boundaries
 
@@ -82,37 +84,38 @@ Answer: Partially resolved on 6 November 2026. The owner confirmed combined main
 
 Affected: FR-02-FR-04, FR-11, FR-14.
 
-- The Daily Brief publishes hourly, including weekends. Retain the latest successful publication for each past date. Until today's first brief is ready, display the previous day's brief with its actual date. The archive offers one version per date.
+- The Daily Brief job is scheduled for `:25` every hour, including weekends. News checks are scheduled for `:00` and `:30` Bangkok time. The brief reads the latest completed batch available when the job starts. If ingestion fails and no newer completed batch exists, keep the last successful brief and report the delay. Retain the latest successful publication for each past date. Until today's first brief is ready, display the previous day's brief with its actual date. The archive offers one version per date. [FR-03](functional-requirements.md#fr-03-daily-brief-content-and-publication)
 - Daily Brief Q&A context is resolved: support today's brief only, supplied automatically to chat each day. Past briefs are read-only and have no AI follow-up control. If today's brief is not yet available, report its absence; do not attach the previous-day fallback as today's context. This does not prohibit ordinary historical financial research.
 - Stock summary publication is resolved: generate on first open each Thai calendar day from latest available data, show as-of time, and keep the published summary unchanged until Thai midnight. An exchange that has not opened does not require an invented same-day opening price.
 - Stock summary waiting and generation scope are resolved: until today's summary is published, show the latest earlier summary with its actual date. Generate lazily, only on first open and at most once per listing per Thai date, with no further daily cap. Advance generation, including always producing mega-cap summaries, is deferred; Phase 1 generates no summary without an open.
 
 No historical-brief chat workflow is required. Use the latest successful current-day publication for a new request. Retain actual dates/cutoffs when displaying older conversation messages so an answer from a previous request is not presented as newly generated context.
 
-Answer: Resolved on 6 November 2026. The owner accepted Daily Brief scheduling, latest-version archiving, dated previous-day fallback, and the Thai-calendar-day/latest-data/fixed-daily-stock-summary rule. The owner then required today's-only Daily Brief Q&A with automatic daily context, declining the proposed archived-brief chat workflow. Implementation must keep the previous-day display fallback separate from current-day AI context. On 20 November 2026, the owner chose to show the latest earlier stock summary with its date while today's is prepared, kept generation lazy with no extra daily cap, and deferred advance generation, including mega-cap stocks, to a later improvement.
+Answer: Resolved on 6 November 2026. The owner accepted Daily Brief scheduling, latest-version archiving, dated previous-day fallback, and the Thai-calendar-day/latest-data/fixed-daily-stock-summary rule. The owner then required today's-only Daily Brief Q&A with automatic daily context, declining the proposed archived-brief chat workflow. Implementation must keep the previous-day display fallback separate from current-day AI context. On 20 November 2026, the owner chose to show the latest earlier stock summary with its date while today's is prepared, kept generation lazy with no extra daily cap, and deferred advance generation, including mega-cap stocks, to a later improvement. On 21 November 2026, the owner confirmed the news and brief schedules and the latest-completed-batch rule.
 
 ### Q07 Personalization and personal-data controls
 
-Affected: FR-17-FR-20.
+Affected: FR-14, FR-17-FR-20.
 
-- Is the questionnaire optional, and is profile use enabled or disabled by default?
-- When profile use is disabled, should existing chat history containing profile details be excluded or should the change affect only new conversations? Is turning it off different from deleting the profile?
-- Can users prevent Portfolio or Watchlist from being sent to AI, or is that always part of the feature? What happens if a new request removes previously used context?
-- What personal-data deletion and retention controls are required when the account-based personal features are introduced? Phase 1 session-history duration is already resolved.
+- **Confirmed:** The questionnaire is optional and Investor Profile use is off by default. Turning it off excludes saved profile fields and any earlier messages or summaries that would disclose them from subsequent model inputs. The saved profile follows the separate retention policy. [FR-17](functional-requirements.md#fr-17-profile-questionnaire-and-control)
+- **Confirmed:** Watchlist and Portfolio are independent, per-question attachments. Earlier attachments do not authorize use in subsequent questions, including through replay of earlier chat history. [FR-20](functional-requirements.md#fr-20-personal-context-isolation)
+- **Confirmed:** In the final version, keep the current profile until deletion or account closure. Deleting it preserves retained transcripts for viewing, excludes its details from future model requests, removes derived summaries, and offers deletion of affected chats. [FR-17](functional-requirements.md#fr-17-profile-questionnaire-and-control)
+- **Confirmed:** Signed-in chat saving is opt-in. Unsaved chats last for the browser session. Saved chats expire 90 days after the last message and can be deleted individually or all at once. Account deletion removes both profile and saved chats. [FR-14](functional-requirements.md#fr-14-general-financial-questions-and-comparison)
+- **Confirmed:** App-controlled backups last at most 30 days. Reapply deletions and enforce expirations before serving a restore. Disclose model-provider retention separately. [FR-20](functional-requirements.md#fr-20-personal-context-isolation)
+- **Open:** Select the model service approved for private data and confirm its retention terms. Cross-device behavior remains open under [Q03](#q03-access-persistence-and-languages).
 
-**Proposed starting point:** Profile use is optional and visible; disabled values are omitted from new context. Private user data never enters shared briefs/summaries. Do not promise removal from old conversation history without defining how it works.
-
-Answer: Pending.
+Answer: The owner approved the signed-in defaults, per-question attachments, controls on replaying prior context, and final-version retention and deletion rules on 21 November 2026. Phase 1 prototype history remains limited to the browser session under Q03.
 
 ### Q08 Release quality and evaluation
 
-Affected: FR-02, FR-19-FR-20 and quality acceptance.
+Affected: FR-02, FR-03, FR-11, FR-19-FR-20 and quality acceptance.
 
 - Delivery target is resolved: Phase 1 is a capstone prototype/demonstration. Device/concurrency expectations, measured latency targets, and operating budget remain to be set when designing and evaluating the implementation; no production service level has been committed.
-- What level of citation, financial-calculation, scope, and prompt-injection testing is required for acceptance? Which failures block release?
+- Phase 1 security release blockers are resolved. Failed session isolation, raw guest prompts in telemetry, or restricted data reaching unpaid Gemini block release. So do unauthorized tool actions or fetches, secret disclosure, unsupported material claims or citations, missing risk warnings, definitive trade instructions or profit guarantees, executable generated content, bypassed usage caps, and failed jobs that overwrite valid publications. Apply the gates in Thai and English. [Phase 1 security release gates](functional-requirements.md#11-quality-and-release-acceptance)
+- Set exact request size, tool-call, retry, and guest concurrency limits. Set measured latency, freshness, and operating-budget targets and agree on the evaluation coverage for them.
 - What deadline or assessment criteria constrain scope? Which remaining details may be explicitly deferred?
 
-Answer: Partially resolved on 6 November 2026. The owner confirmed Phase 1 as an account-free capstone prototype covering Home, Stock Detail, and AI chat. Watchlist, Profile, and Discovery follow; Portfolio is last. Personal widgets such as Home's portfolio overview follow their owning feature rather than being required in Phase 1. This does not remove later features from the target requirements or establish a release date. Quantitative quality targets, evaluation details, budget, and delivery date remain open.
+Answer: On 6 November 2026, the owner confirmed Phase 1 as an account-free capstone prototype covering Home, Stock Detail, and AI chat. Watchlist, Profile, and Discovery follow; Portfolio is last. Personal widgets such as Home's portfolio overview follow their owning feature. On 21 November 2026, the owner approved the Phase 1 guardrails and release blockers. Quantitative limits, evaluation coverage, budget, and delivery date remain open.
 
 ## Recording an answer
 

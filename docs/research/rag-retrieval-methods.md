@@ -2,7 +2,9 @@
 
 Research report · 20 November 2026
 
-This report assumes that Thai and US financial documents arrive hourly. It compares keyword, embedding, and hybrid search, and examines where the index could live. The research question is which method finds the evidence needed for a financial answer when all methods search the same eligible documents.
+This report compares keyword, embedding, and hybrid search, and examines where the index could live. The research question is which method finds the evidence needed for a financial answer when all methods search the same eligible documents.
+
+The research used hourly ingestion as a working assumption. On 21 November 2026, the owner approved separate [news](../functional-requirements.md#fr-03-daily-brief-content-and-publication) and [filing](../functional-requirements.md#fr-12-financial-data-and-news) schedules.
 
 ## The problem RAG solves
 

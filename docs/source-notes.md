@@ -24,6 +24,8 @@ On 20 November 2026, the owner authorized finalizing the source design after rev
 
 On 7 November 2026, the owner agreed to one Next.js application for web and interactive backend requests, with separate worker execution for scheduled publications and recurring ingestion. Shared market-data logic serves web APIs, AI tools, and publication workflows. [ADR 0001](adr/0001-nextjs-application-and-shared-workspace.md) records the decision and its rationale.
 
+On 21 November 2026, the owner confirmed Vercel for Phase 1 ingestion and publication jobs after reviewing Trigger.dev. [ADR 0006](adr/0006-vercel-hosting-and-scheduled-publication-trigger.md) records the choice and when to reconsider it.
+
 ### S5 Owner-confirmed requirements finalization
 
 On 7 November 2026, the owner finalized version 2.0 as the first requirements baseline for the new project and confirmed the Phase 1 scope. The [question record](requirements-questions.md) captures decisions that still need review.

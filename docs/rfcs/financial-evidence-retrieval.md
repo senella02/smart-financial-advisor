@@ -6,7 +6,7 @@ On 20 November 2026, the owner chose **Supabase PostgreSQL full-text search** fo
 
 ## Context
 
-The app needs current quotes, exact financial figures, and passages that explain what an issuer disclosed. The SCB and SCB X mix-up shows what happens when ranking crosses a legal entity boundary. The research report compares retrieval methods and index placement. Its findings establish tradeoffs, while the relative quality of the methods on our corpus is still open. This proposal assumes an hourly document ingestion handoff. [RAG retrieval research](../research/rag-retrieval-methods.md), [Market data research](../research/thai-and-us-market-data.md)
+The app needs current quotes, exact financial figures, and passages that explain what an issuer disclosed. The SCB and SCB X mix-up shows what happens when ranking crosses a legal entity boundary. The research report compares retrieval methods and index placement. Its findings establish tradeoffs, while the relative quality of the methods on our corpus is still open. News and filings follow their approved source schedules. [News schedule](../functional-requirements.md#fr-03-daily-brief-content-and-publication) · [Filing schedules](../functional-requirements.md#fr-12-financial-data-and-news) · [RAG retrieval research](../research/rag-retrieval-methods.md) · [Market data research](../research/thai-and-us-market-data.md)
 
 ## Proposed design and rationale
 
@@ -24,7 +24,7 @@ Use verified figures and deterministic calculations for numeric answers. Use pas
 
 ### Target design with Pinecone vector search
 
-1. **Index public evidence.** On each hourly ingestion pass, the worker saves new or amended filings and news in Supabase with versioned passage IDs, source publication times, URLs, and page, section, or table references. It embeds changed passages with a multilingual model and upserts the vectors, passage IDs, and scope metadata to Pinecone. Stable IDs let the worker retry a partial write. The shared index contains only public evidence. [Retrieval research](../research/rag-retrieval-methods.md#index-capabilities-and-tradeoffs), [Trust boundaries](../contracts-and-boundaries.md#trust-and-privacy)
+1. **Index public evidence.** On each scheduled ingestion pass, the worker saves new or amended filings and news in Supabase with versioned passage IDs, source publication times, URLs, and page, section, or table references. It embeds changed passages with a multilingual model and upserts the vectors, passage IDs, and scope metadata to Pinecone. Stable IDs let the worker retry a partial write. The shared index contains only public evidence. [Retrieval research](../research/rag-retrieval-methods.md#index-capabilities-and-tradeoffs), [Trust boundaries](../contracts-and-boundaries.md#trust-and-privacy)
 2. **Publish complete versions.** Once all passages for a version are searchable, the worker marks it ready in Supabase. Until then the previous complete version remains eligible. Supabase retains revision history and records search visibility separately from source publication time. The index can be rebuilt from the public passages in Supabase. [Index freshness](https://docs.pinecone.io/guides/data/check-data-freshness), [ADR 0005](../adr/0005-supabase-postgres-for-shared-and-private-data.md)
 3. **Retrieve and cite.** The server resolves the eligible versions in Supabase for the question's entity, period, reporting basis, and cutoff. It embeds the financial question with the same model and queries Pinecone with those version filters. The server loads the ranked passages and citation details from Supabase, verifies their scope, and supplies them to the model. For a Thai question about an English filing, this lets the search match meaning across languages. If the passages do not support the answer, the model reports the evidence gap. [Metadata filters](https://docs.pinecone.io/guides/search/filter-by-metadata), [Grounded answers](../functional-requirements.md#fr-19-grounded-answers-and-citations)
 
@@ -37,11 +37,40 @@ Start with the same versioned passages, scope filters, and citation format. Sear
 ## Alternatives and conditions to revisit
 
 - **Let the model search for a quote through its own data tool.** This can be enough for standalone Q&A when it returns a verified listing and timestamp. The app also displays quotes outside chat, so a shared adapter gives both consumers the same source and freshness rules. Consider another source if the current one lacks coverage, timestamps, or terms that permit the intended use. [ADR 0003 provider selection](../adr/0003-market-data-and-news-provider-selection.md), [Q04 data coverage](../requirements-questions.md#q04-supported-data-and-stock-coverage)
-- **Fetch filings on demand for each question.** This avoids advance indexing and can be useful for a rare document request. Routine search would depend on upstream availability plus parsing time during the chat request. Hourly indexing lets requests search evidence that has already been processed. Compare source publication time with search visibility before deciding whether to poll more frequently.
+- **Fetch filings on demand for each question.** This avoids advance indexing and can be useful for a rare document request. Routine search would depend on upstream availability plus parsing time during the chat request. Scheduled indexing lets requests search evidence that has already been processed. Compare source publication time with search visibility before deciding whether to poll more frequently.
 - **Keep vector search in Supabase.** Using the same multilingual embeddings with `pgvector` lets us test the value of a dedicated index separately from the value of semantic retrieval. Hybrid search is a further option if keyword and vector searches recover complementary passages. [Research on retrieval and index options](../research/rag-retrieval-methods.md#index-capabilities-and-tradeoffs)
 
 ## Evidence needed to confirm the design
 
-Compare Phase 1 full-text search, Supabase with `pgvector`, and the proposed Pinecone index on the same passages, filters, and result count. Use identical embeddings for the two vector runs. Label the expected source passages for Thai and English questions, including SCB versus SCB X, an amendment after a historical cutoff, a Thai question over an English report, and a question with no supporting evidence.
+### Proposed comparison
 
-Record how often the required evidence appears in the first *k* results, scope violations, and whether citations support the generated claims. Report cross-language results separately. Compare end-to-end lookup latency, time until a complete revision becomes searchable, and cost at the same ingestion and query volume. Use those results to assess readiness for the Pinecone rollout. Evaluation thresholds remain open. For quotes, verify that chat and Stock Detail report the same source time for the same observation, including when that time is missing. [Q04 data coverage](../requirements-questions.md#q04-supported-data-and-stock-coverage), [Q08 evaluation](../requirements-questions.md#q08-release-quality-and-evaluation)
+Compare three methods to see whether combining text and vector rankings finds evidence that either method misses on its own. Supabase full-text search is the Phase 1 baseline.
+
+| Method | What the comparison should show |
+| --- | --- |
+| **Text-only** | PostgreSQL full-text search with Thai word segmentation. Measure how well it finds exact filing terms, tickers within the resolved scope, section names, and Thai phrases. [PostgreSQL text ranking](https://www.postgresql.org/docs/current/textsearch-controls.html#TEXTSEARCH-RANKING) |
+| **Vector-only** | Multilingual embedding search. Measure whether it recovers the right evidence for paraphrases and Thai questions about English filings. Check whether similar wording ranks higher than the passage containing the required fact. |
+| **Hybrid** | Combine the same text and vector rankings using reciprocal rank fusion, which uses the positions in each list. Measure whether the combined results preserve exact matches and recover more of the evidence needed for the answer. [Reciprocal rank fusion paper](https://cormack.uwaterloo.ca/cormack/cormacksigir09-rrf.pdf) |
+
+Use the same approved corpus, passage boundaries, document versions, question text, and eligibility filters for all three methods. Limit results to the first five unique passages per resolved issuer for stock questions and five total for market-wide questions. Use the same text ranking and embedding model for the standalone and hybrid runs. Keep the scored questions separate from the questions used to tune ranking. When comparing Pinecone with `pgvector`, hold the embeddings, similarity measure, and filters fixed so that index placement and ranking quality can be evaluated separately. [Retrieval method research](../research/rag-retrieval-methods.md#how-to-compare-the-methods)
+
+### Cases and scoring
+
+Use Thai and English questions about filings and approved news. Include exact terms, same-language paraphrases, Thai questions over English evidence, and English questions over Thai evidence. Report these groups separately. Label the expected issuer, fiscal period, reporting basis, source version, cutoff, and passages or tables that support each answer. Allow equivalent passages that support the same fact. Use multi-part questions and at least one comparison that requires evidence from both issuers. [FinanceBench](https://arxiv.org/abs/2311.11944) · [MIRACL](https://aclanthology.org/2023.tacl-1.63/)
+
+Include cases where the correct response is to clarify or report missing evidence. Test an ambiguous `SCB` reference, bank versus holding-company filings, consolidated versus company-only figures, an amendment published after a requested cutoff, and plausible results with no eligible evidence. [Evidence scope rules](#filter-filing-evidence-before-ranking)
+
+| Criterion | Measure |
+| --- | --- |
+| **Complete evidence in the top five** | Primary measure. Report the share of answerable questions for which the returned passages together support every required part of the answer. Count each comparison as complete only when both issuers are supported. Also report cases with partial or missing evidence. |
+| **Scope correctness** | Count retrieved passages outside the resolved issuer, market, document type, reporting basis, period, or cutoff. On ambiguous questions, check whether the system asks for clarification before retrieval. |
+| **Citation support and missing evidence** | With the same answer model, prompt, and structured figures, check whether each material claim is supported by its cited passage or table. For unanswerable questions, check that the answer states the gap. Score this separately from retrieval. [FR-19](../functional-requirements.md#fr-19-grounded-answers-and-citations) |
+| **Latency, freshness, and cost** | Compare time to usable evidence, time to a cited answer, and time from source publication to search visibility for a new or amended filing. Report median and 95th-percentile latency, errors, and retries under the same workload. Compare search, embedding, and indexing costs at the same request and update volume. |
+
+### Proposed rollout criteria
+
+- Require zero scope violations and zero unsupported material citations on the held-out set. Retrieving before clarifying a genuinely ambiguous issuer or producing an unsupported answer in a no-evidence case also blocks rollout.
+- Prefer hybrid if it improves complete-evidence coverage over the stronger standalone method overall, improves Thai-to-English coverage over text-only, and preserves the required evidence for exact-term cases the text baseline gets right. Report how many questions each method gains or loses. Treat a close result on a small sample as inconclusive.
+- Require latency, freshness, and cost to fit the limits agreed under [Q08](../requirements-questions.md#q08-release-quality-and-evaluation). Those limits and the size of the evaluation set remain open.
+
+Quote freshness has its own check. Verify that chat and Stock Detail report the same source timestamp for the same observation, including when the timestamp is missing. [Q04 data coverage](../requirements-questions.md#q04-supported-data-and-stock-coverage)

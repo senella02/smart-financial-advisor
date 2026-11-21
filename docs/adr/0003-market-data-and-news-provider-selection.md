@@ -18,6 +18,8 @@ The application needs Thai and US market data behind one internal contract. Cove
 
 Use Yahoo Finance as the initial upstream for instrument search, quotes, indices, price history, and news. The original evaluation exercised representative Thai and US symbols and indices. A shared adapter keeps the upstream response shapes out of application logic and allows other providers to fill coverage gaps.
 
+The Phase 1 scheduled news corpus starts with official releases whose terms permit ingestion and the intended AI use. [FR-03](../functional-requirements.md#fr-03-daily-brief-content-and-publication)
+
 Anonymous Yahoo Finance fundamentals requests returned authorization errors in the original evaluation. Stock Detail, chat, and publication workflows obtain statements and metrics through shared server-side adapters. [Market data research](../research/thai-and-us-market-data.md), [ADR 0002](0002-validated-contracts-and-data-trust-boundaries.md)
 
 ### Filings and fundamentals

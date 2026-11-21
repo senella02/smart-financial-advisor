@@ -50,7 +50,7 @@ Keep this index, links, and affected guides consistent. Never promote an unresol
 - [0003 Market data and news provider selection](0003-market-data-and-news-provider-selection.md). Yahoo Finance accepted 14 November 2026 for market data and news. US SEC EDGAR and Thai SEC iDISC accepted 20 November 2026 for filings and financial evidence.
 - [0004 Shared publication consistency](0004-shared-publication-consistency.md). Accepted 14 November 2026. Atomic publication, durable job coordination, and preservation of the last successful version.
 - [0005 Supabase PostgreSQL for shared and private data](0005-supabase-postgres-for-shared-and-private-data.md). Accepted 15 November 2026. PostgreSQL replaces SQLite as the target and serves both execution roles.
-- [0006 Vercel hosting and scheduled execution](0006-vercel-hosting-and-scheduled-publication-trigger.md). Vercel web hosting accepted 15 November 2026. Vercel Schedules, Queues, and a worker on Hobby accepted 20 November 2026.
-- [0007 Managed worker execution](0007-managed-worker-execution.md). Proposed alternative to ADR 0006. Evaluates Trigger.dev Cloud for scheduled and event-triggered jobs.
+- [0006 Vercel hosting and scheduled execution](0006-vercel-hosting-and-scheduled-publication-trigger.md). Vercel web hosting accepted 15 November 2026. Vercel Schedules, Queues, and Functions confirmed on 21 November 2026 for Phase 1 ingestion and publication, starting on Hobby.
+- [0007 Managed worker execution](0007-managed-worker-execution.md). Trigger.dev Cloud proposal retained for review if the workload reaches Vercel's limits.
 
 Acceptance sources are recorded in each ADR and the [source register](../source-notes.md#source-register). For implemented behavior and commands, use the [developer guide](../developer-guide.md); accepted architecture does not imply implementation.
