@@ -47,9 +47,10 @@ Keep this index, links, and affected guides consistent. Never promote an unresol
 
 - [0001 Next.js application, background worker, and shared workspace](0001-nextjs-application-and-shared-workspace.md). Accepted 7 November 2026. One web application, separate worker execution, and shared server-side services.
 - [0002 Validated contracts and data trust boundaries](0002-validated-contracts-and-data-trust-boundaries.md). Accepted 7 November 2026. Provider-neutral contracts and separation of shared and private data.
-- [0003 Market data and news provider selection](0003-market-data-and-news-provider-selection.md). Accepted 14 November 2026. Yahoo Finance as the initial upstream behind a replaceable adapter, with fundamentals coverage still open.
+- [0003 Market data and news provider selection](0003-market-data-and-news-provider-selection.md). Yahoo Finance accepted 14 November 2026 for market data and news. US SEC EDGAR and Thai SEC iDISC accepted 20 November 2026 for filings and financial evidence.
 - [0004 Shared publication consistency](0004-shared-publication-consistency.md). Accepted 14 November 2026. Atomic publication, durable job coordination, and preservation of the last successful version.
 - [0005 Supabase PostgreSQL for shared and private data](0005-supabase-postgres-for-shared-and-private-data.md). Accepted 15 November 2026. PostgreSQL replaces SQLite as the target and serves both execution roles.
-- [0006 Vercel hosting and scheduled execution](0006-vercel-hosting-and-scheduled-publication-trigger.md). Hosting accepted 15 November 2026. Production scheduler open.
+- [0006 Vercel hosting and scheduled execution](0006-vercel-hosting-and-scheduled-publication-trigger.md). Vercel web hosting accepted 15 November 2026. Vercel Schedules, Queues, and a worker on Hobby accepted 20 November 2026.
+- [0007 Managed worker execution](0007-managed-worker-execution.md). Proposed alternative to ADR 0006. Evaluates Trigger.dev Cloud for scheduled and event-triggered jobs.
 
 Acceptance sources are recorded in each ADR and the [source register](../source-notes.md#source-register). For implemented behavior and commands, use the [developer guide](../developer-guide.md); accepted architecture does not imply implementation.

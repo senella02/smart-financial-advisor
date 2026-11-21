@@ -10,7 +10,7 @@ Related requirements: [FR-03](../functional-requirements.md#fr-03-daily-brief-co
 
 ## Context
 
-[ADR 0001](0001-nextjs-application-and-shared-workspace.md) separates interactive requests from worker execution. [ADR 0006](0006-vercel-hosting-and-scheduled-publication-trigger.md) selects web hosting but leaves the production scheduler open. The worker currently contains only a placeholder.
+[ADR 0001](0001-nextjs-application-and-shared-workspace.md) separates interactive requests from worker execution. [ADR 0006](0006-vercel-hosting-and-scheduled-publication-trigger.md) selects Vercel web hosting and sets Vercel Schedules, Queues, and Functions as the starting point for worker execution. This proposal records a candidate for revisiting that choice. The worker currently contains only a placeholder.
 
 ## Decision and rationale
 
@@ -24,7 +24,7 @@ Vercel Schedules with Workflow/Queue reduces providers and supports durable mult
 
 ## Consequences
 
-Adds a deployment and provider dependency, compute/invocation costs, and runner observability limits. Persist necessary job status independently. Before acceptance, verify workspace bundling/runtime compatibility, scoped database access, repeated/concurrent runs, interrupted-run recovery, missed schedules and the total budget. No prototype or benchmark was executed in this research. Revisit for large backfills, Python-heavy dependencies, unacceptable cost or provider constraints. ADR 0006 remains unchanged until a runner is accepted.
+Adds a deployment and provider dependency, compute/invocation costs, and runner observability limits. Persist necessary job status independently. Before acceptance, verify workspace bundling/runtime compatibility, scoped database access, repeated/concurrent runs, interrupted-run recovery, missed schedules and the total budget. No prototype or benchmark was executed in this research. Revisit for large backfills, Python-heavy dependencies, unacceptable cost or provider constraints. Any decision to adopt Trigger.dev would supersede the worker selection in ADR 0006.
 
 ## References
 

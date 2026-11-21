@@ -28,7 +28,7 @@ The application knows the subject, evidence window, and sections in advance, so 
 2. **Job row and start.** The web server resolves the listing, then inserts a stock-summary `PublicationJob` row keyed by listing and Thai date, ignoring a conflict. Concurrent first opens therefore produce one job. The web server then starts the worker's single-job entry point for that job ID without waiting for it. The worker claims the row with a conditional update, so a duplicate start does nothing. The worker also limits concurrent generations, which absorbs bursts against model rate limits.
 3. **Sweep.** The scheduled Daily Brief run also resumes stock-summary jobs that are still pending or whose claim has expired. A lost start therefore delays a summary rather than stranding it, and no separate frequent schedule is needed.
 
-The web server writes only the job row. The worker writes the publication, as the [handoff rules](../contracts-and-boundaries.md#handoffs-between-layers) require. How the web server starts the worker in production, through an HTTP call to a separately deployed entry point or a database trigger on insert, depends on the production scheduler that ADR 0006 leaves open.
+The web server writes the job row and sends its ID to Vercel Queues. Queues invokes the worker, and the worker writes the publication. [Handoff rules](../contracts-and-boundaries.md#handoffs-between-layers), [ADR 0006](../adr/0006-vercel-hosting-and-scheduled-publication-trigger.md)
 
 While the job runs, the panel shows the stock's latest earlier summary with its own publication date and as-of time and says today's summary is being prepared. A stock with no earlier summary shows a preparing state. The browser rechecks the summary lookup every few seconds with backoff. After a timeout or a failed attempt, the panel offers a retry, which re-queues the job within an attempt limit. Quote, financials, and chat load independently throughout. [FR-11](../functional-requirements.md#fr-11-shared-daily-stock-summary)
 
@@ -61,7 +61,7 @@ Use the Vercel AI SDK core for the model steps:
 - `streamText` with an `isStepCount` stop condition runs the chat tool loop.
 - `generateText` with `Output.object()` produces structured publication and plan output.
 
-The SDK streams into Next.js Route Handlers and keeps the provider replaceable behind `GenerationPort`, matching ADR 0002. The default model is `gemini-3.5-flash-lite` on the Gemini API free tier, through `@ai-sdk/google`. Keep the model ID in configuration so a paid tier or another model needs no code change.
+The SDK streams into Next.js Route Handlers and keeps the provider replaceable behind `GenerationPort`. The owner chose the Gemini API and Vercel AI SDK on 20 November 2026. The default model is `gemini-3.5-flash-lite` on the Gemini API free tier, through `@ai-sdk/google`. Keep the model ID in configuration so a paid tier or another model needs no code change.
 
 The free-tier terms have two consequences:
 
@@ -92,14 +92,10 @@ LangGraph would also bring `@langchain/core` model bindings alongside the SDK. L
   - A single run needs several pause points for a person.
   - Discovery grows into a multi-turn planning agent whose intermediate state is too large to keep in a plan record.
   - Branching across the chat pipeline becomes hard to test as plain functions.
-- **Vercel Workflow SDK.** Its durable steps suit a long publication run if restarting it becomes expensive. Reconsider it when choosing the production scheduler, which ADR 0006 leaves open, in either case:
-  - A Daily Brief run approaches the Vercel Function limit of 300 seconds on Hobby or 800 seconds on Pro.
-  - First-open stock summaries need a durable trigger from the web request into the worker.
-
-  Its Postgres World needs a long-lived process and is not serverless, so running it off Vercel would change the hosting picture. [Workflow SDK](https://workflow-sdk.dev/docs/foundations/workflows-and-steps), [Postgres World](https://workflow-sdk.dev/worlds/postgres), [ADR 0006](../adr/0006-vercel-hosting-and-scheduled-publication-trigger.md)
+- **Vercel Workflow SDK.** Reconsider durable steps if retrying a publication from the beginning becomes too expensive. Running the SDK with Postgres World off Vercel requires a long-lived process. [Workflow SDK](https://workflow-sdk.dev/docs/foundations/workflows-and-steps), [Postgres World](https://workflow-sdk.dev/worlds/postgres)
 - **One general agent for every workflow.** A single tool-using agent could also produce publications. The publications need the same evidence snapshot for both languages, a fixed cutoff, and an atomic commit. A model choosing its own evidence makes those guarantees harder to check.
 
-The scheduler choice has a constraint the research surfaced. Vercel Cron Jobs on Hobby run at most once a day, so the hourly Daily Brief needs Pro, Vercel Schedules, or another trigger. [Cron usage and pricing](https://vercel.com/docs/cron-jobs/usage-and-pricing), [Schedules limits](https://vercel.com/docs/schedules/limits)
+The hourly Daily Brief uses Vercel Schedules and Vercel Queues. ADR 0006 records the deployment choice and the limits that apply to the worker. [ADR 0006](../adr/0006-vercel-hosting-and-scheduled-publication-trigger.md)
 
 ## Evidence needed to confirm the design
 
@@ -107,6 +103,6 @@ The scheduler choice has a constraint the research surfaced. Vercel Cron Jobs on
 - **Thai output quality.** Check Thai brief and chat output from the default model on labeled examples.
 - **Chat tool loop.** Prototype the loop with its step limit, then check that an unavailable or stale tool result reaches the answer as a stated gap. Confirm that a citation to evidence outside the request is rejected.
 - **Discovery transitions.** Test confirming twice, confirming a superseded version, confirming after cancellation, and confirming from another session. Each must leave the screen unexecuted or run it exactly once.
-- **First-open summaries.** Choose how the web server starts the worker in production when the scheduler is chosen. Measure the wait for a first summary and confirm that a lost start is recovered by the sweep.
+- **First-open summaries.** Measure the wait for a first summary and verify that the sweep recovers a job if the queue message fails to publish.
 
 These are design checks, not acceptance targets, which remain open in [Q08](../requirements-questions.md#q08-release-quality-and-evaluation).

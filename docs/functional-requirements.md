@@ -174,11 +174,15 @@ Source: S1 p. 13; bilingual versions, Thai-day, latest-data, and fixed-daily-pub
 
 These views/fields are required. Clearly identify unavailable data rather than silently removing a required field or fabricating its value.
 
-**Proposed detail:** Label currency, units, financial reporting period, and missing data. Ratios retain their period/basis. Distinguish an unavailable range or shorter available reporting history from a valid empty result.
+Show the reporting period, currency, units, and reporting basis for verified statement figures. Link to the supporting filing for figures sourced from a filing. Ratios retain their reporting period or calculation basis. [Filing and financial data sources](adr/0003-market-data-and-news-provider-selection.md#filings-and-fundamentals)
+
+**Proposed detail:** Distinguish an unavailable range or shorter available reporting history from a valid empty result.
 
 **Acceptance:** Users can select each required chart range, switch between annual and quarterly statements within up to four years of available history, and locate each required financial metric. A quote loads when the page opens; an explicit refresh requests an updated quote without regenerating the daily stock summary. Merely leaving Stock Detail open for one minute does not trigger automatic quote polling. Missing history, a missing range, or an unavailable metric has an explicit state; missing values are not replaced with zero. Users can distinguish a current quote from a prior reporting-period figure and inspect evidence underlying the daily summary.
 
-Source: S1 p. 13; S2 pp. 3-4 data details explicitly retained by the project owner on 6 November 2026, with annual/quarterly views, page-open/manual quote refresh, and price/volume-only initial analysis subsequently confirmed. Exact provider coverage remains in Q04.
+For a statement figure sourced from a filing, users can follow its source link and verify the value using the displayed period, reporting basis, currency, and units.
+
+Source: S1 p. 13 and S2 pp. 3-4 data details retained by the project owner on 6 November 2026. S7 records the 20 November filing source decision. Exact provider coverage remains in Q04.
 
 ### FR-13 Stock-bound chat
 

@@ -16,6 +16,10 @@ Keep unanswered product rules and proposed acceptance details explicit in the [q
 
 ## Source register
 
+### S7 Filing and financial data sources
+
+On 20 November 2026, the owner authorized finalizing the source design after reviewing the Thai SEC Open Data coverage check and discussing SET access. [ADR 0003](adr/0003-market-data-and-news-provider-selection.md#filings-and-fundamentals) records the source choices and the conditions for adding a SET feed. [Market data research](research/thai-and-us-market-data.md#thai-sec-open-data-one-report-coverage) records the evidence and the limits of the check.
+
 ### S6 Owner-confirmed application and worker boundary
 
 On 7 November 2026, the owner agreed to one Next.js application for web and interactive backend requests, with separate worker execution for scheduled publications and recurring ingestion. Shared market-data logic serves web APIs, AI tools, and publication workflows. [ADR 0001](adr/0001-nextjs-application-and-shared-workspace.md) records the decision and its rationale.

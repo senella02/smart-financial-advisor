@@ -62,9 +62,9 @@ Affected: FR-01-FR-02, FR-05, FR-07-FR-08, FR-12, FR-15-FR-16.
 - Stock Detail quote refresh is resolved: page open or explicit visitor request, with no automatic minute polling and no quote-triggered daily-summary regeneration. Later Watchlist refresh interval, historical news range, and upcoming-event feed ordering remain open.
 - Define minimum data needed to show or analyze a stock, stale-data labels, and behavior if a provider cannot serve a supported stock. Is dropping an otherwise valid result acceptable?
 
-The initial upstream and known fundamentals gap are recorded in [ADR 0003](adr/0003-market-data-and-news-provider-selection.md). Required coverage and acceptable source delay remain open product decisions.
+- Filing and financial data source selection is resolved. Use US SEC EDGAR and Company Facts for US filings and figures. Use Thai SEC iDISC and verified copies of issuer filings for Thai evidence and figures. The SEC Open Data One Report API is a possible annual supplement. SET structured feeds remain under evaluation. Yahoo Finance remains the initial market data and news provider. [ADR 0003](adr/0003-market-data-and-news-provider-selection.md#filings-and-fundamentals)
 
-Answer: Partially resolved on 6 November 2026. The owner retained the chart ranges, statement-history depth, and financial metrics, confirmed annual/quarterly views and clear unavailable-data states, common-stock-only scope, page-open/manual Stock Detail quote refresh, and price/volume-only initial analysis. Exact exchange/data coverage, acceptable upstream freshness, and later Watchlist/event-feed details remain open.
+Answer: The owner confirmed the data views, instrument scope, and Stock Detail refresh behavior on 6 November 2026 and authorized finalizing the filing and financial data sources on 20 November 2026. Exact exchange and issuer coverage, minimum usable data, acceptable source delay, and later Watchlist and event-feed details remain open.
 
 ### Q05 Chat and discovery boundaries
 

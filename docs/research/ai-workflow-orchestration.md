@@ -29,7 +29,7 @@ The two publications have a fixed shape. The application knows the subject, the 
 
 Comparison differs from Q&A in three requirement-driven ways. The subjects must be named explicitly. Evidence is retrieved separately for each issuer. The answer must identify the companies, metrics, periods, and currencies being compared. A news story mentioning stock B does not make B a subject on stock A's page. [FR-13 acceptance](../functional-requirements.md#fr-13-stock-bound-chat), [Retrieval RFC](../rfcs/financial-evidence-retrieval.md#filter-filing-evidence-before-ranking)
 
-The stock summary has a trigger and runtime tension. FR-11 generates it on first open, while the [handoff rules](../contracts-and-boundaries.md#handoffs-between-layers) have the worker commit first-open summaries. A visitor request must therefore start or wait for a worker job. The production scheduler and the invocation path for such a job are still open. [ADR 0006](../adr/0006-vercel-hosting-and-scheduled-publication-trigger.md)
+FR-11 requires first-open generation, and the worker commits the summary. A visitor request must start a worker job or wait for a job already in progress. The scheduler and invocation path were open during this comparison. ADR 0006 records the later decision. [Handoff rules](../contracts-and-boundaries.md#handoffs-between-layers), [ADR 0006](../adr/0006-vercel-hosting-and-scheduled-publication-trigger.md)
 
 ## Steps the requirements place under application control
 
@@ -115,7 +115,7 @@ Its evaluation attributes most incorrect chat answers to the tool-to-response pa
 ## Unknowns
 
 - How many model calls and how much time a Daily Brief run needs, which determines whether one function invocation can complete it.
-- How a first-open stock summary request reaches the worker, given the open production scheduler.
+- How long a first-open stock summary takes, including the time to start the worker.
 - Discovery's result count, ranking, filter set, and guest access remain open in [Q03](../requirements-questions.md#q03-access-persistence-and-languages), [Q04](../requirements-questions.md#q04-supported-data-and-stock-coverage), and [Q05](../requirements-questions.md#q05-chat-and-discovery-boundaries).
 - The free-tier rate limits for the default model. `GenerationPort` currently covers only text generation for the two publications. [Contracts](../../packages/contracts/src/index.ts)
 

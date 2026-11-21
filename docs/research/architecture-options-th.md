@@ -3,18 +3,20 @@
 ตรวจเอกสารและ branch `setup-project-architecture` วันที่ 20 พฤศจิกายน 2026  
 สถานะ: ข้อเสนอจากการอ่าน repo และเอกสารผู้ให้บริการ ยังไม่ได้ทดลอง deploy หรือ benchmark และยังไม่ใช่มติทีม
 
-## ทางที่แนะนำ
+ฐานสำหรับข้อเสนอปัจจุบันคือ Vercel Schedules, Queues และ Functions ตาม [ADR 0006](../adr/0006-vercel-hosting-and-scheduled-publication-trigger.md) เอกสารนี้เก็บเหตุผลและทางเลือก Trigger.dev Cloud สำหรับทบทวนเมื่อทราบข้อจำกัดของ worker จากการทดลองจริง
+
+## ทางเลือก Trigger.dev Cloud
 
 คง **Next.js บน Vercel + Supabase PostgreSQL** ตาม ADR 0001/0005/0006 และเสนอใช้ **Trigger.dev Cloud รัน worker** แยกจากเว็บ การตอบแชตอยู่ที่ Next.js ส่วนงานสร้างสรุปและ ingestion อยู่ที่ worker ใช้โมดูล server ร่วมกันได้โดยไม่ผูกกับ Next.js request API
 
 | เรื่อง | ฐานเดิมใน repo | ข้อเสนอเพิ่มเติม |
 | --- | --- | --- |
 | Web/API | Next.js, Vercel ตกลงแล้ว | คงเดิม |
-| งานเบื้องหลัง | แยก worker แต่ scheduler ยังเปิด; `apps/worker` มีแค่ placeholder | Trigger.dev Cloud เป็นตัวเลือกแรกสำหรับทดลอง |
+| งานเบื้องหลัง | แยก worker และเริ่มด้วย Vercel Schedules, Queues และ Functions; `apps/worker` มีแค่ placeholder | Trigger.dev Cloud เป็นทางเลือกหากต้องทบทวนการรัน worker |
 | ข้อมูลถาวร | Supabase PostgreSQL ตกลงแล้ว; migrations ยังมีแค่ placeholder | เก็บ publication/evidence/job state ที่นี่ |
 | Security | มี trust boundaries ในเอกสารแล้ว | บังคับที่ API, สิทธิ์ DB, retrieval และ output validation |
 | User context | Phase 1 ไม่มีบัญชี; chat history เฉพาะ session | Phase ถัดไปเก็บ Profile/Portfolio เป็น relational records แล้วประกอบ context ฝั่ง server |
-| RAG | มีข้อกำหนด grounded answer แต่ยังไม่เท่ากับมี ingestion แล้ว | เริ่มจาก evidence ที่ตรวจสอบแหล่งได้; เพิ่ม pgvector เมื่อมี corpus ให้ค้นจริง |
+| RAG | [RFC การค้นหลักฐาน](../rfcs/financial-evidence-retrieval.md) ใช้ full-text search ใน Phase 1 และวาง Pinecone เป็นเป้าหมาย | ใช้ pgvector เป็นทางเลือกในการประเมิน vector search |
 
 ## 1. งานเบื้องหลังรันที่ไหนและอย่างไร
 
@@ -67,8 +69,7 @@ DB เป็นผู้ยืนยันผลสำเร็จ: ใช้ un
 
 ## เรื่องที่ต้องตกลงร่วมกัน
 
-1. **เลือกเครื่องมือรันงานเบื้องหลัง**  
-   จะใช้ Trigger.dev ตามข้อเสนอ หรือทดลอง Vercel Schedules/Workflow ก่อน โดยตรวจว่ารันโค้ดของเรา เชื่อมต่อ Supabase และมีค่าใช้จ่ายอยู่ในงบได้หรือไม่
+1. **ประเมินเครื่องมือรันงานเบื้องหลัง** ทดลอง Vercel ตาม ADR 0006 และตรวจว่ารันโค้ดของเรา เชื่อมต่อ Supabase และมีค่าใช้จ่ายอยู่ในงบได้หรือไม่ ใช้ข้อเสนอ Trigger.dev ประกอบการพิจารณาหากต้องเปลี่ยน runner
 2. **กำหนดเอกสารที่ AI จะใช้ค้นข้อมูล**  
    จะเริ่มจากข่าว รายงานบริษัท หรือเอกสารประเภทไหน มีสิทธิ์นำมาเก็บและใช้งานหรือไม่ และจำเป็นต้องค้นตามความหมายด้วย vector search หรือใช้วิธีค้นทั่วไปก่อนก็พอ
 3. **กำหนดการจัดการข้อมูลส่วนตัว**  
