@@ -12,13 +12,22 @@ The functional requirements remain the source for product behavior and acceptanc
 
 | Area | Final behavior and design | Decisions to close |
 | --- | --- | --- |
-| Shared Home and Stock Detail | Guests can read shared content. Home shows one-minute index updates, the bilingual hourly Daily Brief, and one archived brief per Bangkok date. Stock Detail has page-open and manual quotes, charts, filings, financials, news, and a bilingual first-open summary. Source times and unavailable states are visible. [FR-01 to FR-05](functional-requirements.md#2-shared-behavior) · [FR-11 and FR-12](functional-requirements.md#6-stock-detail) | Confirm supported listing and feed coverage, rights, and tolerances for stale data. [Q04](../requirements-questions.md#q04-supported-data-and-stock-coverage) |
+| Shared Home and Stock Detail | Guests can read shared content. Home shows one-minute index updates and the bilingual hourly Daily Brief, which combines a market snapshot, news roundup, and relevant filing evidence. The archive keeps one brief per Bangkok date. Stock Detail has page-open and manual quotes, charts, filings, financials, news, and a bilingual first-open summary. Source times and unavailable states are visible. [FR-01 to FR-05](functional-requirements.md#2-shared-behavior) · [FR-11 and FR-12](functional-requirements.md#6-stock-detail) | Confirm supported listing and feed coverage, rights, and tolerances for stale data. [Q04](../requirements-questions.md#q04-supported-data-and-stock-coverage) |
 | Accounts and chat | Both chat entry points and brief follow-ups require sign-in. The server resolves today's brief and the selected stock. Main history combines both entry points, and Stock Detail shows explicitly linked conversations. Saving chats is opt-in, with 90-day expiry after the last message and earlier deletion available. Thai and English are supported across the interface, shared publications, and chat. Supabase Auth is the proposed sign-in service. [FR-13 and FR-14](functional-requirements.md#fr-13-stock-bound-chat) · [FR-19 to FR-21](functional-requirements.md#9-ai-evidence-and-guardrails) | Select sign-in methods, confirm device restoration and locale behavior, and approve model terms for private data. [Q03](../requirements-questions.md#q03-access-persistence-and-languages) · [Q07](../requirements-questions.md#q07-personalization-and-personal-data-controls) |
 | Watchlist and Investor Profile | Store Watchlist and the optional Investor Profile under account ownership. Watchlist supports up to 20 stocks and shows prices, relevant news, and events. Profile use starts off. Each question needs its own Watchlist or Portfolio attachment. Apply current permissions when replaying earlier messages and summaries. [FR-07 and FR-08](functional-requirements.md#4-my-watchlist) · [FR-17 and FR-18](functional-requirements.md#8-investor-profile) · [FR-20](functional-requirements.md#fr-20-personal-context-isolation) | Confirm persistence, event coverage, and Watchlist refresh. [Q03](../requirements-questions.md#q03-access-persistence-and-languages) · [Q04](../requirements-questions.md#q04-supported-data-and-stock-coverage) |
 | Discovery | The server stores a versioned screening plan. Execute the confirmed version against verified stock data, cite the evidence behind each match, and let users add results to Watchlist. Propose account ownership for plan and confirmation state. [FR-15 and FR-16](functional-requirements.md#fr-15-discovery-plan-and-user-confirmation) · [Workflow RFC](../rfcs/ai-workflow-orchestration.md#three-workflow-shapes) | Confirm guest access, filters, ranking, and result limits. [Q03](../requirements-questions.md#q03-access-persistence-and-languages) · [Q05](../requirements-questions.md#q05-chat-and-discovery-boundaries) |
 | Portfolio and Home portfolio overview | Users maintain purchase positions for current holdings. The server calculates valuation and price P/L in code. Use the same current USD/THB rate for cost and value, with FX gains and losses excluded. Refresh portfolio prices every minute. [FR-06](functional-requirements.md#fr-06-portfolio-overview-on-home) · [FR-09 and FR-10](functional-requirements.md#5-portfolio) · [FR-22](functional-requirements.md#fr-22-current-fx-valuation) | Set position and summary rules, FX freshness, and the previous-close convention. [Q01](../requirements-questions.md#q01-portfolio-accounting-and-summaries) · [Q02](../requirements-questions.md#q02-thb-conversion-and-daily-profit-or-loss) |
 
 ## Runtime and data flow
+
+![Figure 1. Full product system architecture showing Next.js on Vercel, Apache Airflow, account-private and public Supabase storage, and Pinecone for public evidence retrieval.](diagrams/smart-financial-advisor-target-architecture.png)
+
+[Open the detailed Figure 1 in draw.io](diagrams/smart-financial-advisor-target-architecture.drawio) · [Download the overview as SVG](diagrams/smart-financial-advisor-target-architecture.svg)
+
+Vercel, the Vercel design, Next.js and related marks, designs and logos are trademarks or registered trademarks of Vercel, Inc. or its affiliates in the US and other countries.
+
+<details>
+<summary>Detailed runtime and data flow</summary>
 
 ```mermaid
 flowchart TB
@@ -46,8 +55,11 @@ flowchart TB
     Web -->|Trigger by durable job ID| API
     Brief & Summary --> Worker["Packaged TypeScript publication worker"]
     Worker <--> Shared
+    Worker -->|Capture market observations| Market
     Worker -->|Public evidence only| Model
 ```
+
+</details>
 
 [Backend data flow](backend-data-flow.md) shows the ingestion, publication, and request paths in detail.
 
@@ -62,11 +74,11 @@ Airflow's scheduler creates runs. Its executor starts task processes on Airflow 
 | News ingestion | `0,30 * * * *` in `Asia/Bangkok` | Fetch permitted releases and record a completed news batch, including checks with zero new stories. Index eligible passages. [FR-03](functional-requirements.md#fr-03-daily-brief-content-and-publication) |
 | US filing ingestion | `0 6-23 * * 1-5` in `America/New_York` | Check EDGAR for filings and amendments, and refresh Company Facts for changed issuers. Use Eastern time across daylight-saving changes. [FR-12](functional-requirements.md#fr-12-financial-data-and-news) |
 | Thai filing ingestion | `0 9,14,22 * * 1-5` in `Asia/Bangkok` | Check Thai SEC iDISC and verified issuer sources. Extract and validate the filing data and index public passages. [ADR 0003](../adr/0003-market-data-and-news-provider-selection.md) |
-| Daily Brief | `25 * * * *` in `Asia/Bangkok` | Read the latest completed news batch when generation starts. Publish both languages with one evidence cutoff. Vector indexing can finish independently of the brief. [FR-03](functional-requirements.md#fr-03-daily-brief-content-and-publication) |
+| Daily Brief | `25 * * * *` in `Asia/Bangkok` | Read the latest completed news batch, capture a market snapshot, and run bounded filing lookups for selected stories with Vercel AI SDK. Validate and publish both languages together with one evidence cutoff. [FR-03](functional-requirements.md#fr-03-daily-brief-content-and-publication) · [Publication workflow](../rfcs/ai-workflow-orchestration.md#three-workflow-shapes) |
 | First-open stock summary | Next.js triggers a DAG after recording a job for the listing and Bangkok date | Claim the job, generate both languages, and publish them in one transaction. Use the database to recover pending work and expired claims. [FR-11](functional-requirements.md#fr-11-shared-daily-stock-summary) · [ADR 0004](../adr/0004-shared-publication-consistency.md) |
 | Historical imports and reindexing | Operator starts a bounded date, source, or document scope | Call the same ingestion and embedding steps with bulk concurrency limits. [Airflow backfill](https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/backfill.html) |
 
-For the first-open trigger, use a server-side Airflow identity scoped to the stock-summary DAG. Send only the durable job ID and use it to deduplicate dispatch and claim the job in Supabase. Return the preparing state promptly. The browser polls the application for the published summary. A scheduled recovery task reclaims pending jobs and expired claims after a failed trigger or worker restart. Set its cadence from the stock-summary wait target in Q08. [First-open workflow](../rfcs/ai-workflow-orchestration.md#three-workflow-shapes) · [Airflow REST API](https://airflow.apache.org/docs/apache-airflow/stable/stable-rest-api-ref.html) · [API authentication](https://airflow.apache.org/docs/apache-airflow/stable/security/api.html)
+For the first-open trigger, use a server-side Airflow identity scoped to the stock-summary DAG. Send only the durable job ID and use it to deduplicate dispatch and claim the job in Supabase. Wait for Airflow to acknowledge dispatch within a bounded timeout, then return the preparing state while the browser polls for the summary. A scheduled recovery task reclaims pending jobs and expired claims after a failed trigger or worker restart. Set its cadence from the stock-summary wait target in Q08. [First-open workflow](../rfcs/ai-workflow-orchestration.md#three-workflow-shapes) · [Airflow REST API](https://airflow.apache.org/docs/apache-airflow/stable/stable-rest-api-ref.html) · [API authentication](https://airflow.apache.org/docs/apache-airflow/stable/security/api.html)
 
 Run the LLMFA-derived Python extraction and embedding code in Airflow tasks. Have the publication DAGs invoke the packaged TypeScript worker as a Node.js command so the existing workspace contracts and AI SDK design still apply. Use a fixed command and validated job inputs. Interactive chat, live quote requests, and Discovery confirmation stay in Next.js. [ADR 0001](../adr/0001-nextjs-application-and-shared-workspace.md) · [Airflow command operator](https://airflow.apache.org/docs/apache-airflow-providers-standard/stable/operators/bash.html)
 
@@ -97,3 +109,5 @@ Vercel can serve the last successful publications while Airflow recovers. Airflo
 The [Phase 1 requirements](../phase-1-planning/functional-requirements.md) and [Phase 1 architecture](../phase-1-planning/architecture.md) describe the capstone prototype.
 
 Phase 2 aims to deliver the account-based product shown in the diagrams. It adds the remaining product areas, moves background jobs to Airflow, and rolls out Pinecone retrieval after bilingual evaluation. The functional requirements define product behavior and acceptance. [Functional requirements](functional-requirements.md) · [Retrieval evaluation](../rfcs/financial-evidence-retrieval.md#evidence-needed-to-confirm-the-design)
+
+Phase 2 expands the Daily Brief into the hourly market report. Evaluate the additional filing evidence against its effect on citation accuracy, publication delay, and cost. [Daily Brief evaluation](../rfcs/ai-workflow-orchestration.md#evidence-needed-to-confirm-the-design)

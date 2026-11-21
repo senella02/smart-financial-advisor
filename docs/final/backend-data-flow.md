@@ -36,30 +36,44 @@ flowchart TB
     API --> Summary["Stock summary DAG"]
     Sweep["Scheduled Airflow recovery task"] -->|Find pending jobs and expired claims| Jobs
     Sweep -->|Resume work by job ID| Summary
-    Brief & Summary -->|Invoke Node.js worker| Worker["TypeScript publication worker<br/>Claim job and fix evidence cutoff"]
+    Brief -->|Daily Brief job by scheduled hour| Worker["TypeScript publication worker<br/>Claim job and fix evidence cutoff"]
+    Summary -->|Stock summary job by listing and Bangkok date| Worker
     Worker <-->|Claim and track job| Jobs
     News[("Supabase · latest completed news batch")] -->|Read at Daily Brief job start| Worker
     Evidence[("Supabase · verified figures, filing passages and issuer news")] -->|Stock summary evidence| Worker
-    Market["Market data adapter"] -->|Observed price and volume for stock summaries| Worker
-    Worker -->|Score brief stories and generate from fixed evidence| Model["Model via Vercel AI SDK"]
+    Market["Market data adapter"] -->|Brief market snapshot and stock summary observations| Worker
+    Worker <-->|Daily Brief only| Research["Model via Vercel AI SDK<br/>Score news, then request filings for selected stories"]
+    Research <-->|Bounded read-only lookups| Filing["Worker validates issuer, reporting period and cutoff"]
+    Filing <-->|Read eligible public filing evidence| Evidence
+    Worker -->|Generate from frozen evidence| Model["Model via Vercel AI SDK"]
     Model -->|Structured output| Publish["Worker validates claims and citations<br/>Commits both languages and their common evidence snapshot"]
     Publish --> Publications[("Supabase PostgreSQL · shared publications")]
     Publications --> Read["Home and Stock Detail show the latest valid publication<br/>Chat resolves today's Daily Brief"]
 ```
 
-The brief uses eligible stories published since Bangkok midnight. If no newer completed batch is available after an ingestion failure, the last successful brief keeps its timestamp and Home shows the delay. Next.js records first-open jobs by listing and Bangkok date. Stock Detail polls the server for today's summary and shows a dated earlier summary or a preparing state while it waits. [FR-03](functional-requirements.md#fr-03-daily-brief-content-and-publication) · [FR-11](functional-requirements.md#fr-11-shared-daily-stock-summary) · [Airflow job execution](final-architecture.md#airflow-schedules-and-job-execution)
+The brief uses eligible stories published since Bangkok midnight. The worker selects stories after scoring and permits filing lookups only for their resolved issuers. If market data or filing evidence is unavailable, the brief shows the gap alongside supported coverage. If no newer completed news batch is available after an ingestion failure, the last successful brief keeps its timestamp and Home shows the delay. [FR-03](functional-requirements.md#fr-03-daily-brief-content-and-publication) · [Publication workflow](../rfcs/ai-workflow-orchestration.md#three-workflow-shapes)
+
+Next.js records first-open jobs by listing and Bangkok date. Stock Detail polls the server for today's summary and shows a dated earlier summary or a preparing state while it waits. [FR-11](functional-requirements.md#fr-11-shared-daily-stock-summary) · [Airflow job execution](final-architecture.md#airflow-schedules-and-job-execution)
 
 ## Request-time evidence and chat
 
 ```mermaid
 flowchart TB
     Account["Signed-in investor · main or stock-bound chat"] --> Access["Next.js · verify sign-in, request and usage limits"]
-    Access --> Context["Resolve stock, language and permitted history"]
+    Access --> IntentContext["Resolve stock and answer language<br/>Check history permissions and provider restrictions"]
+    IntentContext --> Classify["Classify intent with the same chat model · tools disabled"]
+    Classify --> Route{"Next.js validates the result and selects the route"}
+    Route -->|Needs clarification| Clarify["Ask a follow-up"]
+    Route -->|Outside scope| Redirect["Redirect to stock research"]
+    Route -->|Invalid or failed classification| Failed["Return a recoverable error"]
+    Route -->|Supported research question| Subjects{"Can Next.js resolve the requested subjects?"}
+    Subjects -->|Ambiguous subject| Clarify
+    Subjects -->|Resolved or no subject needed| Context["Assemble context for financial retrieval"]
     Brief[("Supabase · today's successful Daily Brief")] --> Context
-    Access --> Select["Check ownership and current context settings"]
+    Context --> Select["Check ownership and current context settings"]
     Select <-->|Read authorized records| Private[("Supabase · account-private records")]
-    Select -->|Add permitted fields and calculated holdings values| Context
-    Context --> Model["Approved model via Vercel AI SDK"]
+    Select --> Provider["Check provider restrictions on assembled context"]
+    Provider -->|Pass allowed context| Model["Approved model via Vercel AI SDK"]
     Model -->|Bounded tool calls| Tools["Server tools · resolve issuer, period, basis and cutoff"]
     Tools <-->|Quotes and price history| Market["Market data adapter"]
     Tools <-->|Verified figures, eligible versions, and ranked text with citations| Evidence[("Supabase · public evidence")]
@@ -105,7 +119,7 @@ Use the same current USD/THB rate for portfolio cost and value. Discovery uses s
 
 | Workflow | Inputs |
 | --- | --- |
-| Daily Brief | Eligible news since Bangkok midnight, references, and the evidence cutoff. The model scores stories. The worker selects them in code and sends the resulting snapshot for generation in both languages. |
+| Daily Brief | Eligible news since Bangkok midnight and timestamped market observations. The worker selects stories after model scoring and accepts bounded requests for public filing evidence for those issuers. Both languages use the same selected news, market snapshot, validated filing evidence, citations, and cutoff. |
 | Stock summary | Resolved listing, observed prices and volume, verified figures and filing passages, issuer news, and source references and timestamps. |
 | AI Q&A and comparison | The investor's message, requested language, permitted history, resolved stock context when applicable, and today's Daily Brief when available. Server tools can add quotes, figures, and cited passages. Comparisons retrieve each issuer separately and align periods, currencies, and units in code. |
 | Personal context in chat | Relevant fields from an enabled Investor Profile and any Watchlist or Portfolio context attached to the current question. The server applies current permissions when replaying earlier messages and sends private context only under approved model terms. |

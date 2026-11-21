@@ -20,6 +20,7 @@ Proposed · 21 November 2026
 - Phase 1 หากมี server session ต้องผูกกับ secret ที่ตรวจสอบได้และ TTL; conversation ID อย่างเดียวไม่ใช่สิทธิ์ ระบบเต็ม derive owner จาก authenticated session/JWT ที่ตรวจแล้ว ตรวจ owner ทุก read/write รวม messages, exports และ deletion
 - อนุญาตเฉพาะ tools ที่กำหนด เช่น quote, financials, filing search และ news; server ตรวจ listing/issuer/period/cutoff/ownership ทุกครั้ง จำกัดจำนวนรอบและ timeout ไม่เปิด arbitrary SQL, shell, URL fetch หรือการแก้ holdings ให้ model
 - ตรวจข้อจำกัด model provider ก่อนส่ง message, history, attachments และ logs ทั้งชุด Unpaid Gemini ต้องบล็อก restricted information ตาม Phase 1 gate; ถ้าตรวจไม่ได้อย่างมั่นใจให้หยุดคำขอนั้นและไม่ส่งข้อความดิบไปให้ model ตัวอื่นช่วยตรวจโดยไม่มีสิทธิ์ ไม่มี classifier ใดรับประกันตรวจข้อมูลส่วนตัวได้ครบ จึงต้องประเมิน false negatives และความเหมาะสมก่อนเปิดใช้งาน
+- ข้อเสนอสำหรับ Phase 2 ให้ตรวจ intent หลังผ่านข้อจำกัดของ model provider แล้ว หากคำถามเจาะจงบริษัท ให้ระบุบริษัทให้ชัดเจนก่อนค้นหลักฐาน โหลด Daily Brief เฉพาะคำขอที่เข้าสู่ขั้นตอนค้นหลักฐาน แล้วตรวจข้อจำกัดของ provider อีกครั้งกับ context ที่ประกอบแล้ว [Chat workflow](ai-workflow-orchestration.md#three-workflow-shapes)
 
 ### เอกสารและ ingestion
 
@@ -40,6 +41,8 @@ Render Markdown โดยปิด raw HTML และกรอง URL schemes; �
 ### Schedule และ first-open
 
 คงตารางที่ตกลงแล้ว: ข่าว `:00/:30` กรุงเทพฯ; Daily Brief `:25` ทุกชั่วโมงรวมสุดสัปดาห์; US filings ทุกชั่วโมง 06:00–23:00 วันทำงานตาม New York; Thai filings 09:00/14:00/22:00 วันทำงานตามกรุงเทพฯ ตารางไม่เท่ากับเวลาเริ่มจริง ต้องวัด dispatch/queue delay ด้วย [FR-03/FR-12](../final/functional-requirements.md) เป็นแหล่งข้อกำหนดหลัก
+
+Phase 1 ทำ Daily Brief จากข่าวในชุด pilot ส่วน Phase 2 เพิ่มภาพรวมตลาดพร้อมเวลาของข้อมูล และจำกัดการค้น filings เฉพาะบริษัทในข่าวที่เลือก ใช้หลักฐานและ cutoff เดียวกันทั้งสองภาษา [Daily Brief requirements](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication)
 
 เมื่อเปิด Stock Detail จริง browser จึงขอ summary; server resolve listing และบันทึก durable job ที่ unique ตาม listing + Thai date จากนั้นส่ง job ID ไป queue ของ Phase 1 หรือ authenticated Airflow API ตาม final design รอ acknowledgement ของการส่งงานภายใน timeout แต่ไม่รอ generation หากส่งไม่สำเร็จยังมี job ให้ recovery sweep เก็บต่อ ไม่พึ่ง promise ที่ปล่อยทิ้งหลัง response
 

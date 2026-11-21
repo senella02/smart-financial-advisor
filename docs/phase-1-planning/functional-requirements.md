@@ -28,6 +28,8 @@ Apply the relevant shared behavior and acceptance scenarios below with the Phase
 
 In the pilot, a permitted official release is eligible with its original URL and publication time. A source with unverified permissions stays out of scheduled ingestion and the Daily Brief evidence corpus.
 
+The final Daily Brief's market snapshot and bounded filing lookups are part of Phase 2. [Final delivery phases](../final/final-architecture.md#delivery-phases)
+
 ### FR-11 Shared daily stock summary
 
 Use price and volume for technical analysis. RSI, MACD, EMA, and other technical indicators are outside Phase 1. Generate only on first open, at most once per listing per Thai date, with no further daily cap. While today's summary is being prepared, show the latest earlier summary with its actual publication date and as-of time.
