@@ -9,7 +9,7 @@ related_targets: []
 
 Mode: Operate. Design target only.
 
-Use the [visual conventions](../../../../DESIGN.md) and [interaction conventions](../../../../docs/ui-conventions.md). Primary job: research the selected common stock and inspect evidence or ask a stock-bound question. Authority: FR-01, FR-02, FR-11 through FR-13, and FR-21.
+Use the [visual conventions](../../../../DESIGN.md) and [interaction conventions](../../../../docs/phase-1-planning/ui-conventions.md). Primary job: research the selected common stock and inspect evidence or ask a stock-bound question. Authority: FR-01, FR-02, FR-11 through FR-13, and FR-21.
 
 ## Direction contract
 

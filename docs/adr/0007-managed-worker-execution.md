@@ -8,7 +8,7 @@ On 21 November 2026, the owner selected Vercel for Phase 1 and retained this pro
 
 Decision source: Architecture research requested by the owner on 20 November 2026; runner selection remains for team discussion.
 
-Related requirements: [FR-03](../functional-requirements.md#fr-03-daily-brief-content-and-publication), [FR-11](../functional-requirements.md#fr-11-shared-daily-stock-summary)
+Related requirements: [FR-03](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication), [FR-11](../final/functional-requirements.md#fr-11-shared-daily-stock-summary)
 
 ## Context
 

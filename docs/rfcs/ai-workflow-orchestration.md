@@ -15,44 +15,44 @@ The five workflows reduce to three shapes. Each shape is an ordinary async TypeS
 **Publication pipeline for the Daily Brief and stock summary.** The worker runs a fixed sequence:
 
 1. Claim the job for its date, and for its listing when it is a stock summary.
-2. Assemble one evidence snapshot with its cutoff. For a Daily Brief job, read the latest completed news batch available at job start. The ingestion failure and rollover rules are in [FR-03](../functional-requirements.md#fr-03-daily-brief-content-and-publication).
+2. Assemble one evidence snapshot with its cutoff. For a Daily Brief job, read the latest completed news batch available at job start. The ingestion failure and rollover rules are in [FR-03](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication).
 3. For the brief only, ask the model to score each news item's importance as structured output, then select stories in code.
 4. Generate the Thai and English variants and the follow-up cards from that snapshot as structured output. Every claim references an evidence ID.
 5. Validate the output and commit both variants in one transaction.
 
-The application knows the subject, evidence window, and sections in advance, so the model needs no tools. A failure at any step leaves the last success published. Because the claim makes a retry safe, a failed run restarts from the beginning. [FR-03](../functional-requirements.md#fr-03-daily-brief-content-and-publication), [FR-04](../functional-requirements.md#fr-04-daily-brief-follow-up-cards), [FR-11](../functional-requirements.md#fr-11-shared-daily-stock-summary)
+The application knows the subject, evidence window, and sections in advance, so the model needs no tools. A failure at any step leaves the last success published. Because the claim makes a retry safe, a failed run restarts from the beginning. [FR-03](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication), [FR-04](../final/functional-requirements.md#fr-04-daily-brief-follow-up-cards), [FR-11](../final/functional-requirements.md#fr-11-shared-daily-stock-summary)
 
 **First-open trigger for the stock summary.** The summary is generated lazily, at most once per listing per Thai date, so the daily cost depends on how many distinct stocks visitors open, not on the catalog size. The trigger has three parts:
 
 1. **Browser request.** The summary panel requests the summary from the browser after the page loads. Server rendering never starts a job, because `<Link>` prefetch and crawlers render pages nobody is reading.
 2. **Job row and start.** The web server resolves the listing, then inserts a stock-summary `PublicationJob` row keyed by listing and Thai date, ignoring a conflict. Concurrent first opens therefore produce one job. The web server then starts the worker's single-job entry point for that job ID without waiting for it. The worker claims the row with a conditional update, so a duplicate start does nothing. The worker also limits concurrent generations, which absorbs bursts against model rate limits.
-3. **Sweep.** The scheduled Daily Brief run also resumes stock-summary jobs that are still pending or whose claim has expired. A lost start therefore delays a summary rather than stranding it, and no separate frequent schedule is needed.
+3. **Sweep.** A scheduled Airflow task resumes stock-summary jobs that are pending or whose claims have expired. Set its cadence from the stock-summary wait target.
 
-The web server writes the job row and sends its ID to Vercel Queues. Queues invokes the worker, and the worker writes the publication. [Handoff rules](../contracts-and-boundaries.md#handoffs-between-layers), [ADR 0006](../adr/0006-vercel-hosting-and-scheduled-publication-trigger.md)
+The web server triggers the stock-summary DAG through Airflow's authenticated REST API. The Airflow scheduler starts the hourly Daily Brief DAG. Both invoke the packaged TypeScript worker. [Handoff rules](../contracts-and-boundaries.md#handoffs-between-layers) · [Final Airflow design](../final/final-architecture.md#airflow-schedules-and-job-execution)
 
-While the job runs, the panel shows the stock's latest earlier summary with its own publication date and as-of time and says today's summary is being prepared. A stock with no earlier summary shows a preparing state. The browser rechecks the summary lookup every few seconds with backoff. After a timeout or a failed attempt, the panel offers a retry, which re-queues the job within an attempt limit. Quote, financials, and chat load independently throughout. [FR-11](../functional-requirements.md#fr-11-shared-daily-stock-summary)
+While the job runs, the panel shows the stock's latest earlier summary with its own publication date and as-of time and says today's summary is being prepared. A stock with no earlier summary shows a preparing state. The browser rechecks the summary lookup every few seconds with backoff. After a timeout or a failed attempt, the panel offers a retry, which re-queues the job within an attempt limit. Quote, financials, and chat load independently throughout. [FR-11](../final/functional-requirements.md#fr-11-shared-daily-stock-summary)
 
 **Chat request pipeline for Q&A and comparison.** The web server runs these steps for each message:
 
-1. In the final account-based version, verify sign-in for both chat entry points. Validate the request and apply the provider data restrictions to the message and history. Resolve the stock-page binding and today's brief through `DailyBriefLookupSchema` in code. Apply the user's current context choices to account data and replayed history. [FR-20](../functional-requirements.md#fr-20-personal-context-isolation) · [FR-21](../functional-requirements.md#fr-21-access-and-languages)
+1. Verify sign-in for both chat entry points. Validate the request and apply the provider data restrictions to the message and history. Resolve the stock-page binding and look up today's brief through `DailyBriefLookupSchema`. Apply the user's current context choices to account data and replayed history. [FR-20](../final/functional-requirements.md#fr-20-personal-context-isolation) · [FR-21](../final/functional-requirements.md#fr-21-access-and-languages)
 2. Run a bounded tool loop in which the model chooses among quote, financials, filing search, and news tools. Each tool handler applies the entity, period, and cutoff filters from the retrieval RFC.
-3. Check that every citation points to evidence returned during this request and that the evidence supports the material claim. The proposed pipeline retries once when support is inadequate. [FR-19](../functional-requirements.md#fr-19-grounded-answers-and-citations)
-4. Return the checked answer or report the evidence gap. Append the result to session history.
+3. Check that every citation points to evidence returned during this request and that the evidence supports the material claim. The proposed pipeline retries once when support is inadequate. [FR-19](../final/functional-requirements.md#fr-19-grounded-answers-and-citations)
+4. Return the checked answer or report the evidence gap. Keep the conversation for the current browser session unless the investor opts in to saving it. [FR-14](../final/functional-requirements.md#fr-14-general-financial-questions-and-comparison)
 
-The model is needed here because the evidence depends on the question. The loop has a step limit, and the tools return explicit unavailable or stale results that the answer must report. That addresses the main failure in the previous capstone's evaluation. [FR-13](../functional-requirements.md#fr-13-stock-bound-chat), [FR-14](../functional-requirements.md#fr-14-general-financial-questions-and-comparison), [FR-19](../functional-requirements.md#fr-19-grounded-answers-and-citations), [Capstone lessons](../research/ai-workflow-orchestration.md#lessons-from-the-previous-project)
+The model is needed here because the evidence depends on the question. The loop has a step limit, and the tools return explicit unavailable or stale results that the answer must report. That addresses the main failure in the previous capstone's evaluation. [FR-13](../final/functional-requirements.md#fr-13-stock-bound-chat), [FR-14](../final/functional-requirements.md#fr-14-general-financial-questions-and-comparison), [FR-19](../final/functional-requirements.md#fr-19-grounded-answers-and-citations), [Capstone lessons](../research/ai-workflow-orchestration.md#lessons-from-the-previous-project)
 
 Comparison uses the same pipeline. When the question names a second subject, the server resolves each identity before retrieval. An ambiguous name ends the turn with a clarification question, which is answered by the visitor's next message, so no waiting state is needed. A comparison tool retrieves each issuer separately and returns figures aligned by period, currency, and unit, and computes their differences in code. Period or currency mismatches are reported, not hidden. Per-issuer retrieval is a rule rather than a model preference, so it belongs in the tool.
 
-**Discovery as a stored plan.** This shape is for the later delivery group:
+**Discovery as a stored plan.** The proposed signed-in workflow uses the following steps.
 
 1. The model converses to gather preferences. When it has enough, it calls a `proposeScreeningPlan` tool whose schema contains only supported filters, values, and units.
-2. The application validates the plan, rejects any unsupported or unexplained criterion such as a numeric meaning for "low risk," and stores it as a new plan version with status `proposed`. The plan belongs to the session.
+2. The application validates the plan, rejects any unsupported or unexplained criterion such as a numeric meaning for "low risk," and stores it as a new plan version with status `proposed`. The plan belongs to the investor's account.
 3. The UI renders each filter's meaning, value, and unit, with confirm, edit, and cancel actions.
 4. Confirmation is a separate server action that names the plan ID and version. A conditional update moves exactly that version from `proposed` to `confirmed`. An edit creates a new `proposed` version and marks the old one `superseded`.
 5. The application runs the screen in code against the confirmed version, validates every returned identity, and records `executed`.
 6. The model explains why each result matches, using the match data and evidence the screen returned.
 
-The model has no tool that executes a screen, and model text never counts as confirmation. The wait for confirmation is a database row, so no process stays suspended, and the visitor may take minutes or never return. An empty result reports the executed criteria without relaxing them. In Phase 1, a discovery request in chat explains that screening is not yet available. [FR-15](../functional-requirements.md#fr-15-discovery-plan-and-user-confirmation), [FR-16](../functional-requirements.md#fr-16-discovery-results), [Trust rules](../contracts-and-boundaries.md#trust-and-privacy)
+Only the server executes the screen, after the investor confirms the stored plan version. The database records the proposed version while it awaits confirmation. An empty result reports the executed criteria without relaxing them. [FR-15](../final/functional-requirements.md#fr-15-discovery-plan-and-user-confirmation) · [FR-16](../final/functional-requirements.md#fr-16-discovery-results) · [Trust rules](../contracts-and-boundaries.md#trust-and-privacy)
 
 ### Use a model SDK inside plain TypeScript
 
@@ -61,16 +61,11 @@ Use the Vercel AI SDK core for the model steps:
 - `streamText` with an `isStepCount` stop condition runs the chat tool loop.
 - `generateText` with `Output.object()` produces structured publication and plan output.
 
-Next.js Route Handlers can stream progress during the tool loop. Material claims and citations reach the browser after validation. The SDK keeps the provider replaceable behind `GenerationPort`. The owner chose the Gemini API and Vercel AI SDK on 20 November 2026. The default model is `gemini-3.5-flash-lite` on the Gemini API free tier, through `@ai-sdk/google`. Keep the model ID in configuration so a paid tier or another model needs no code change.
-
-The free-tier terms have two consequences:
-
-- Google may use and human-review prompts. The unpaid terms prohibit sending sensitive, confidential, or personal information. This applies to messages and history in guest chat as well as to future account features. [FR-20](../functional-requirements.md#fr-20-personal-context-isolation)
-- The free-tier rate limits are unverified. The design checks below must confirm they cover an hourly brief alongside chat.
+Next.js Route Handlers can stream progress during the tool loop. Material claims and citations reach the browser after validation. The SDK keeps the provider replaceable behind `GenerationPort`. Keep the model ID in configuration. Evaluate paid Gemini for the final version and confirm that the chosen service permits the intended use and retention of private data. [Final model design](../final/final-architecture.md#runtime-and-data-flow) · [Phase 1 model choice](../phase-1-planning/architecture.md#retrieval-and-generation)
 
 [Default model research](../research/ai-workflow-orchestration.md#default-model), [AI SDK tool calling](https://ai-sdk.dev/docs/ai-sdk-core/tools-and-tool-calling), [AI SDK structured data](https://ai-sdk.dev/docs/ai-sdk-core/generating-structured-data), [ADR 0002](../adr/0002-validated-contracts-and-data-trust-boundaries.md)
 
-Do not use the AI SDK's tool approval for Discovery confirmation. Its documented flow carries the approval request and response in the message history. The browser supplies that history, so the contracts treat it as untrusted. A server-side plan record ties the confirmation to a session and an exact plan version. [AI SDK human-in-the-loop](https://ai-sdk.dev/cookbook/next/human-in-the-loop), [Trust rules](../contracts-and-boundaries.md#trust-and-privacy)
+The server-side plan record ties Discovery confirmation to the investor's account and the exact plan version. AI SDK tool approvals travel in browser-supplied message history, which the server treats as untrusted. [AI SDK human-in-the-loop](https://ai-sdk.dev/cookbook/next/human-in-the-loop) · [Trust rules](../contracts-and-boundaries.md#trust-and-privacy)
 
 ### Contract changes
 
@@ -95,14 +90,12 @@ LangGraph would also bring `@langchain/core` model bindings alongside the SDK. L
 - **Vercel Workflow SDK.** Reconsider durable steps if retrying a publication from the beginning becomes too expensive. Running the SDK with Postgres World off Vercel requires a long-lived process. [Workflow SDK](https://workflow-sdk.dev/docs/foundations/workflows-and-steps), [Postgres World](https://workflow-sdk.dev/worlds/postgres)
 - **One general agent for every workflow.** A single tool-using agent could also produce publications. The publications need the same evidence snapshot for both languages, a fixed cutoff, and an atomic commit. A model choosing its own evidence makes those guarantees harder to check.
 
-The hourly Daily Brief uses Vercel Schedules and Vercel Queues. ADR 0006 records the deployment choice and the limits that apply to the worker. [ADR 0006](../adr/0006-vercel-hosting-and-scheduled-publication-trigger.md)
-
 ## Evidence needed to confirm the design
 
-- **Daily Brief run time.** Measure the number of model calls and the wall-clock time of a run with a realistic day of news, against the function limit for the chosen plan. Check the call count against the free-tier request limits in Google AI Studio.
+- **Daily Brief run time.** Measure scheduling delay, model call count, and time to publication with a realistic day of news. Check model quota under concurrent chat traffic.
 - **Thai output quality.** Check Thai brief and chat output from the default model on labeled examples.
 - **Chat tool loop.** Prototype the loop with its step limit, then check that an unavailable or stale tool result reaches the answer as a stated gap. Confirm that a citation to evidence outside the request is rejected.
-- **Discovery transitions.** Test confirming twice, confirming a superseded version, confirming after cancellation, and confirming from another session. Each must leave the screen unexecuted or run it exactly once.
-- **First-open summaries.** Measure the wait for a first summary and verify that the sweep recovers a job if the queue message fails to publish.
+- **Discovery transitions.** Test confirming twice, confirming a superseded or cancelled version, and confirming another account's plan. A valid confirmation executes the screen once. An invalid confirmation leaves it unexecuted.
+- **First-open summaries.** Measure the wait for a first summary and verify that the recovery task resumes a job after an Airflow trigger fails.
 
 These are design checks, not acceptance targets, which remain open in [Q08](../requirements-questions.md#q08-release-quality-and-evaluation).

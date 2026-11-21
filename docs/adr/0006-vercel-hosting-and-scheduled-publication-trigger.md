@@ -8,7 +8,7 @@ Updated: 2026-11-21
 
 Decision sources: The owner chose Vercel for web hosting in the SFA-4 working session on 15 November 2026 and initially selected Vercel Hobby for the worker on 20 November. On 21 November 2026, after reviewing the Trigger.dev proposal, the owner confirmed Vercel for Phase 1 ingestion and publication jobs. [Source register](../source-notes.md#s6-owner-confirmed-application-and-worker-boundary)
 
-Related requirements: [FR-03 news ingestion and Daily Brief](../functional-requirements.md#fr-03-daily-brief-content-and-publication), [FR-11 first-open stock summaries](../functional-requirements.md#fr-11-shared-daily-stock-summary), [FR-12 filing ingestion](../functional-requirements.md#fr-12-financial-data-and-news), and [Q08 delivery expectations](../requirements-questions.md#q08-release-quality-and-evaluation)
+Related requirements: [FR-03 news ingestion and Daily Brief](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication), [FR-11 first-open stock summaries](../final/functional-requirements.md#fr-11-shared-daily-stock-summary), [FR-12 filing ingestion](../final/functional-requirements.md#fr-12-financial-data-and-news), and [Q08 delivery expectations](../requirements-questions.md#q08-release-quality-and-evaluation)
 
 ## Context
 
@@ -23,36 +23,7 @@ Deploy the Next.js app and Phase 1 background jobs in the same Vercel project, s
 
 The publication worker claims jobs and commits completed publications in Supabase PostgreSQL. The web app reads publications from that database. Keep the job logic independent of Next.js request APIs so it can run locally or move to another host. [ADR 0001](0001-nextjs-application-and-shared-workspace.md), [ADR 0004](0004-shared-publication-consistency.md), [ADR 0005](0005-supabase-postgres-for-shared-and-private-data.md)
 
-### Phase 1 deployment diagram
-
-```mermaid
-flowchart LR
-    Visitor["Visitor"] --> Web
-
-    subgraph Vercel["Vercel project"]
-        Web["Next.js web app and API"]
-        Scheduler["Vercel Schedules"] -->|Daily Brief every hour at :25 Bangkok time| Queue["Vercel Queues · publication"]
-        Scheduler -->|Every 30 min| NewsCheck["Official news check"]
-        Scheduler -->|Source-local weekday schedules| FilingCheck["US and Thai filing checks"]
-        NewsCheck & FilingCheck --> IngestQueue["Vercel Queues · evidence ingestion"]
-        Web -->|First-open stock summary job ID| Queue
-        Queue --> Worker["Vercel Function · publication worker"]
-        IngestQueue --> IngestWorker["Vercel Function · ingestion worker"]
-    end
-
-    Web -->|Record summary jobs and read publications| DB[("Supabase PostgreSQL")]
-    Worker -->|Claim jobs and publish results| DB
-    DB -->|Latest completed news batch| Worker
-    IngestWorker -->|Store public evidence and index for full-text search| DB
-    Web --> Market["Yahoo Finance"]
-    Worker -->|Stock-summary data| Market
-    IngestWorker --> News["Permitted official news releases"]
-    IngestWorker --> Filings["US SEC EDGAR and Thai SEC iDISC"]
-    Web --> Gemini["Google Gemini API"]
-    Worker --> Gemini
-```
-
-The [backend data flow](../backend-data-flow.md#scheduled-evidence-ingestion) shows the source schedules, pilot corpus, indexing, and model inputs.
+See the [Phase 1 architecture](../phase-1-planning/architecture.md#deployment) for the deployment diagram and the [Phase 1 requirements](../phase-1-planning/functional-requirements.md#daily-brief-and-stock-detail-pilot) for the pilot corpus.
 
 ## Alternatives and tradeoffs
 

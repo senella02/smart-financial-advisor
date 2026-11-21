@@ -8,7 +8,7 @@ Updated: 2026-11-20
 
 Decision sources: The owner requested the initial provider decision on 14 November 2026 and authorized finalizing the filing and financial data source design in chat on 20 November 2026. [Source register](../source-notes.md#s7-filing-and-financial-data-sources)
 
-Related requirements: [FR-01 stock identity](../functional-requirements.md#fr-01-supported-stock-identity), [FR-02 data freshness](../functional-requirements.md#fr-02-data-freshness-and-incomplete-data), [FR-12 financial data and news](../functional-requirements.md#fr-12-financial-data-and-news), and [FR-19 grounded answers and citations](../functional-requirements.md#fr-19-grounded-answers-and-citations)
+Related requirements: [FR-01 stock identity](../final/functional-requirements.md#fr-01-supported-stock-identity), [FR-02 data freshness](../final/functional-requirements.md#fr-02-data-freshness-and-incomplete-data), [FR-12 financial data and news](../final/functional-requirements.md#fr-12-financial-data-and-news), and [FR-19 grounded answers and citations](../final/functional-requirements.md#fr-19-grounded-answers-and-citations)
 
 ## Context
 
@@ -18,7 +18,7 @@ The application needs Thai and US market data behind one internal contract. Cove
 
 Use Yahoo Finance as the initial upstream for instrument search, quotes, indices, price history, and news. The original evaluation exercised representative Thai and US symbols and indices. A shared adapter keeps the upstream response shapes out of application logic and allows other providers to fill coverage gaps.
 
-The Phase 1 scheduled news corpus starts with official releases whose terms permit ingestion and the intended AI use. [FR-03](../functional-requirements.md#fr-03-daily-brief-content-and-publication)
+The Phase 1 scheduled news corpus starts with official releases whose terms permit ingestion and the intended AI use. [FR-03](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication)
 
 Anonymous Yahoo Finance fundamentals requests returned authorization errors in the original evaluation. Stock Detail, chat, and publication workflows obtain statements and metrics through shared server-side adapters. [Market data research](../research/thai-and-us-market-data.md), [ADR 0002](0002-validated-contracts-and-data-trust-boundaries.md)
 

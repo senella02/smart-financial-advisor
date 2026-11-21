@@ -6,7 +6,7 @@ Date: 2026-11-14
 
 Decision source: SFA-4 design agreement on 14 November 2026. [ADR 0005](0005-supabase-postgres-for-shared-and-private-data.md) supersedes the original SQLite storage choice.
 
-Related requirements: [FR-03 Daily Brief publication](../functional-requirements.md#fr-03-daily-brief-content-and-publication) and [FR-11 shared stock summaries](../functional-requirements.md#fr-11-shared-daily-stock-summary)
+Related requirements: [FR-03 Daily Brief publication](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication) and [FR-11 shared stock summaries](../final/functional-requirements.md#fr-11-shared-daily-stock-summary)
 
 ## Context
 

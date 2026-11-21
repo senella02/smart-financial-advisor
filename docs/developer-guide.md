@@ -63,7 +63,7 @@ Next's automatic agent-file generation is disabled so running dev does not injec
 
 The web app uses [Tailwind CSS's PostCSS integration](https://tailwindcss.com/docs/installation/framework-guides/nextjs) and locally owned [shadcn/ui components](https://ui.shadcn.com/docs). Button and Card live in `apps/web/src/components/ui`; their upstream MIT license is kept alongside them. They were installed manually from the official `shadcn-ui/ui` repository's `new-york-v4` source. Local adaptations use the `@/lib/utils` class-merging helper, import only the Radix Slot primitive, render CardTitle as a semantic `h2`, and give titles/buttons relaxed line height for Thai text.
 
-Follow the [visual design](../DESIGN.md), [UI conventions](ui-conventions.md), and route briefs. Reuse Button variants for navigation links. Keep shared color, font, and radius tokens in `apps/web/src/app/globals.css`. Keep component variants with their components.
+Follow the [visual design](../DESIGN.md), [UI conventions](phase-1-planning/ui-conventions.md), and route briefs. Reuse Button variants for navigation links. Keep shared color, font, and radius tokens in `apps/web/src/app/globals.css`. Keep component variants with their components.
 
 `apps/web/components.json` configures future component additions. From the repo root, run `pnpm dlx shadcn@4.23.0 add <component> -c apps/web` when a feature needs one. Review generated code, dependencies, and any global-style changes, retain exact direct dependency versions, and run the checks above. Component source is owned here, so upstream changes require review rather than arriving automatically through a package upgrade. No separate shared UI workspace package is needed for the single web app.
 

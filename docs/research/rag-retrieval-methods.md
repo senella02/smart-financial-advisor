@@ -4,11 +4,11 @@ Research report · 20 November 2026
 
 This report compares keyword, embedding, and hybrid search, and examines where the index could live. The research question is which method finds the evidence needed for a financial answer when all methods search the same eligible documents.
 
-The research used hourly ingestion as a working assumption. On 21 November 2026, the owner approved separate [news](../functional-requirements.md#fr-03-daily-brief-content-and-publication) and [filing](../functional-requirements.md#fr-12-financial-data-and-news) schedules.
+The research used hourly ingestion as a working assumption. On 21 November 2026, the owner approved separate [news](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication) and [filing](../final/functional-requirements.md#fr-12-financial-data-and-news) schedules.
 
 ## The problem RAG solves
 
-Retrieval-augmented generation (RAG) gives the model external evidence at question time. In finance, the retriever needs to find the right passage **within the right reporting scope**. A relevant-looking paragraph can describe a different company, a different fiscal period, or a filing revised after the requested cutoff. Hourly ingestion makes new evidence available. Query-time filters determine whether that evidence belongs in a particular answer. [Lewis et al., RAG](https://arxiv.org/abs/2005.11401), [FR-19 grounded answers and citations](../functional-requirements.md#fr-19-grounded-answers-and-citations)
+Retrieval-augmented generation (RAG) gives the model external evidence at question time. In finance, the retriever needs to find the right passage **within the right reporting scope**. A relevant-looking paragraph can describe a different company, a different fiscal period, or a filing revised after the requested cutoff. Hourly ingestion makes new evidence available. Query-time filters determine whether that evidence belongs in a particular answer. [Lewis et al., RAG](https://arxiv.org/abs/2005.11401), [FR-19 grounded answers and citations](../final/functional-requirements.md#fr-19-grounded-answers-and-citations)
 
 The previous capstone’s Q19 asked for FY2024 DuPont analysis of **The Siam Commercial Bank**. The answer analyzed **SCB X**, its holding company. The restructuring makes this a recurring ambiguity because the listed SCB X kept the SET ticker `SCB`. Even within the bank’s own FY2024 report, there are separate bank-only and bank-consolidated statements. A ticker identifies a listing at a point in time. A legal entity ID identifies who the filing reports on. The reporting basis identifies which numbers belong together. [Capstone error analysis, Pattern 4](../../../llmfa-capstone/docs/chie-correctness-error-analysis.md#pattern-4--wrong-entity--scope-1-case), [SET factsheet](https://www.set.or.th/en/market/product/stock/quote/SCB/factsheet), [SCB X restructuring announcement](https://www.scbx.com/en/news/scbx-share-swap/), [Siam Commercial Bank annual reports](https://www.scb.co.th/en/shareholders/financial-information)
 
@@ -28,7 +28,7 @@ Source publication time determines whether a filing was public by a historical c
 
 ### Evidence scope
 
-Entity and market narrow the eligible source set. Exact form, fiscal dates, and reporting basis narrow it further. For historical questions, an FY2024 filing can have a 2025 publication date. The request “latest annual report as of 31 December 2024” therefore has both a fiscal period and a publication cutoff. For news, the publication date is usually the relevant filter. [FR-01 supported stock identity](../functional-requirements.md#fr-01-supported-stock-identity), [Contracts and integration boundaries](../contracts-and-boundaries.md#financial-and-publication-meaning)
+Entity and market narrow the eligible source set. Exact form, fiscal dates, and reporting basis narrow it further. For historical questions, an FY2024 filing can have a 2025 publication date. The request “latest annual report as of 31 December 2024” therefore has both a fiscal period and a publication cutoff. For news, the publication date is usually the relevant filter. [FR-01 supported stock identity](../final/functional-requirements.md#fr-01-supported-stock-identity), [Contracts and integration boundaries](../contracts-and-boundaries.md#financial-and-publication-meaning)
 
 ## Index capabilities and tradeoffs
 
@@ -47,6 +47,6 @@ Keep the documents, chunks, filters, and result count fixed while comparing the 
 
 ## Reference documents
 
-- **Project context and historical case.** [Functional requirements](../functional-requirements.md), [accepted architecture](../adr/README.md), [market data research](thai-and-us-market-data.md), [capstone correctness analysis](../../../llmfa-capstone/docs/chie-correctness-error-analysis.md#pattern-4--wrong-entity--scope-1-case).
+- **Project context and historical case.** [Functional requirements](../final/functional-requirements.md), [accepted architecture](../adr/README.md), [market data research](thai-and-us-market-data.md), [capstone correctness analysis](../../../llmfa-capstone/docs/chie-correctness-error-analysis.md#pattern-4--wrong-entity--scope-1-case).
 - **Primary financial sources.** [Thai SEC filing directory](https://www.sec.or.th/EN/pages/marketdata/marketdatashareissuingcompanies.aspx), [US SEC EDGAR submissions and structured facts](https://www.sec.gov/search-filings/edgar-application-programming-interfaces), [Siam Commercial Bank financial information](https://www.scb.co.th/en/shareholders/financial-information), [SCB X One Reports](https://investor.scbx.com/en/document/annual-reports).
 - **Research and evaluation.** [RAG](https://arxiv.org/abs/2005.11401), [BEIR](https://arxiv.org/abs/2104.08663), [RRF](https://cormack.uwaterloo.ca/cormack/cormacksigir09-rrf.pdf), [hybrid fusion comparison](https://arxiv.org/abs/2210.11934), [financial report chunking](https://arxiv.org/abs/2402.05131), [FinanceBench](https://arxiv.org/abs/2311.11944), [MIRACL](https://aclanthology.org/2023.tacl-1.63/).

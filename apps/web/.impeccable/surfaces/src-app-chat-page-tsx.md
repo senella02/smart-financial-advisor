@@ -9,7 +9,7 @@ related_targets: []
 
 Mode: Operate, with Read behavior for answers. Design target only.
 
-Use the [visual conventions](../../../../DESIGN.md) and [interaction conventions](../../../../docs/ui-conventions.md). Primary job: ask or compare, understand a supported answer, and follow its evidence. Authority: FR-13, FR-14, and FR-19 through FR-21.
+Use the [visual conventions](../../../../DESIGN.md) and [interaction conventions](../../../../docs/phase-1-planning/ui-conventions.md). Primary job: ask or compare, understand a supported answer, and follow its evidence. Authority: FR-13, FR-14, and FR-19 through FR-21.
 
 ## Direction contract
 

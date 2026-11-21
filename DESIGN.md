@@ -11,7 +11,7 @@ Working design direction selected by the agent on 14 November 2026 and open to o
 
 The audience is a novice investor with limited time. Design for short reading and checking sessions in ordinary room or daylight conditions; this is a design assumption, not a confirmed device requirement. A light presentation supports this scene. Dark mode and theme settings are outside this first convention set.
 
-The [functional requirements](docs/functional-requirements.md) define product behavior. The [UI conventions](docs/ui-conventions.md) define interactions and content across Phase 1 routes.
+The [Phase 1 requirements](docs/phase-1-planning/functional-requirements.md) define product behavior. The [UI conventions](docs/phase-1-planning/ui-conventions.md) define interactions and content across Phase 1 routes.
 
 ## Colors
 
@@ -79,7 +79,7 @@ Standalone controls have a 44px minimum target in each dimension. Input and butt
 
 ## Components
 
-Use the [UI conventions](docs/ui-conventions.md#components-and-feedback) for interaction and feedback details.
+Use the [UI conventions](docs/phase-1-planning/ui-conventions.md#components-and-feedback) for interaction and feedback details.
 
 - **Buttons and links.** Primary actions use `primary` with white text, `primary-hover` on hover, and `primary-active` when pressed. Quieter actions use outlined or text treatments; outlined controls use `control-border`. Use the control typography and 6px radius, with padding that preserves the 44px minimum target and allows Thai labels to wrap. Links navigate and remain visibly identifiable; buttons perform actions. Apply the shared focus ring. Pending actions retain their label and width; disabled actions explain the reason when it is not obvious.
 - **Cards.** Reserve cards for independent items such as suggested follow-up questions. Use `surface`, a 12px radius, and 16–24px internal spacing, with a separator or background change before adding a shadow. Do not nest cards or wrap ordinary publications, answers, and statement tables in cards. Use semantic headings within each group.

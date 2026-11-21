@@ -6,7 +6,7 @@ Date: 2026-11-07
 
 Decision sources are the owner's [contract choices](../source-notes.md#s4-owner-confirmed-application-framework-and-contract-choices) and [application and worker agreement](../source-notes.md#s6-owner-confirmed-application-and-worker-boundary) on 7 November 2026.
 
-Related requirements: [FR-01–FR-03, FR-11, FR-14, FR-19–FR-21](../functional-requirements.md)
+Related requirements: [FR-01–FR-03, FR-11, FR-14, FR-19–FR-21](../final/functional-requirements.md)
 
 ## Context
 

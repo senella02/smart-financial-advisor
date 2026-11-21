@@ -10,7 +10,7 @@ Read [AGENTS.md](../AGENTS.md) for repository-wide instructions and documentatio
 
 ## UI design reference
 
-Read the [visual design](../DESIGN.md), [UI conventions](../docs/ui-conventions.md), and linked route briefs before changing Home, Stock Detail, or chat. Follow the functional requirements for scope and behavior.
+Read the [visual design](../DESIGN.md), [UI conventions](../docs/phase-1-planning/ui-conventions.md), and linked route briefs before changing Home, Stock Detail, or chat. Follow the [Phase 1 requirements](../docs/phase-1-planning/functional-requirements.md) for scope and behavior.
 
 ## Project skills
 

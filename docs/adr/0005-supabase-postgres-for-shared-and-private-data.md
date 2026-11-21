@@ -6,7 +6,7 @@ Date: 2026-11-15
 
 Decision source: Owner direction in the SFA-4 working session on 15 November 2026.
 
-Related requirements: [FR-03 shared publications](../functional-requirements.md#fr-03-daily-brief-content-and-publication) and [FR-20 personal context isolation](../functional-requirements.md#fr-20-personal-context-isolation)
+Related requirements: [FR-03 shared publications](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication) and [FR-20 personal context isolation](../final/functional-requirements.md#fr-20-personal-context-isolation)
 
 ## Context
 

@@ -6,7 +6,7 @@ Date: 2026-11-07
 
 Decision sources are the owner's [framework and workspace choices](../source-notes.md#s4-owner-confirmed-application-framework-and-contract-choices) and [application and worker agreement](../source-notes.md#s6-owner-confirmed-application-and-worker-boundary) on 7 November 2026.
 
-Related requirements: [Phase 1 scope, publications, and grounded AI](../functional-requirements.md)
+Related requirements: [Phase 1 scope, publications, and grounded AI](../final/functional-requirements.md)
 
 ## Context
 

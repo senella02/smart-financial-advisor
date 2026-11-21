@@ -9,7 +9,7 @@ related_targets: []
 
 Mode: Operate, with a Read area for the full Daily Brief. Design target only.
 
-Use the [visual conventions](../../../../DESIGN.md) and [interaction conventions](../../../../docs/ui-conventions.md). Primary job: check market context, understand the dated brief, then open stock research or ask about a current-day topic. Authority: FR-02 through FR-05 and FR-21.
+Use the [visual conventions](../../../../DESIGN.md) and [interaction conventions](../../../../docs/phase-1-planning/ui-conventions.md). Primary job: check market context, understand the dated brief, then open stock research or ask about a current-day topic. Authority: FR-02 through FR-05 and FR-21.
 
 ## Direction contract
 

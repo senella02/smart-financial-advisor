@@ -16,7 +16,7 @@ Help users understand market developments and research stocks through evidence a
 
 ## Capabilities and Constraints
 
-The [functional requirements](docs/functional-requirements.md) are authoritative for product scope, acceptance criteria, languages, publication and refresh rules, chat history, and portfolio accounting. [Open questions](docs/requirements-questions.md) remain unresolved until an owner decision is recorded. Follow [source precedence](docs/source-notes.md#source-precedence) when material conflicts.
+The [functional requirements](docs/final/functional-requirements.md) are authoritative for product scope, acceptance criteria, languages, publication and refresh rules, chat history, and portfolio accounting. [Open questions](docs/requirements-questions.md) remain unresolved until an owner decision is recorded. Follow [source precedence](docs/source-notes.md#source-precedence) when material conflicts.
 
 ## Product Principles
 

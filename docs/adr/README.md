@@ -15,7 +15,7 @@ Examples that qualify include keeping UI and backend in one deployable, choosing
 
 ## Where other information belongs
 
-- Product scope, page behavior, refresh schedules, retention, financial formulas, and acceptance criteria: [functional requirements](../functional-requirements.md).
+- Product scope, page behavior, refresh schedules, retention, financial formulas, and acceptance criteria: [functional requirements](../final/functional-requirements.md).
 - Unresolved product questions and their answers: [question record](../requirements-questions.md). Update requirements and acceptance criteria when an answer is agreed.
 - Standing contributor instructions: [AGENTS.md](../../AGENTS.md); source precedence and historical context: [source notes](../source-notes.md).
 - Setup, tooling compatibility, commands, and configuration details: [developer guide](../developer-guide.md), manifests, and configuration files.

@@ -7,7 +7,8 @@ This is a new project built from scratch. The previous LLMFA project is a refere
 Read the references relevant to the task.
 
 - [Project overview](README.md)
-- [Functional requirements](docs/functional-requirements.md)
+- [Final functional requirements](docs/final/functional-requirements.md)
+- [Phase 1 requirements](docs/phase-1-planning/functional-requirements.md) and [Phase 1 architecture](docs/phase-1-planning/architecture.md)
 - [Open requirement questions](docs/requirements-questions.md)
 - [Source notes](docs/source-notes.md) when resolving conflicting or historical material
 - [Architecture decisions](docs/adr/README.md) before proposing or changing architecture
@@ -18,7 +19,7 @@ Read the references relevant to the task.
 ## Task scope
 
 - For research, brainstorming, and reviews of requirements, design, or architecture, consider any part of the product relevant to the request.
-- Let the request set implementation scope. When planning or sequencing implementation, use the current delivery milestone as the default if the request leaves priorities open. [Delivery scope](docs/functional-requirements.md#1-scope-and-requirement-status)
+- Let the request set implementation scope. When planning or sequencing implementation, use the current delivery milestone as the default if the request leaves priorities open. [Phase 1 scope](docs/phase-1-planning/functional-requirements.md#scope) · [Delivery phases](docs/final/final-architecture.md#delivery-phases)
 - Use the requirements for publication dates, refresh rules, history, languages, access, and portfolio accounting; preserve stable requirement IDs. Distinguish confirmed rules, proposed details, unresolved questions, and implemented behavior.
 - Follow [source precedence](docs/source-notes.md#source-precedence) when historical material conflicts. Use the [accepted architecture](docs/adr/README.md#decisions) as the baseline for analysis and implementation. Check the code to establish what is implemented.
 

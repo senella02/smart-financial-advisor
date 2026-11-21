@@ -4,7 +4,7 @@ Updated: 7 November 2026.
 
 ## Source precedence
 
-Maintain one editable [functional requirements baseline](functional-requirements.md). Resolve conflicting material in this order:
+Maintain one editable [functional requirements baseline](final/functional-requirements.md). Resolve conflicting material in this order:
 
 1. Current explicit project-owner decisions, recorded in the appropriate requirements, question record, guidance, or ADR according to their scope.
 2. The agreed functional requirements and accepted ADRs, each within its scope. Flag contradictions; an ADR must not silently change a feature.
@@ -68,7 +68,7 @@ The report's historical accuracy and comparative claims do not establish new-pro
 
 ## Project-owner answers recorded on 6 November 2026
 
-The [question record](requirements-questions.md#decisions-and-remaining-questions) captures the answers and remaining questions. The [requirements baseline](functional-requirements.md) records the resulting behavior and acceptance criteria. These answers supersede conflicting slides and reports.
+The [question record](requirements-questions.md#decisions-and-remaining-questions) captures the answers and remaining questions. The [requirements baseline](final/functional-requirements.md) records the resulting behavior and acceptance criteria. These answers supersede conflicting slides and reports.
 
 ## Source conflicts reconciled
 

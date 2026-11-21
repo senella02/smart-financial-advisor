@@ -1,8 +1,8 @@
 # Phase 1 UI conventions
 
-These conventions define the Phase 1 interaction and content design. The functional requirements define feature scope and behavior, and the question record tracks unresolved rules. [Phase 1 scope](functional-requirements.md#1-scope-and-requirement-status), [Question record](requirements-questions.md)
+These conventions define the Phase 1 interaction and content design. The functional requirements define feature scope and behavior, and the question record tracks unresolved rules. [Phase 1 requirements](functional-requirements.md), [Question record](../requirements-questions.md)
 
-Use the visual design and route briefs alongside these shared conventions. [Visual design](../DESIGN.md), [Home](../apps/web/.impeccable/surfaces/src-app-page-tsx.md), [Stock Detail](../apps/web/.impeccable/surfaces/src-app-stocks-market-symbol-page-tsx.md), [Chat](../apps/web/.impeccable/surfaces/src-app-chat-page-tsx.md)
+Use the visual design and route briefs alongside these shared conventions. [Visual design](../../DESIGN.md), [Home](../../apps/web/.impeccable/surfaces/src-app-page-tsx.md), [Stock Detail](../../apps/web/.impeccable/surfaces/src-app-stocks-market-symbol-page-tsx.md), [Chat](../../apps/web/.impeccable/surfaces/src-app-chat-page-tsx.md)
 
 ## Navigation and orientation
 
@@ -23,11 +23,11 @@ Use distinct labels for distinct clocks:
 
 Display the Bangkok calendar date for publications. Show an explicit Gregorian year in date controls and full timestamps, with a Thai label identifying ค.ศ. Retain exchange-session dates when relevant. Display source dates that have no timestamp as dates.
 
-Keep an absolute timestamp beside any relative age. Use closed-market, provider-delay, or stale labels only when source metadata or the agreed freshness policy supports them. After a failed refresh, say **อัปเดตไม่สำเร็จ แสดงข้อมูลล่าสุดที่มี** if previous data is still visible. [Q04 data coverage and freshness](requirements-questions.md#q04-supported-data-and-stock-coverage)
+Keep an absolute timestamp beside any relative age. Use closed-market, provider-delay, or stale labels only when source metadata or the agreed freshness policy supports them. After a failed refresh, say **อัปเดตไม่สำเร็จ แสดงข้อมูลล่าสุดที่มี** if previous data is still visible. [Q04 data coverage and freshness](../requirements-questions.md#q04-supported-data-and-stock-coverage)
 
 Daily Brief language uses a labeled **ภาษาเนื้อหา** control with **ไทย** and **English**. Mark the English publication region with the correct language attribute. Short/full controls change reading depth within the same publication. Date changes select the latest successful publication for that date, not an intraday version browser.
 
-Give today, previous-day fallback, archive, not-yet-published, and update-failed states distinct presentations. Show the actual publication date and make brief-specific AI controls available only for today's brief. Keep navigation to general chat available. [FR-03 Daily Brief publication](functional-requirements.md#fr-03-daily-brief-content-and-publication)
+Give today, previous-day fallback, archive, not-yet-published, and update-failed states distinct presentations. Show the actual publication date and make brief-specific AI controls available only for today's brief. Keep navigation to general chat available. [FR-03 Daily Brief publication](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication)
 
 Keep the displayed publication and offer to load the newer one without moving focus or resetting an expanded article. When the reader accepts the update, replace the content, dates, language pair, and sources together.
 
@@ -41,7 +41,7 @@ Price increases and decreases have a sign and a Thai direction label as well as 
 
 Stock Detail retains all required chart ranges: **1D**, **1M**, **1Y**, **5Y**, with Thai accessible names. Start with a price line chart suited to novice reading; volume can use an aligned lower plot when data exists. Candlesticks and technical overlays are not needed for the confirmed initial analysis. Label axes with date/time and currency, preserve gaps, and expose the visible series as an accessible table or equivalent values. Do not smooth a series into invented observations. Explain unavailable ranges instead of silently replacing them.
 
-Provide annual and quarterly controls for financial statements. Show an unavailable state for required metrics when data is missing. Explain each metric in plain Thai and describe its limits. [FR-12 Financial data and news](functional-requirements.md#fr-12-financial-data-and-news)
+Provide annual and quarterly controls for financial statements. Show an unavailable state for required metrics when data is missing. Explain each metric in plain Thai and describe its limits. [FR-12 Financial data and news](../final/functional-requirements.md#fr-12-financial-data-and-news)
 
 Tables keep a caption, row headings, column headings, and units. On small screens, allow horizontal scrolling inside the labeled table region, with a visible overflow cue and keyboard access. The rest of the page reflows. Keep company identity or the metric label visible while comparing columns where feasible. Do not convert financial statements into repeated unlabeled cards or hide required periods to fit the viewport. See [W3C table guidance](https://www.w3.org/WAI/tutorials/tables/).
 
@@ -51,7 +51,7 @@ A material factual claim has a nearby citation link with an accessible source na
 
 Separate reported facts from interpretation through plain headings and language. Identify deterministic calculations and hypothetical examples when present. Do not invent confidence percentages, analyst ratings, financial figures, news, or provider capabilities to make a design look complete. Risk explanations remain visible in short and full analysis. Use a concise Thai research disclaimer near the answer area; a disclaimer does not replace specific uncertainty or risks.
 
-Identify each company, market, metric, currency, and period in comparison answers. Explain differences in currency or reporting period that affect the comparison. If a comparison limit is set, show it before submission. [Q05 chat and discovery boundaries](requirements-questions.md#q05-chat-and-discovery-boundaries)
+Identify each company, market, metric, currency, and period in comparison answers. Explain differences in currency or reporting period that affect the comparison. If a comparison limit is set, show it before submission. [Q05 chat and discovery boundaries](../requirements-questions.md#q05-chat-and-discovery-boundaries)
 
 ## Chat entry points and history
 
@@ -61,7 +61,7 @@ Main chat offers grounded starting prompts such as explaining a financial term, 
 
 Stock chat displays a persistent identity line above the conversation and composer. A comparison request names the additional subject explicitly. Changing the stock switches its history view without rebinding an existing conversation. A mere ticker mention in main chat creates no stock-history association.
 
-Use a compact stock-origin label in main history. Show **ประวัติการสนทนาอยู่เฉพาะเซสชันนี้** near history. [Q03 access, persistence, and languages](requirements-questions.md#q03-access-persistence-and-languages)
+Use a compact stock-origin label in main history. Show **ประวัติการสนทนาอยู่เฉพาะเซสชันนี้** near history. [Q03 access, persistence, and languages](../requirements-questions.md#q03-access-persistence-and-languages)
 
 Keep the submitted question visible during a request. Show only real progress states, such as retrieval or answer generation when those signals exist; otherwise use a neutral pending message. Announce status changes without reading each streamed token. A recoverable error retains the draft and offers a labeled retry. Incomplete output must not look like a verified complete answer. Retry must not duplicate the visible question.
 
