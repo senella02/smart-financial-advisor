@@ -51,6 +51,16 @@ Keep this index, links, and affected guides consistent. Never promote an unresol
 - [0004 Shared publication consistency](0004-shared-publication-consistency.md). Accepted 14 November 2026. Atomic publication, durable job coordination, and preservation of the last successful version.
 - [0005 Supabase PostgreSQL for shared and private data](0005-supabase-postgres-for-shared-and-private-data.md). Accepted 15 November 2026. PostgreSQL replaces SQLite as the target and serves both execution roles.
 - [0006 Vercel hosting and scheduled execution](0006-vercel-hosting-and-scheduled-publication-trigger.md). Vercel web hosting accepted 15 November 2026. Vercel Schedules, Queues, and Functions confirmed on 21 November 2026 for Phase 1 ingestion and publication, starting on Hobby.
-- [0007 Managed worker execution](0007-managed-worker-execution.md). Trigger.dev Cloud proposal retained for review if the workload reaches Vercel's limits.
+
+## Proposed
+
+- [0007 Managed worker execution](0007-managed-worker-execution.md). **Proposed**, not accepted. Trigger.dev Cloud remains an alternative if measured Phase 1 workload limits justify revisiting ADR 0006; the separate final Airflow design also remains proposed.
 
 Acceptance sources are recorded in each ADR and the [source register](../source-notes.md#source-register). For implemented behavior and commands, use the [developer guide](../developer-guide.md); accepted architecture does not imply implementation.
+
+## Related research and proposals
+
+- [Architecture research in Thai](../research/architecture-options-th.md): evidence and alternatives for security, worker/RAG, and user context.
+- [Security and context RFC](../rfcs/architecture-security-and-context.md): proposed enforcement and data flow across all three areas.
+- [AI workflow RFC](../rfcs/ai-workflow-orchestration.md) and [retrieval RFC](../rfcs/financial-evidence-retrieval.md): orchestration and evidence search.
+- [Phase 1 architecture](../phase-1-planning/architecture.md) and [proposed final design](../final/final-architecture.md): distinguish the accepted Vercel starting point from the later Airflow/Pinecone target.

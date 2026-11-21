@@ -8,6 +8,8 @@ The final design uses Pinecone vector search over public evidence and keeps sour
 
 The app needs current quotes, exact financial figures, and passages that explain what an issuer disclosed. The SCB and SCB X mix-up shows what happens when ranking crosses a legal entity boundary. The research report compares retrieval methods and index placement. Its findings establish tradeoffs, while the relative quality of the methods on our corpus is still open. News and filings follow their approved source schedules. [News schedule](../final/functional-requirements.md#fr-03-daily-brief-content-and-publication) · [Filing schedules](../final/functional-requirements.md#fr-12-financial-data-and-news) · [RAG retrieval research](../research/rag-retrieval-methods.md) · [Market data research](../research/thai-and-us-market-data.md)
 
+The [Security and context RFC](architecture-security-and-context.md) defines the proposed ingestion safety and job/version checks. Preserve the approved source-specific schedules rather than treating all ingestion as hourly. Before using a ranked result, load its passage from Supabase and recheck that its exact source version is still eligible. Missing page provenance must remain unknown; PDF creation time is not source publication time. Partial index updates must not activate an incomplete version.
+
 ## Proposed design and rationale
 
 ### Reuse the shared quote path

@@ -1,98 +1,85 @@
-# สรุปทางเลือก architecture สำหรับคุยในทีม
+# หลักฐานประกอบการออกแบบ Security, Worker/RAG และ User context
 
-ตรวจเอกสารและ branch `setup-project-architecture` วันที่ 20 พฤศจิกายน 2026  
-สถานะ: ข้อเสนอจากการอ่าน repo และเอกสารผู้ให้บริการ ยังไม่ได้ทดลอง deploy หรือ benchmark และยังไม่ใช่มติทีม
+อัปเดต 21 พฤศจิกายน 2026 · Research — บันทึกหลักฐาน ทางเลือก และข้อจำกัด ไม่ใช่มติเลือกเครื่องมือหรือผลทดสอบระบบ
 
-ฐานสำหรับข้อเสนอปัจจุบันคือ Vercel Schedules, Queues และ Functions ตาม [ADR 0006](../adr/0006-vercel-hosting-and-scheduled-publication-trigger.md) เอกสารนี้เก็บเหตุผลและทางเลือก Trigger.dev Cloud สำหรับทบทวนเมื่อทราบข้อจำกัดของ worker จากการทดลองจริง
+## คำถามและวิธีอ่าน
 
-## ทางเลือก Trigger.dev Cloud
+งานนี้ตอบสามคำถาม: จะป้องกันการใช้ AI และข้อมูลผิดสิทธิ์อย่างไร งานเบื้องหลังและ ingestion รันที่ไหน และเก็บ/ประกอบข้อมูลผู้ใช้อย่างไร เปรียบเทียบโดยดูความสอดคล้องกับ requirements, ความถูกต้องของหลักฐาน, การกู้คืนงาน, การแยกข้อมูลส่วนตัว และภาระดูแล/ค่าใช้จ่าย
 
-คง **Next.js บน Vercel + Supabase PostgreSQL** ตาม ADR 0001/0005/0006 และเสนอใช้ **Trigger.dev Cloud รัน worker** แยกจากเว็บ การตอบแชตอยู่ที่ Next.js ส่วนงานสร้างสรุปและ ingestion อยู่ที่ worker ใช้โมดูล server ร่วมกันได้โดยไม่ผูกกับ Next.js request API
+อ่านไฟล์นี้เพื่อดูเหตุผลและแหล่งอ้างอิง แล้วอ่าน [RFC Security และ User context](../rfcs/architecture-security-and-context.md) เพื่อดูข้อเสนอที่นำไปคุยในทีม รายละเอียดบริการและ DAG เดิมอยู่ใน [service research](final-architecture-service-options.md) ส่วน [final design](../final/final-architecture.md) เป็นข้อเสนอระบบเต็ม
 
-| เรื่อง | ฐานเดิมใน repo | ข้อเสนอเพิ่มเติม |
+## 1. ฐานปัจจุบันที่ต้องแยกให้ชัด
+
+| เรื่อง | Phase 1 | ระบบเต็ม |
 | --- | --- | --- |
-| Web/API | Next.js, Vercel ตกลงแล้ว | คงเดิม |
-| งานเบื้องหลัง | แยก worker และเริ่มด้วย Vercel Schedules, Queues และ Functions; `apps/worker` มีแค่ placeholder | Trigger.dev Cloud เป็นทางเลือกหากต้องทบทวนการรัน worker |
-| ข้อมูลถาวร | Supabase PostgreSQL ตกลงแล้ว; migrations ยังมีแค่ placeholder | เก็บ publication/evidence/job state ที่นี่ |
-| Security | มี trust boundaries ในเอกสารแล้ว | บังคับที่ API, สิทธิ์ DB, retrieval และ output validation |
-| User context | Phase 1 ไม่มีบัญชี; chat history เฉพาะ session | Phase ถัดไปเก็บ Profile/Portfolio เป็น relational records แล้วประกอบ context ฝั่ง server |
-| RAG | [RFC การค้นหลักฐาน](../rfcs/financial-evidence-retrieval.md) ใช้ full-text search ใน Phase 1 และวาง Pinecone เป็นเป้าหมาย | ใช้ pgvector เป็นทางเลือกในการประเมิน vector search |
+| Web/API และข้อมูลถาวร | Next.js บน Vercel; Supabase PostgreSQL ตาม ADR เดิม | คงฐานเดียวกัน |
+| งานเบื้องหลัง | Vercel Schedules, Queues และ Functions ตาม ADR 0006 ที่ Accepted แล้ว | final design เสนอ Airflow สำหรับ ingestion, backfill และ publications; ยังเป็น Proposed |
+| ค้นหลักฐาน | PostgreSQL full-text search พร้อมตัดคำไทยเป็น baseline | เสนอ Pinecone เก็บ public vectors; passages/citations อยู่ Supabase |
+| ผู้ใช้ | Guest chat, history เฉพาะ browser session | บัญชีและข้อมูลส่วนตัวตาม FR-14/17/20; Supabase Auth เป็นตัวเลือกใน final design |
+| Trigger.dev | ไม่ใช่บริการที่จำเป็นต้องเพิ่มใน Phase 1 | ADR 0007 เก็บเป็นทางเลือกสำรอง ไม่ได้ยกเลิกข้อเสนอ Airflow |
 
-## 1. งานเบื้องหลังรันที่ไหนและอย่างไร
+ตารางนี้อ้างจาก [ADR index](../adr/README.md), [Phase 1 architecture](../phase-1-planning/architecture.md), [final design](../final/final-architecture.md) และ [Q03/Q07/Q08](../requirements-questions.md) สถานะเอกสารไม่ใช่หลักฐานว่าระบบ deploy แล้ว งานนี้ไม่มีผล benchmark หรือ security test ใหม่
 
-| ทางเลือก | จุดเด่น | ข้อแลกเปลี่ยน / เหมาะเมื่อ |
+## 2. โปรเจกต์รุ่นพี่ใช้ DAG อย่างไร และนำมาใช้ได้แค่ไหน
+
+ตรวจ code ที่ commit `a067931aa95f9c29f0f7a3bc51bea25f0b2fe4d2` ของ [LLMFA](https://github.com/llmfa-capstone/llmfa-capstone/tree/a067931aa95f9c29f0f7a3bc51bea25f0b2fe4d2) เป็นการอ่าน source ไม่ใช่ audit ระบบที่ deploy
+
+| สิ่งที่พบ | ผลต่อการนำมาใช้ |
+| --- | --- |
+| [DAG](https://github.com/llmfa-capstone/llmfa-capstone/blob/a067931aa95f9c29f0f7a3bc51bea25f0b2fe4d2/llmfa_airflow/dags/llmfa_dag.py) รันรายเดือน `0 0 1 * *`, ปิด catchup และแยก pipeline ต่อ source | ใช้แนวคิด fetch → extract → chunk → embed ได้ แต่ตารางรายเดือนไม่ตรงข่าวและ filings ของเรา |
+| DAG ล้าง `scraping_output` ก่อนรัน และส่ง local paths ระหว่างขั้น | ต้องเพิ่ม durable artifacts และ checkpoint ต่อ document version ก่อนย้ายหลาย worker หรือทำ resume |
+| ตั้ง retries แต่หลายขั้น catch exception แล้วคืน error record | task อาจจบสำเร็จในมุม Airflow แม้งานย่อยพัง ต้องแยก partial/failed และส่ง transient failure ให้ runner retry |
+| การประมวลผลไฟล์ใน source เรียก extraction/embedding ภายใน loop | อย่าคิดว่าทุกไฟล์เป็น Airflow task แยกที่ retry ได้เอง แม้คำอธิบายจะใช้คำว่า parallel |
+| [Embedding helper](https://github.com/llmfa-capstone/llmfa-capstone/blob/a067931aa95f9c29f0f7a3bc51bea25f0b2fe4d2/llmfa_airflow/libs/embedding.py) แบ่งตาม Markdown headings, ใช้ Gemini embedding และส่ง Pinecone | เป็น candidate reuse แต่ต้องวัดกับตารางงบ ภาษาไทย/อังกฤษ และขนาด passage ของเรา |
+| file ID มาจากชื่อไฟล์; page matching มี fallback เป็นหน้าแรก; `create_date` มาจาก PDF metadata | ชื่อไฟล์ไม่ใช่ version identity; หน้าไม่ทราบต้องระบุว่าไม่ทราบ; PDF creation time ใช้แทนวันเผยแพร่หรือ fiscal period ไม่ได้ |
+| helper อาจคืน success หลัง upsert ได้เพียงบาง chunks | ต้องตรวจจำนวนและการค้นเจอก่อนเปิดใช้ version ใหม่ ไม่ตัดสิน completeness จาก status เดียว |
+
+[Backend handlers](https://github.com/llmfa-capstone/llmfa-capstone/blob/a067931aa95f9c29f0f7a3bc51bea25f0b2fe4d2/llmfa_backend/main.py) ที่ตรวจมีการค้น conversation ด้วย ID และ endpoint รายการ chats โดยไม่เห็น owner check ใน handler นั้น จึงไม่ควรนำ pattern นี้มาเป็นสิทธิ์เข้าถึงของเรา ข้อนี้ไม่ได้ยืนยันว่า deployment ทั้งระบบไม่มีการป้องกันภายนอก และไม่ใช่ผลทดสอบเจาะระบบ
+
+สรุปหลักฐาน: DAG ช่วยแสดง dependency, สถานะ และการ retry แต่ไม่ได้ทำให้ข้อมูลถูกต้องหรือปลอดภัยเอง Reuse ขั้นประมวลผลได้เมื่อแก้ identity/version, provenance, failure reporting และ ownership; ไม่จำเป็นต้องยกทั้ง backend และฐานข้อมูลเก่ามาใช้
+
+## 3. ทางเลือกการรันงานและค่าใช้จ่าย
+
+| ทางเลือก | ความสามารถที่เกี่ยวข้อง | ข้อแลกเปลี่ยนที่ต้องวัด |
 | --- | --- | --- |
-| **Trigger.dev Cloud — แนะนำให้ทดลองก่อน** | TypeScript, scheduled/event tasks, retry, concurrency และดูสถานะงานได้; code worker deploy ไป managed workers [1–3] | เพิ่มผู้ให้บริการและค่า compute/invocation; ต้องตรวจ runtime และ workspace packaging จริง |
-| Vercel Schedules + Workflow/Queue | อยู่กับ hosting เดิม; Schedules รองรับ timezone, private targets และเรียก durable workflow ได้ [4] | Schedules ยังเป็น Beta ณ วันที่ตรวจ; ต้องประเมิน limits, ค่าใช้จ่าย และ runtime ของ target เพิ่มก่อนเลือก |
-| Apache Airflow | ใช้ DAG ระบุ dependency และติดตาม workflow ได้ เหมาะกับ batch pipeline หลายแหล่ง/งาน backfill [5] | มี scheduler, DAG processor, API server และ metadata DB; ประเมินว่าภาระดูแลสูงกว่าที่ prototype ตอนนี้ต้องใช้ |
-| Vercel Cron Jobs เดิม | trigger งานสั้นได้ตรงไปตรงมา | Hobby รันได้วันละครั้ง จึงไม่ตรง Daily Brief รายชั่วโมง; เป็น legacy คนละผลิตภัณฑ์กับ Schedules ใหม่ [6] |
+| Vercel Schedules + Queues + Functions | ฐาน Phase 1 ตาม ADR 0006; แยก queue ingestion/publication | runtime, scheduling window, quota และ contention; อย่าสับสน Schedules กับ legacy Cron Jobs |
+| Trigger.dev Cloud | managed TypeScript tasks, schedules, retry และ concurrency | เพิ่ม deployment; Free schedule ใหม่มี cadence ไม่ถี่กว่ารายชั่วโมงและ window อย่างน้อย 60 นาที จึงไม่ตรงข่าวทุก 30 นาที |
+| Cloud Scheduler + Cloud Run Jobs | scheduled/on-demand container jobs; รองรับ dependencies ที่ต้องการ container | ต้องดูแล image, IAM และการติดตามงาน/กู้คืนร่วมกับ DB |
+| Airflow | DAG dependencies, pools, backfill และ Python batch; อยู่ในข้อเสนอ final design | ต้องดูแล scheduler/API/metadata DB/execution host; วัด OCR และ backfill แข่งกับ publication |
+| Supabase Cron | สั่ง SQL หรือเรียก endpoint ตามเวลา | เป็นตัวตั้งเวลา ไม่ใช่ runtime สำหรับ OCR/embedding ทุกอย่าง ต้องเลือก worker และ recovery เพิ่ม |
+| GitHub Actions / VM cron | ใช้ทดลอง batch หรือ operator jobs ได้ | วัด schedule delay, secrets, host availability และวิธีเรียก first-open; ไม่ใช่ตัวแทน queue ที่มี SLA โดยอัตโนมัติ |
 
-**DAG ของรุ่นพี่เอามาใช้ได้ไหม:** ใช้แนวคิด dependency ได้ เช่น fetch → validate → normalize → generate สองภาษา → ตรวจหลักฐาน → publish แต่ยังไม่ได้เห็น DAG/code ของรุ่นพี่ จึงยืนยัน reuse implementation ไม่ได้ และการทำ pipeline เป็นขั้นตอนไม่ได้บังคับว่าต้องติดตั้ง Airflow
+รายละเอียด runtime และแหล่งอ้างอิงเปรียบเทียบใน [service research](final-architecture-service-options.md#background-execution-for-the-final-version), [Supabase Cron](https://supabase.com/docs/guides/cron) และ [GitHub scheduled workflows](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)
 
-Daily Brief ใช้ scheduled task รายชั่วโมง ส่วน stock summary ให้เว็บ resolve listing/วันไทยและส่ง identifier เพื่อ trigger งานเมื่อเปิดครั้งแรกของวัน ไม่รัน ingestion ยาวค้างไว้ใน HTTP request งาน manual ใช้ logic เดียวกันกับงานตามเวลา
+### Trigger.dev จำเป็นต้องเสียเงินหรือไม่
 
-DB เป็นผู้ยืนยันผลสำเร็จ: ใช้ unique job key, claim ที่หมดอายุและกู้คืนได้, attempt/version ป้องกันงานเก่าทับใหม่ และ transaction เผยแพร่สองภาษาพร้อม evidence ตาม ADR 0004 ตัว runner มี idempotency ช่วยลดงานซ้ำ แต่มี TTL จึงไม่แทนข้อบังคับใน DB [2] เมื่อ runner ล่มเก็บ last successful publication ไว้และแสดงเวลาเดิม; การชดเชย missed run ต้องกำหนดใน worker ไม่สมมติว่า cron จะทำให้เอง
+ไม่จำเป็นต้องเสียเงินตั้งแต่เริ่ม: [หน้า pricing](https://trigger.dev/pricing) ที่ตรวจวันที่ 21 พฤศจิกายน 2026 ระบุ Free $0/เดือน มีเครดิต $5/เดือน, 20 concurrent runs, 10 schedules และเก็บ logs 1 วัน แต่เครดิตไม่ใช่ compute ไม่จำกัด และไม่รวมค่า Supabase, model, embeddings หรือ storage
 
-ค่าใช้จ่ายอ้างอิง [3]: Free มีเครดิต $5/เดือน, 10 schedules และ log retention 1 วัน คิด compute กับ invocation แยกกัน ต้องเก็บสถานะงานที่จำเป็นใน DB เอง ตัวอย่างสมมติ 720 runs/เดือน บน Small 1x เฉลี่ย 60 วินาที/run เท่ากับ 720 × (60 × $0.0000338 + $0.000025) ≈ **$1.48/เดือนเฉพาะ runner** ไม่รวม retries, ingestion, stock summaries, LLM, embeddings, DB และเว็บ จึงยังสรุปไม่ได้ว่าระบบจริงใช้ฟรีพอ
+[กติกา scheduled tasks](https://trigger.dev/docs/tasks/scheduled#free-plan-minimum-window) ระบุว่า schedule ที่สร้างขณะใช้ Free รันได้ไม่ถี่กว่าชั่วโมงละครั้ง และมี window อย่างน้อย 60 นาที ข้อจำกัดนี้แยกจากจำนวน schedules และจำนวน concurrent runs งานที่ต้องเริ่มตรงเวลา/ตรวจข่าวทุก 30 นาทีจึงต้องประเมินแผนอื่น อย่าสรุปว่า Free เหมาะกับระบบเราจากคำว่าใช้ฟรีเพียงอย่างเดียว
 
-## 2. RAG / document ingestion
+Self-hosting มี [วิธีติดตั้ง](https://trigger.dev/docs/self-hosting/overview) แต่ยังมีค่าเครื่อง ฐานข้อมูล และการดูแล งบจริงต้องวัดเวลารัน จำนวน retries ปริมาณ OCR/embedding และ logs ของ workload เดียวกัน ยังไม่มีตัวเลขค่าใช้จ่ายต่อเดือนของโปรเจกต์นี้
 
-รัน pipeline ใน worker: รับ source ID จากรายการที่ทีมกำหนด → fetch โดยจำกัด domain/redirect/ขนาด/เวลา → parse → ตรวจและแยกเนื้อหา → deduplicate ด้วย content hash → chunk/embed เมื่อจำเป็น → บันทึก version → เปิดใช้ version ที่เสร็จครบ เก็บ source URL, document ID, reporting period, observed/fetched time และตำแหน่งข้อความสำหรับ citation
+## 4. หลักฐานด้าน Security
 
-เก็บ metadata/chunks ใน PostgreSQL; ถ้าต้องใช้ semantic search ให้ใช้ pgvector ใน Supabase ก่อนเพิ่ม vector DB แยก [7] ไฟล์ต้นฉบับที่ต้องเก็บใช้ object storage หลังตรวจสิทธิ์การนำมาใช้/เก็บ ไม่ใช้ local disk ของเว็บเป็นที่เก็บถาวร การเลือก embedding model, มิติ vector, chunking และดัชนีต้องทดลองกับข้อมูลไทย/อังกฤษก่อน ไม่มีผลทดสอบในงานนี้
+[OWASP prompt injection guidance](https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html) อธิบายความเสี่ยงจากคำสั่งที่ซ่อนใน input และเอกสาร การแยก instructions ช่วยได้ แต่ต้องมีสิทธิ์และเครื่องมือที่บังคับด้วย code จึงจะจำกัดผลเสียได้
 
-ราคา/งบการเงิน/Portfolio ใช้ structured query และสูตรคำนวณที่ตรวจได้ ไม่ดึงตัวเลขผ่าน vector search เป็นแหล่งหลัก RAG ใช้ค้นข้อความประกอบคำอธิบาย ไม่ได้หมายความว่าต้อง ingest เอกสารทุกชนิดตั้งแต่ Phase 1; file upload และ long-term memory ยังอยู่นอก baseline
+[Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security) รองรับ ownership policies สำหรับตารางที่ expose แต่ service roles และ roles ที่ bypass RLS ยังเข้าถึงได้ การแยก DB roles/grants จึงสำคัญพอ ๆ กับ policy โดย direct DB connection ไม่ได้มีตัวตนผู้ใช้ปลายทางให้อัตโนมัติ
 
-## 3. Security guardrails
+[Gemini terms](https://aistudio.google.com/docs/terms) ห้ามส่ง sensitive/confidential/personal information เข้า Unpaid Services การไม่บันทึก chat หรือการขอ consent ไม่ได้ทำให้ข้อจำกัดนี้หายไป Guest อาจพิมพ์ข้อมูลส่วนตัวเองได้ จึงต้องตรวจข้อความและ history ก่อนส่ง ไม่ใช่ตรวจเฉพาะ saved Profile
 
-ใช้หลายชั้นตาม trust boundaries เดิม ไม่ถือว่า system prompt หรือ RAG ป้องกัน prompt injection ได้ทั้งหมด [8]
+เกณฑ์ release ที่เจ้าของตกลงแล้วอยู่ใน [Phase 1 requirements](../phase-1-planning/functional-requirements.md#release-acceptance) รายละเอียด enforcement ที่เสนอแยกใน RFC; ยังไม่ได้ทดสอบว่าทุกชั้นป้องกันได้จริง
 
-- **ก่อนเรียก AI:** validate schema/ขนาด, resolve listing และ evidence ฝั่ง server, จำกัดอัตราใช้งานและงบ token/concurrency สำหรับ guest chat; history จาก browser เป็นข้อมูลที่ไม่เชื่อถือและไม่ใช่หลักฐานอ้างอิง
-- **สิทธิ์:** model เรียกได้เฉพาะเครื่องมือที่อนุญาตและตรวจ input แล้ว ไม่มี arbitrary SQL/shell/URL หรือสิทธิ์แก้ holdings; shared publication worker ไม่มีสิทธิ์อ่าน private tables
-- **Retrieval:** เอกสารเป็นข้อมูล ไม่ใช่คำสั่ง; แยก instructions ออกจาก passages, จำกัดแหล่งและจำนวนรอบค้น, เก็บ provenance และตรวจสิทธิ์ก่อนค้นข้อมูลส่วนตัว
-- **ผลลัพธ์:** ตรวจ schema, citation ต้องเป็น evidence ที่ดึงมาจริงและรองรับ claim; ตรวจตัวเลข/หน่วย/ช่วงเวลาด้วย code เมื่อทำได้ ถ้าหลักฐานไม่พอให้ตอบจำกัดหรือแจ้งว่าไม่พบข้อมูล การตรวจเชิงความหมายยังมีโอกาสผิด ต้องมีชุดประเมิน
-- **Web/operations:** render Markdown โดยปิด raw HTML และกรอง URL scheme, เก็บ secrets ฝั่ง server, ตัดข้อมูลส่วนตัวออกจาก logs/traces, แยก dev/prod และบันทึก error โดยไม่แนบ prompt เต็ม
+## 5. User context: ทางเลือกจัดเก็บ
 
-คงข้อกำหนด FR-19: ไม่มีคำสั่งซื้อขายเด็ดขาดหรือรับประกันกำไร พร้อมข้อความเตือนความเสี่ยง การทดสอบขั้นต่ำที่ควรทำก่อนส่งงานคือ indirect prompt injection ในเอกสาร, citation ไม่ตรง claim, session A อ่าน B, และ worker อ่าน private schema ไม่ได้ ทั้งหมดเป็นรายการที่เสนอให้ทดสอบ **ยังไม่ได้รันทดสอบ**
+| ที่เก็บ | เหมาะกับ | ข้อจำกัด |
+| --- | --- | --- |
+| PostgreSQL relational records | Profile, holdings, ownership, preferences และ versions; สอดคล้อง ADR 0005 | ต้องออกแบบ grants/ownership/retention และประกอบ context ฝั่ง server |
+| Document database | ข้อมูลยืดหยุ่นและ nested documents | เพิ่มฐานข้อมูลและขอบเขตสิทธิ์/การลบอีกชุด; repo ปัจจุบันเลือก PostgreSQL แล้ว |
+| Vector index | ค้น passages สาธารณะตามความหมาย | ไม่ใช่แหล่งหลักของ holdings หรือ Profile ล่าสุด และ shared index ต้องไม่มีข้อมูลส่วนตัว |
+| Browser session | history ชั่วคราวของ Phase 1 | ไม่ใช่บัญชีหรือสิทธิ์อ่านข้อมูลฝั่ง server และไม่รองรับ cross-device persistence |
 
-## 4. User context เก็บและดึงอย่างไร
+กติกาที่ตกลงแล้ว: Profile optional/off by default; Watchlist/Portfolio แนบแยกแต่ละคำถาม; replay history ต้องตรวจสิทธิ์ล่าสุด; saved chats opt-in หมดอายุ 90 วันหลังข้อความสุดท้าย; app backups ไม่เกิน 30 วันและต้องใช้ deletion/expiry ก่อนเปิด restore อ่าน [Q07](../requirements-questions.md#q07-personalization-and-personal-data-controls) สำหรับรายละเอียด การเลือก Auth, private model service และ cross-device behavior บางส่วนยังเปิดอยู่
 
-**Phase 1:** เก็บ history เฉพาะ browser session เช่น sessionStorage เพื่อใช้ร่วมระหว่างหน้าโดยไม่ restore ข้าม session; ไม่เพิ่ม saved Profile/Portfolio หรือ user memory ถ้าฝั่ง server เก็บ session state ต้องผูกกับ session secret ที่ตรวจสอบได้และล้างตามอายุ ไม่ให้ client-supplied conversation ID เป็นสิทธิ์เข้าถึงเอง
+## 6. สิ่งที่หลักฐานยังตอบไม่ได้
 
-**Phase ที่มีบัญชี:** เสนอเก็บ `profiles`, `portfolio_positions`, `watchlist_items` เป็นตาราง relational ใน private schema ผูก owner ID จาก authenticated session การเลือก Auth และนโยบาย consent/retention/deletion ยังอยู่ Q03/Q07 จึงยังไม่กำหนด default แทนทีม
-
-เมื่อมีแชตใหม่: server ตรวจ session → อ่านเฉพาะ records ของเจ้าของที่อนุญาตให้ใช้ → คำนวณ portfolio snapshot ด้วย code → เลือกเฉพาะ field ที่จำเป็น → ประกอบกับ stock context และ evidence สาธารณะ → ส่งให้ model ไม่รับ user ID จากคำตอบ AI มาใช้เลือกเจ้าของข้อมูล และไม่ฝังทั้ง Portfolio ลง vector DB เพราะเป็นข้อมูลเปลี่ยนแปลงที่ต้องอ่านให้ตรงเวอร์ชัน
-
-ใช้ scoped DB roles + ownership checks; ตารางที่ expose ผ่าน Data API ต้องมี RLS การใช้ privileged/service role อาจ bypass RLS จึงต้องไม่คิดว่าใส่ policy แล้วทุก connection จะปลอดภัย [9] shared role ไม่มี grant ถึง private schema; แชตที่มีข้อมูลส่วนตัวห้ามใช้ shared response cache
-
-ถ้าปิดใช้ Profile ต้องกรองบริบทที่ส่งเข้าใหม่รวมถึง history/summary ที่อาจมีค่าเดิมตามนโยบายที่ทีมตกลง ไม่ใช่แค่หยุดอ่านตารางใหม่ ข้อสรุปเรื่องลบข้อมูลย้อนหลังยังรอ Q07
-
-## เรื่องที่ต้องตกลงร่วมกัน
-
-1. **ประเมินเครื่องมือรันงานเบื้องหลัง** ทดลอง Vercel ตาม ADR 0006 และตรวจว่ารันโค้ดของเรา เชื่อมต่อ Supabase และมีค่าใช้จ่ายอยู่ในงบได้หรือไม่ ใช้ข้อเสนอ Trigger.dev ประกอบการพิจารณาหากต้องเปลี่ยน runner
-2. **กำหนดเอกสารที่ AI จะใช้ค้นข้อมูล**  
-   จะเริ่มจากข่าว รายงานบริษัท หรือเอกสารประเภทไหน มีสิทธิ์นำมาเก็บและใช้งานหรือไม่ และจำเป็นต้องค้นตามความหมายด้วย vector search หรือใช้วิธีค้นทั่วไปก่อนก็พอ
-3. **กำหนดการจัดการข้อมูลส่วนตัว**  
-   สำหรับ Phase ที่เพิ่มบัญชีผู้ใช้ ต้องตกลงวิธีเข้าสู่ระบบ การอนุญาตให้ AI ใช้ Profile/Portfolio ระยะเวลาเก็บข้อมูล และวิธีลบข้อมูล โดยคำถามเหล่านี้อยู่ใน Q03 และ Q07
-
-### สถานะของข้อเสนอ
-
-ข้อเสนอให้ใช้ Trigger.dev บันทึกไว้ใน [ADR 0007](../adr/0007-managed-worker-execution.md) สถานะ **Proposed — เสนอให้พิจารณา** เมื่อทีมตกลงเลือกแล้วจึงเปลี่ยนเป็น **Accepted — ตกลงใช้แล้ว**
-
-ข้อ 1 เกี่ยวกับการยอมรับ ADR 0007 โดยตรง ส่วนข้อ 2–3 เป็นเรื่องที่ต้องตกลงสำหรับการออกแบบ RAG และข้อมูลผู้ใช้ ไม่จำเป็นต้องตอบครบทั้งสามข้อจึงจะเลือกเครื่องมือรันงานเบื้องหลังได้
-
-ส่วนการใช้ Supabase PostgreSQL และหลักการแยกข้อมูลสาธารณะกับข้อมูลส่วนตัว มีบันทึกไว้ใน ADR เดิมแล้ว เอกสารนี้เน้นสรุปทางเลือกเพื่อคุยกันในทีม
-
-## References
-
-เอกสารผู้ให้บริการตรวจเมื่อ 20 พฤศจิกายน 2026; ราคา/สถานะอาจเปลี่ยนได้ ข้อเสนอความเหมาะสมเป็นการประเมินของงานนี้ ไม่ใช่ผล benchmark
-
-1. [Trigger.dev scheduled tasks](https://trigger.dev/docs/tasks/scheduled)
-2. [Trigger.dev idempotency และ TTL](https://trigger.dev/docs/idempotency)
-3. [Trigger.dev Cloud pricing](https://trigger.dev/pricing)
-4. [Vercel Schedules — Beta, targets และ Workflow](https://vercel.com/docs/schedules)
-5. [Apache Airflow architecture/components](https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/overview.html)
-6. [Vercel legacy Cron Jobs limits](https://vercel.com/docs/cron-jobs/usage-and-pricing)
-7. [Supabase pgvector](https://supabase.com/docs/guides/database/extensions/pgvector)
-8. [OWASP prompt injection prevention](https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html)
-9. [Supabase RLS และ bypass roles](https://supabase.com/docs/guides/database/postgres/row-level-security)
+ยังต้องวัด ingestion ของ filing ไทย/US จริง, OCR และ table accuracy, Thai-to-English retrieval, failure recovery, เวลาตั้งแต่ schedule ถึงใช้งานได้ และค่าใช้จ่ายเมื่อมีงานพร้อมกัน รวมถึง source permissions ต่อแหล่ง รายการทดสอบและข้อเสนอระบบอยู่ใน [RFC](../rfcs/architecture-security-and-context.md) และ [final design acceptance](../final/final-architecture.md#evidence-needed-before-acceptance)
