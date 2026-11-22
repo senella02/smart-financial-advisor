@@ -9,7 +9,7 @@ related_targets: []
 
 Mode: Operate. Design target only.
 
-Use the [visual conventions](../../../../DESIGN.md) and [interaction conventions](../../../../docs/ui-conventions.md). Primary job: research the selected common stock and inspect evidence or ask a stock-bound question. Authority: FR-01, FR-02, FR-11 through FR-13, and FR-21.
+Use the [visual conventions](../../../../DESIGN.md) and [interaction conventions](../../../../docs/phase-1-planning/ui-conventions.md). Primary job: research the selected common stock and inspect evidence or ask a stock-bound question. Authority: FR-01, FR-02, FR-11 through FR-13, and FR-21.
 
 ## Direction contract
 
@@ -24,8 +24,6 @@ FIRST VIEWPORT: Identity and company name span the content width, followed by qu
 FORM: Grounded candidate 5, public information and wayfinding. seed:4be8e5895fd07ce1. Agent-selected working direction. Signature interaction: inspect financial-period evidence and return to the same section without losing the stock binding. Quote refresh changes only quote state.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
-
-The FINISH line applies to a future UI build.
 
 ## Composition
 

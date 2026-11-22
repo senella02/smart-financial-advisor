@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { liveMarketData } from "@/server/research";
+import { liveMarketData } from "@/server/stock-detail";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

@@ -9,7 +9,7 @@ related_targets: []
 
 Mode: Operate, with Read behavior for answers. Design target only.
 
-Use the [visual conventions](../../../../DESIGN.md) and [interaction conventions](../../../../docs/ui-conventions.md). Primary job: ask or compare, understand a supported answer, and follow its evidence. Authority: FR-13, FR-14, and FR-19 through FR-21.
+Use the [visual conventions](../../../../DESIGN.md) and [interaction conventions](../../../../docs/phase-1-planning/ui-conventions.md). Primary job: ask or compare, understand a supported answer, and follow its evidence. Authority: FR-13, FR-14, and FR-19 through FR-21.
 
 ## Direction contract
 
@@ -24,8 +24,6 @@ FIRST VIEWPORT: Shared navigation above a desktop history column of about 18rem 
 FORM: Grounded candidate 5, public information and wayfinding. seed:4be8e5895fd07ce1. Agent-selected working direction. Signature interaction: open a source beside its claim, then return without losing the conversation position. Announce answer status, preserve drafts, and avoid scrolling a reader away from earlier content.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
-
-The FINISH line applies to a future UI build.
 
 ## Composition
 
@@ -42,4 +40,4 @@ The FINISH line applies to a future UI build.
 
 Show empty session history, current conversation, pending request, insufficient evidence, unavailable today's brief, recoverable request error, and an explicitly stock-linked conversation. Explain unavailable brief context when relevant; keep ordinary financial Q&A available. A general ticker mention does not create a stock-history association. Old messages retain the dates and cutoffs that applied when generated.
 
-Reuse composer behavior from Stock Detail. No login prompt, file attachment, export, Deep Research, discovery screening, saved profile, or account-history promise. Do not choose a storage lifetime beyond the confirmed browser-session rule. Q05 and Q08 retain request/comparison limits; multi-tab behavior remains an implementation choice.
+Reuse composer behavior from Stock Detail and keep history within the current browser session. Main chat excludes login prompts, file attachments, exports, Deep Research, discovery screening, and saved profiles. Q05 and Q08 track request and comparison limits.

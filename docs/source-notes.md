@@ -4,7 +4,7 @@ Updated: 7 November 2026.
 
 ## Source precedence
 
-Maintain one editable [functional requirements baseline](functional-requirements.md). Resolve conflicting material in this order:
+Maintain one editable [functional requirements baseline](final/functional-requirements.md). Resolve conflicting material in this order:
 
 1. Current explicit project-owner decisions, recorded in the appropriate requirements, question record, guidance, or ADR according to their scope.
 2. The agreed functional requirements and accepted ADRs, each within its scope. Flag contradictions; an ADR must not silently change a feature.
@@ -16,17 +16,23 @@ Keep unanswered product rules and proposed acceptance details explicit in the [q
 
 ## Source register
 
+### S7 Filing and financial data sources
+
+On 20 November 2026, the owner authorized finalizing the source design after reviewing the Thai SEC Open Data coverage check and discussing SET access. [ADR 0003](adr/0003-market-data-and-news-provider-selection.md#filings-and-fundamentals) records the source choices and the conditions for adding a SET feed. [Market data research](research/thai-and-us-market-data.md#thai-sec-open-data-one-report-coverage) records the evidence and the limits of the check.
+
 ### S6 Owner-confirmed application and worker boundary
 
-On 7 November 2026, after discussing Python reuse and a TypeScript rewrite, the owner agreed to one Next.js web/application backend plus separate background worker execution for recurring RAG ingestion and scheduled publications, and requested existing ADRs be updated in place. Shared market-data logic serves web APIs, AI tools, and publication workflows. Two execution roles do not select physical server counts. Worker language, hosting, scheduler/job tooling, storage, model, retrieval framework, refresh cadence, and optimization techniques remain open. See [ADR 0001](adr/0001-nextjs-application-and-shared-workspace.md) for the accepted decision and its consequences.
+On 7 November 2026, the owner agreed to one Next.js application for web and interactive backend requests, with separate worker execution for scheduled publications and recurring ingestion. Shared market-data logic serves web APIs, AI tools, and publication workflows. [ADR 0001](adr/0001-nextjs-application-and-shared-workspace.md) records the decision and its rationale.
+
+On 21 November 2026, the owner confirmed Vercel for Phase 1 ingestion and publication jobs after reviewing Trigger.dev. [ADR 0006](adr/0006-vercel-hosting-and-scheduled-publication-trigger.md) records the choice and when to reconsider it.
 
 ### S5 Owner-confirmed requirements finalization
 
-On 7 November 2026, the owner confirmed that the first requirements version is finalized and ready to implement Phase 1. Version 2.0 is the first finalized baseline for this new project, retaining the existing version sequence. Remaining questions and proposed acceptance details stay explicit for the affected implementation or release decision. This updates project status; it does not implement features, select outstanding technologies, or authorize deployment.
+On 7 November 2026, the owner finalized version 2.0 as the first requirements baseline for the new project and confirmed the Phase 1 scope. The [question record](requirements-questions.md) captures decisions that still need review.
 
-### S4 Owner-supplied SFA-5 setup brief
+### S4 Owner-confirmed application framework and contract choices
 
-On 7 November 2026 the owner supplied an implementation brief in chat authorizing a fixture-only pnpm/TypeScript monorepo, Next.js App Router UI+BFF, shared Zod contracts, Thai shells, local checks, CI, and an open pull request. The brief covered setup only; research features, live market/LLM calls, persistence, infrastructure, and deployment were outside that task. The owner subsequently confirmed acceptance of the agreed and implemented architecture on 7 November 2026, now consolidated in [two Accepted ADRs](adr/README.md). Q04/Q05/Q08 and database/hosting/provider choices remain open. The original brief is intentionally outside git; the [developer guide](developer-guide.md) records the resulting reviewable setup.
+On 7 November 2026, the owner confirmed in chat that the project uses the Next.js App Router for the UI and interactive backend, a pnpm TypeScript workspace, and shared Zod contracts. [ADR 0001](adr/0001-nextjs-application-and-shared-workspace.md) and [ADR 0002](adr/0002-validated-contracts-and-data-trust-boundaries.md) record these decisions.
 
 ### S1 Current progress slides
 
@@ -62,7 +68,7 @@ The report's historical accuracy and comparative claims do not establish new-pro
 
 ## Project-owner answers recorded on 6 November 2026
 
-The answers and remaining subquestions are recorded together in [Q01–Q08](requirements-questions.md#decisions-and-remaining-questions); the resulting behavior and acceptance criteria are in the [requirements baseline](functional-requirements.md). These answers supersede conflicting slide/report details. Do not infer the owner's decisions from the current fixture code.
+The [question record](requirements-questions.md#decisions-and-remaining-questions) captures the answers and remaining questions. The [requirements baseline](final/functional-requirements.md) records the resulting behavior and acceptance criteria. These answers supersede conflicting slides and reports.
 
 ## Source conflicts reconciled
 
@@ -90,7 +96,7 @@ S1 pp. 8-9 name LangGraph and FastAPI while describing intent handling, ticker b
 
 ### Provider names do not establish a final data contract
 
-S1 pp. 5, 11, 13 and 17 refer to overlapping provider combinations. S2 p. 4 also drops stocks absent from yfinance. The new requirements define supported-data behavior first. Provider feasibility, source attribution, coverage, and missing-data handling need a new decision; no tool-specific drop rule has been promoted to a business requirement.
+S1 pp. 5, 11, 13 and 17 refer to overlapping provider combinations. S2 p. 4 also drops stocks absent from yfinance. The requirements define how to handle supported stocks and missing data. [ADR 0003](adr/0003-market-data-and-news-provider-selection.md) records the initial upstream choice, and [Q04](requirements-questions.md#q04-supported-data-and-stock-coverage) tracks the open coverage rules.
 
 ## Lessons retained from the previous project
 

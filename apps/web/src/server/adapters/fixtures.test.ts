@@ -2,7 +2,7 @@ import { expect, it, vi } from "vitest";
 import { evidenceFixture, stockIdentityFixture, usStockIdentityFixture } from "@sfa/contracts/fixtures";
 import { fixtureGeneration } from "./fixture-generation";
 import { fixtureMarketData } from "./fixture-market-data";
-import { getDemoStock } from "../research";
+import { getDemoStock } from "../stock-detail";
 
 vi.mock("server-only", () => ({}));
 

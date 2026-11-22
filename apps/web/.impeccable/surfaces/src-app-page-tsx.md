@@ -9,7 +9,7 @@ related_targets: []
 
 Mode: Operate, with a Read area for the full Daily Brief. Design target only.
 
-Use the [visual conventions](../../../../DESIGN.md) and [interaction conventions](../../../../docs/ui-conventions.md). Primary job: check market context, understand the dated brief, then open stock research or ask about a current-day topic. Authority: FR-02 through FR-05 and FR-21.
+Use the [visual conventions](../../../../DESIGN.md) and [interaction conventions](../../../../docs/phase-1-planning/ui-conventions.md). Primary job: check market context, understand the dated brief, then open stock research or ask about a current-day topic. Authority: FR-02 through FR-05 and FR-21.
 
 ## Direction contract
 
@@ -24,8 +24,6 @@ FIRST VIEWPORT: Shared top navigation and search, one compact five-index strip, 
 FORM: Grounded candidate 5, public information and wayfinding. seed:4be8e5895fd07ce1. Agent-selected working direction, not owner approval. Signature interaction: open a claim's source detail without losing the reading position. Updates announce availability without replacing prose mid-read.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
-
-The FINISH line applies to a future UI build; this design-only pass does not claim that review has occurred.
 
 ## Composition
 
