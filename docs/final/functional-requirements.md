@@ -204,7 +204,7 @@ Source: S1 pp. 7-9, 13; history views confirmed by the project owner on 6 Novemb
 
 ### FR-14 General financial questions and comparison
 
-**Baseline:** Main chat supports stock questions, stock comparisons, and stock discovery. Provide prompt shortcuts such as "Help me choose stocks" and "I do not know where to start." Use relevant financial documents, prices, and news to answer.
+**Baseline:** Main chat supports stock questions and stock comparisons. Use relevant financial documents, prices, and news to answer. In Phase 2, main chat also supports Stock Discovery (Exploration mode) under [FR-15](#fr-15-discovery-plan-and-user-confirmation). Provide prompt shortcuts such as "Help me choose stocks" and "I do not know where to start."
 
 Both chat entry points automatically include today's published Daily Brief when preparing a financial research answer. If today's brief is unavailable, chat states the limitation when relevant and can still answer from other financial evidence. Chat uses the Investor Profile only when the user enables it. Watchlist and Portfolio context require the user to attach them to the specific question. [FR-03](#fr-03-daily-brief-content-and-publication) · [FR-17](#fr-17-profile-questionnaire-and-control) · [FR-20](#fr-20-personal-context-isolation)
 
@@ -224,13 +224,13 @@ Language and access follow FR-21. File uploads, exports, a separate Deep Researc
 
 ### FR-15 Discovery plan and user confirmation
 
-**Baseline:** Start discovery from a natural-language request or a manual control. Let users choose whether to use Investor Profile or specify new preferences. Ask follow-up questions as needed, translate preferences into concrete screening criteria, and show a search plan for user confirmation before executing it.
+**Phase 2 baseline.** Exploration mode is the Stock Discovery workflow. Start it from main chat when the user asks to find stocks or selects the manual control. Let users choose whether to use Investor Profile or specify new preferences. Ask follow-up questions as needed and translate preferences into concrete screening criteria. Show the screening plan and wait for the user to confirm it before running the screen.
 
 Example criteria include market, sector, market capitalization, P/E, EPS, debt, and dividends. The precise supported filter set and units are pending Q04-Q05.
 
 **Proposed detail:** The plan explains the meaning, value, and unit of each filter. Users may edit or cancel it. Search executes only the confirmed version. Do not translate "low risk" into an unexplained numeric filter or treat screening as proof that a stock is suitable.
 
-**Acceptance:** Asking for dividend stocks produces a visible plan before screening. An unconfirmed or cancelled plan does not execute. Changing criteria after confirmation requires confirmation of the changed plan.
+**Phase 2 acceptance.** Asking main chat to find dividend stocks or selecting the manual control starts Stock Discovery. The user sees the screening plan before any screening runs. The server runs only the exact plan version the user confirms. An unconfirmed or cancelled plan does not execute. Changing criteria requires confirmation of the revised plan.
 
 Source: S1 p. 14.
 
@@ -342,3 +342,16 @@ The confirmed update cadences are hourly Daily Brief updates, one-minute refresh
 **Proposed quality baseline:** Keep ordinary data views usable when AI generation fails; expose useful progress and recoverable errors; preserve saved records on failed writes; support keyboard operation, labeled controls, readable financial units, and non-color indicators. Use transport security and keep credentials outside source control. Measurable acceptance targets remain subject to Q08; architectural choices follow the [ADR criteria](../adr/README.md).
 
 Resolve or explicitly defer the open [requirement questions](../requirements-questions.md#decisions-and-remaining-questions) for each feature before release. Run the applicable acceptance scenarios, including bilingual AI and data isolation checks.
+
+Evaluate how well the answer model uses supplied evidence on FinanceBench. Use the project's held-out Thai and English questions to decide whether hybrid search improves complete-evidence coverage within the agreed operating limits. [Evaluation datasets and runs](../rfcs/financial-evidence-retrieval.md#evaluation-datasets-and-runs) · [Q08](../requirements-questions.md#q08-release-quality-and-evaluation)
+
+### Proposed Portfolio and Investor Profile usage baseline
+
+Start with task sessions in Thai and English using test accounts and synthetic data. Report how many participants complete each task without help, how long it takes, and how many interpret the result correctly.
+
+| Feature | User tasks | AI comparison |
+| --- | --- | --- |
+| **Portfolio** | Add and edit positions in a sample Thai and US portfolio. Find its value, price P/L, and largest exposure. Check the result against fixed prices and FX. Include a missing quote or FX case and ask the participant to explain what is unavailable. | Ask the same portfolio question with and without the Portfolio attachment. With the attachment, check that the answer identifies the correct exposure and uses verified values. On the next turn without an attachment, check that the model request also excludes portfolio details carried by earlier messages. [FR-09 and FR-10](#5-portfolio) · [FR-22](#fr-22-current-fx-valuation) |
+| **Investor Profile** | Use chat after skipping the questionnaire. In a separate task, complete the questionnaire, enable profile use, then turn it off. Ask the participant to explain when the AI can use the profile. | Ask the same question with profile use off and with beginner and experienced profiles enabled. Check whether participants understand the explanation and whether the facts, citations, and material risks stay consistent. Check the next model request after disabling or deleting the profile for any retained profile details. [FR-17 and FR-18](#8-investor-profile) · [FR-20](#fr-20-personal-context-isolation) |
+
+For a later usage readout, report the share of Portfolio visitors who save a first position and the share of questionnaire starters who finish it. Report profile opt-in separately as the share of users with a saved profile who enable its use. Use aggregate counts and keep holding details, profile fields, and chat text out of analytics. Use the first measured results as the baseline. Sample size, observation window, and targets remain open under Q08.

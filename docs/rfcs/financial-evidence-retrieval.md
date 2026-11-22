@@ -42,6 +42,15 @@ Use the [Phase 1 retrieval baseline](../phase-1-planning/architecture.md#retriev
 
 ## Evidence needed to confirm the design
 
+### Evaluation datasets and runs
+
+| Decision | Dataset and test conditions | Report |
+| --- | --- | --- |
+| **How well does the answer model use financial evidence?** | Use the public 150-question FinanceBench sample. Give the model each question and its annotated evidence, with retrieval turned off and the reference answer and justification withheld. Use the same evidence and prompt for each model. | Report answer accuracy by question type. Check the figure, unit, currency, fiscal period, calculation, and support for material claims where applicable. |
+| **Does hybrid search earn its added cost for this app?** | Use a held-out Smart Financial Advisor set with Thai and English questions and verified evidence from supported Thai and US stocks. Run the three search methods below against the same documents. Give search the question and resolved scope. Keep reference passages and answers in the scorer. | Use complete-evidence coverage as the primary measure. Report per-question gains and losses, `nDCG@5`, scope failures, latency, freshness, and cost. |
+
+Run the same three search methods on FinanceBench as an additional US English benchmark. Index the full source filings for the included questions and score the returned passages against the annotated evidence. Report these results alongside the project results. Apply the rollout criteria to the held-out project set. Use the public sample under its noncommercial terms and record the dataset revision, question IDs, and source filing versions for each run. [FinanceBench paper](https://arxiv.org/abs/2311.11944) · [Public sample and license](https://huggingface.co/datasets/PatronusAI/financebench)
+
 ### Proposed comparison
 
 Compare three methods to see whether combining text and vector rankings finds evidence that either method misses on its own.
@@ -54,23 +63,31 @@ Compare three methods to see whether combining text and vector rankings finds ev
 
 Use the same approved corpus, passage boundaries, document versions, question text, and eligibility filters for all three methods. Limit results to the first five unique passages per resolved issuer for stock questions and five total for market-wide questions. Use the same text ranking and embedding model for the standalone and hybrid runs. Keep the scored questions separate from the questions used to tune ranking. When comparing Pinecone with `pgvector`, hold the embeddings, similarity measure, and filters fixed so that index placement and ranking quality can be evaluated separately. [Retrieval method research](../research/rag-retrieval-methods.md#how-to-compare-the-methods)
 
-### Cases and scoring
+### Questions to add to the project set
 
-Use Thai and English questions about filings and approved news. Include exact terms, same-language paraphrases, Thai questions over English evidence, and English questions over Thai evidence. Report these groups separately. Label the expected issuer, fiscal period, reporting basis, source version, cutoff, and passages or tables that support each answer. Allow equivalent passages that support the same fact. Use multi-part questions and at least one comparison that requires evidence from both issuers. [FinanceBench](https://arxiv.org/abs/2311.11944) · [MIRACL](https://aclanthology.org/2023.tacl-1.63/)
+Write Thai questions as an investor would ask them about filings and approved news. Use translations as paired controls for some questions and add questions originally written in Thai. Report Thai questions over Thai evidence, Thai questions over English evidence, and the matching English-language groups separately. Include these cases.
 
-Include cases where the correct response is to clarify or report missing evidence. Test an ambiguous `SCB` reference, bank versus holding-company filings, consolidated versus company-only figures, an amendment published after a requested cutoff, and plausible results with no eligible evidence. [Evidence scope rules](#filter-filing-evidence-before-ranking)
+- **Thai to Thai.** Ask `กำไรสุทธิส่วนที่เป็นของผู้ถือหุ้นของบริษัทใหญ่ของ ADVANC งวดนี้เท่าไร` against a Thai filing with the period specified. Pair an exact line item with a plain-language paraphrase. Include a case that distinguishes consolidated and company-only figures.
+- **Thai to English.** Ask `ยอดขายของ AAPL ไตรมาสนี้โตเท่าไรเทียบกับไตรมาสเดียวกันปีก่อน` against an English filing. Fix the quarter in the test case and require evidence for both periods. Include questions that mix Thai wording with an English ticker or filing term.
+- **Cross-issuer comparison.** Ask `รายได้ไตรมาสล่าสุดของ AAPL กับ WMT โตเท่าไรเทียบกับช่วงเดียวกันปีก่อน` with a fixed publication cutoff. Check both issuers' actual fiscal periods and require the current and prior-year figures for each issuer.
+- **Ambiguity, cutoff, and missing evidence.** Ask `SCB กำไรเท่าไร` without a selected listing and expect clarification when the bank and holding company are both plausible. Include a question whose latest eligible filing predates an amendment and a question for which the approved sources cannot support the requested figure.
+
+For each answerable question, record the expected answer, the facts needed to derive it, the issuer, fiscal period, reporting basis, source version, publication cutoff, and supporting passages or tables. Allow equivalent evidence that supports the same fact. For clarification and missing-evidence cases, record the expected behavior. Keep examples used to tune search out of the held-out set. [Evidence scope rules](#filter-filing-evidence-before-ranking) · [MIRACL](https://aclanthology.org/2023.tacl-1.63/)
+
+### Scoring and reporting
 
 | Criterion | Measure |
 | --- | --- |
-| **Complete evidence in the top five** | Primary measure. Report the share of answerable questions for which the returned passages together support every required part of the answer. Count each comparison as complete only when both issuers are supported. Also report cases with partial or missing evidence. |
-| **Scope correctness** | Count retrieved passages outside the resolved issuer, market, document type, reporting basis, period, or cutoff. On ambiguous questions, check whether the system asks for clarification before retrieval. |
+| **Complete evidence in the top five** | Primary measure. Report the share of answerable questions for which the returned passages together support every required fact. Count a comparison as complete only when the passages support all required facts for both issuers. Also report partial coverage as the share of required facts supported in each question. |
+| **Ranking quality (`nDCG@5`)** | Secondary measure for answerable questions. Judge the pooled top-five results from all three methods and include known reference passages in the judged pool. Grade each passage `2` for direct support of a required fact, `1` for related context, and `0` for irrelevant or out-of-scope material. Compute the score within each result list and average issuer scores for a comparison before averaging across questions. [NIST TREC ranking evaluation](https://trec.nist.gov/pubs/trec29/papers/OVERVIEW.DL.pdf) |
+| **Scope correctness** | Count retrieved passages outside the resolved issuer, market, document type, reporting basis, period, or cutoff. Run ambiguous questions through the chat entry point with unresolved scope and check whether it asks for clarification before retrieval. |
 | **Citation support and missing evidence** | With the same answer model, prompt, and structured figures, check whether each material claim is supported by its cited passage or table. For unanswerable questions, check that the answer states the gap. Score this separately from retrieval. [FR-19](../final/functional-requirements.md#fr-19-grounded-answers-and-citations) |
 | **Latency, freshness, and cost** | Compare time to usable evidence, time to a cited answer, and time from source publication to search visibility for a new or amended filing. Report median and 95th-percentile latency, errors, and retries under the same workload. Compare search, embedding, and indexing costs at the same request and update volume. |
 
 ### Proposed rollout criteria
 
 - Require zero scope violations and zero unsupported material citations on the held-out set. Retrieving before clarifying a genuinely ambiguous issuer or producing an unsupported answer in a no-evidence case also blocks rollout.
-- Prefer hybrid if it improves complete-evidence coverage over the stronger standalone method overall, improves Thai-to-English coverage over text-only, and preserves the required evidence for exact-term cases the text baseline gets right. Report how many questions each method gains or loses. Treat a close result on a small sample as inconclusive.
-- Require latency, freshness, and cost to fit the limits agreed under [Q08](../requirements-questions.md#q08-release-quality-and-evaluation). Those limits and the size of the evaluation set remain open.
+- Prefer hybrid when it reaches the agreed minimum gain in complete-evidence coverage over the stronger standalone method on the project set. Require better Thai-to-English coverage than text-only and preserve complete evidence for the exact-term cases text-only gets right. Report gains, losses, and net gain for the same questions overall and by group. Treat a close result on a small sample as inconclusive.
+- Compare the gain with the added 95th-percentile retrieval latency and cost per 1,000 queries at the same load and index update volume. When hybrid yields a positive net gain, report the added cost per additional question with complete evidence at the expected traffic mix. Agree on the minimum gain, sample size, and limits for latency, freshness, and cost before scoring the held-out set. [Q08](../requirements-questions.md#q08-release-quality-and-evaluation)
 
 Quote freshness has its own check. Verify that chat and Stock Detail report the same source timestamp for the same observation, including when the timestamp is missing. [Q04 data coverage](../requirements-questions.md#q04-supported-data-and-stock-coverage)

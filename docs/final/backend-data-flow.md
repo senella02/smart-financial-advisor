@@ -56,6 +56,8 @@ Next.js records first-open jobs by listing and Bangkok date. Stock Detail polls 
 
 ## Request-time evidence and chat
 
+Exploration mode is the Phase 2 [Stock Discovery workflow](functional-requirements.md#fr-15-discovery-plan-and-user-confirmation). Main chat starts it when the user asks to find stocks or selects the manual control. The proposed flow uses signed-in access. Guest access remains open in [Q03](../requirements-questions.md#q03-access-persistence-and-languages).
+
 ```mermaid
 flowchart TB
     Account["Signed-in investor · main or stock-bound chat"] --> Access["Next.js · verify sign-in, request and usage limits"]
@@ -66,6 +68,8 @@ flowchart TB
     Route -->|Outside scope| Redirect["Redirect to stock research"]
     Route -->|Invalid or failed classification| Failed["Return a recoverable error"]
     Route -->|Supported research question| Subjects{"Can Next.js resolve the requested subjects?"}
+    Route -->|Main chat request to find stocks| Preferences
+    Access -->|Main chat manual control| Preferences
     Subjects -->|Ambiguous subject| Clarify
     Subjects -->|Resolved or no subject needed| Context["Assemble context for financial retrieval"]
     Brief[("Supabase · today's successful Daily Brief")] --> Context
@@ -81,7 +85,21 @@ flowchart TB
     Tools -->|Validated evidence| Model
     Model --> Check["Server checks claims, citations and guardrails"]
     Check --> Answer["Return cited answer or report the evidence gap"]
+
+    subgraph Discovery["Phase 2 · Stock Discovery (Exploration mode)"]
+        Preferences["Ask for preferences or use the authorized Investor Profile"]
+        Preferences --> Propose["Model proposes screening criteria"]
+        Propose --> Plan["Next.js validates and stores a proposed plan version"]
+        Plan --> Review{"User reviews the displayed plan"}
+        Review -->|Edit criteria| Preferences
+        Review -->|Cancel| Cancel["End without screening"]
+        Review -->|Confirm this version| Confirm["Next.js verifies ownership and confirms that version"]
+        Confirm -->|Confirmed| Screen["Server screens using the confirmed version"]
+        Screen --> Results["Show matches with evidence and an Add to Watchlist action"]
+    end
 ```
+
+The plan waits for an explicit confirmation. Editing creates a new proposed version for review. The server uses verified fundamentals and available market inputs for the confirmed screen. [Workflow RFC](../rfcs/ai-workflow-orchestration.md#three-workflow-shapes) · [Discovery results](functional-requirements.md#fr-16-discovery-results)
 
 ## Other backend reads and workflows
 
@@ -100,19 +118,9 @@ flowchart TB
     Market -->|Observed quotes| Value
     FX["USD/THB source under evaluation"] -->|Timestamped rate| Value
     Value --> Portfolio["Portfolio and Home portfolio overview"]
-
-    Access -->|Investor's screening preferences| Propose["Model proposes filters"]
-    Propose -->|Next.js validates and saves| Plan[("Supabase · versioned Discovery plan")]
-    Access -->|Investor confirms exact version| Confirm["Next.js validates confirmation"]
-    Plan --> Confirm
-    Confirm --> Screen["Server runs the confirmed screen"]
-    Public -->|Verified fundamentals| Screen
-    Market -->|Market inputs where available| Screen
-    Screen -->|Validated matches and evidence| Explain["Model explains why results match"]
-    Explain --> Results["Discovery results"]
 ```
 
-Use the same current USD/THB rate for portfolio cost and value. Discovery uses signed-in access in the proposal, with the access rule open in Q03. [Portfolio valuation](functional-requirements.md#fr-22-current-fx-valuation) · [Discovery confirmation](functional-requirements.md#fr-15-discovery-plan-and-user-confirmation) · [Q03](../requirements-questions.md#q03-access-persistence-and-languages)
+Use the same current USD/THB rate for portfolio cost and value. [Portfolio valuation](functional-requirements.md#fr-22-current-fx-valuation)
 
 ## What the model receives
 

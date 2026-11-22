@@ -6,7 +6,7 @@ The project owner confirmed the capstone scope on 6 and 7 November 2026 and appr
 
 The capstone demo uses shared Home content and the Daily Brief, Stock Detail, and AI Q&A and comparison in both chat entry points. It uses guest chat, browser-session history, and a Thai interface.
 
-The demo excludes Watchlist, Investor Profile, Discovery, Portfolio, and Home's portfolio overview. Daily Brief follow-ups give general explanations without inventing holdings. Shared publications and chat support Thai and English.
+The demo excludes Watchlist, Investor Profile, Portfolio, and Home's portfolio overview. [Stock Discovery (Exploration mode)](../final/functional-requirements.md#fr-15-discovery-plan-and-user-confirmation) starts in Phase 2. Daily Brief follow-ups give general explanations without inventing holdings. Shared publications and chat support Thai and English.
 
 ## Shared requirements and acceptance
 

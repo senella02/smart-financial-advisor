@@ -75,7 +75,7 @@ Affected: FR-13-FR-16.
 - History views and association are resolved: main chatbot history includes both entry points; Stock Detail shows only explicitly stock-linked conversations, excluding general chats that merely mention the stock. An origin label is a presentation option. Phase 1 retention is session-only under Q03.
 - File upload, export, a separate Deep Research mode, and long-term user memory are not required by the current feature baseline. They must not be inherited from the old project; adding them would be new scope.
 - How many stocks may be compared or returned from discovery? How are discovery results ranked? Which filters are mandatory?
-- The current slide-based discovery flow shows the search plan before execution and requires confirmation. Conversation may refine criteria; a separate direct-filter editor is not a committed requirement.
+- Exploration mode is the Phase 2 [Stock Discovery workflow](final/functional-requirements.md#fr-15-discovery-plan-and-user-confirmation). Main chat starts the workflow from a request to find stocks or a manual control. Users confirm the displayed plan before screening. Conversation may refine criteria. A separate direct-filter editor is still open.
 - The current slide-based guardrails prohibit definitive buy/sell instructions. They remain the baseline unless the owner changes that scope.
 
 Answer: Partially resolved on 6 November 2026. The owner confirmed combined main history, explicitly stock-linked history on Stock Detail, and session-only Phase 1 retention, with a possible stock-page origin label. The source-defined feature and guardrail boundaries remain in force. Measured operating limits and later Discovery detail remain open.
@@ -109,11 +109,13 @@ Answer: The owner approved the signed-in defaults, per-question attachments, con
 
 ### Q08 Release quality and evaluation
 
-Affected: FR-02, FR-03, FR-11, FR-19-FR-20 and quality acceptance.
+Affected: FR-02, FR-03, FR-06, FR-09-FR-11, FR-17-FR-20, FR-22 and quality acceptance.
 
 - Phase 1 gets a capstone prototype running. The end of Phase 2 is the target for the full account-based product. Device and concurrency expectations, measured latency targets, and the operating budget remain open. [Delivery phases](final/final-architecture.md#delivery-phases)
 - Phase 1 security release blockers are resolved. Failed session isolation, raw guest prompts in telemetry, or restricted data reaching unpaid Gemini block release. So do unauthorized tool actions or fetches, secret disclosure, unsupported material claims or citations, missing risk warnings, definitive trade instructions or profit guarantees, executable generated content, bypassed usage caps, and failed jobs that overwrite valid publications. Apply the gates in Thai and English. [Phase 1 security release gates](phase-1-planning/functional-requirements.md#release-acceptance)
 - Set exact request size, tool-call, retry, and guest concurrency limits. Set measured latency, freshness, and operating-budget targets and agree on the evaluation coverage for them.
+- On 21 November 2026, the owner selected FinanceBench for model evaluation with supplied evidence and requested a project-specific Thai and English set for the hybrid search decision. The set size, minimum gain in complete evidence, and operating limits remain open. [Retrieval evaluation](rfcs/financial-evidence-retrieval.md#evaluation-datasets-and-runs)
+- Evaluate Portfolio and Investor Profile usage and the effect of their optional AI context. The proposed baseline records task outcomes and aggregate adoption measures. Sample size, observation window, and targets remain open. [Portfolio and Investor Profile usage baseline](final/functional-requirements.md#proposed-portfolio-and-investor-profile-usage-baseline)
 - Set provider fetch deadlines and a publication time target for the Daily Brief. Evaluate source coverage, citation accuracy, publication delay, and cost on earnings days, macro-event days, and quiet days. [Daily Brief evaluation](rfcs/ai-workflow-orchestration.md#evidence-needed-to-confirm-the-design)
 - What deadline or assessment criteria constrain scope? Which remaining details may be explicitly deferred?
 

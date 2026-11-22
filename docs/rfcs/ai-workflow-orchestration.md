@@ -33,16 +33,17 @@ The web server triggers the stock-summary DAG through Airflow's authenticated RE
 
 While the job runs, the panel shows the stock's latest earlier summary with its own publication date and as-of time and says today's summary is being prepared. A stock with no earlier summary shows a preparing state. The browser rechecks the summary lookup every few seconds with backoff. After a timeout or a failed attempt, the panel offers a retry, which re-queues the job within an attempt limit. Quote, financials, and chat load independently throughout. [FR-11](../final/functional-requirements.md#fr-11-shared-daily-stock-summary)
 
-**Chat request pipeline for Q&A and comparison.** The web server runs these steps for each message:
+**Chat request pipeline.** The web server runs these steps for each message:
 
 1. Verify sign-in for both chat entry points, validate the request, and enforce usage limits. Resolve the stock-page binding. Apply the provider data restrictions and the user's current context permissions to the message and any replayed history before sending either to the model. [FR-20](../final/functional-requirements.md#fr-20-personal-context-isolation) · [FR-21](../final/functional-requirements.md#fr-21-access-and-languages)
 2. Ask the same configured chat model to classify the message before loading financial evidence. Use structured output with tools disabled. Give the model the current message, the resolved listing when present, and only the permitted conversation context needed to interpret a follow-up. TypeScript validates the classification and picks the next step. [FR-14](../final/functional-requirements.md#fr-14-general-financial-questions-and-comparison)
    - **Supported research question.** Continue to retrieval. On AAPL's Stock Detail page, "How were its latest results?" uses the resolved AAPL listing.
+   - **Stock Discovery request.** In Phase 2, a main chat request to find stocks starts Exploration mode, the Stock Discovery workflow below. A manual control can start the same workflow.
    - **Needs clarification.** Ask a follow-up in the requested language and end the turn before retrieval. For "อยากรวยทำไง", ask what the investor wants to research.
    - **Outside scope.** Return a fixed response in the requested language that points to stock research and ends the turn before retrieval. An image generation request follows this path.
 
    If classification fails or returns invalid output, return a recoverable error before retrieval. The classifier proposes a route. The server controls tool access and the listings each call can query.
-3. For a supported request, resolve any additional subjects before retrieving financial evidence. Ask for clarification if an identity remains ambiguous. Look up today's brief through `DailyBriefLookupSchema` and load only the account context authorized for this question. Apply provider restrictions to these inputs before running a bounded loop with approved read-only quote, financials, filing search, and news tools. Each tool handler applies the entity, period, and cutoff filters from the retrieval RFC.
+3. For a supported research question, resolve any additional subjects before retrieving financial evidence. Ask for clarification if an identity remains ambiguous. Look up today's brief through `DailyBriefLookupSchema` and load only the account context authorized for this question. Apply provider restrictions to these inputs before running a bounded loop with approved read-only quote, financials, filing search, and news tools. Each tool handler applies the entity, period, and cutoff filters from the retrieval RFC.
 4. Check that every citation points to evidence returned during this request and that the evidence supports the material claim. The proposed pipeline retries once when support is inadequate. [FR-19](../final/functional-requirements.md#fr-19-grounded-answers-and-citations)
 5. Return the checked answer or report the evidence gap. Keep the conversation for the current browser session unless the investor opts in to saving it. [FR-14](../final/functional-requirements.md#fr-14-general-financial-questions-and-comparison)
 
@@ -50,7 +51,7 @@ The model is needed here because the evidence depends on the question. The loop 
 
 Comparison uses the same pipeline. When the question names a second subject, the server resolves each identity before retrieval. An ambiguous name ends the turn with a clarification question, which is answered by the visitor's next message, so no waiting state is needed. A comparison tool retrieves each issuer separately and returns figures aligned by period, currency, and unit, and computes their differences in code. Period or currency mismatches are reported, not hidden. Per-issuer retrieval is a rule rather than a model preference, so it belongs in the tool.
 
-**Discovery as a stored plan.** The proposed signed-in workflow uses the following steps.
+**Stock Discovery (Exploration mode).** The proposed Phase 2 workflow uses the following steps for signed-in users. [Chat and Discovery flow](../final/backend-data-flow.md#request-time-evidence-and-chat)
 
 1. The model converses to gather preferences. When it has enough, it calls a `proposeScreeningPlan` tool whose schema contains only supported filters, values, and units.
 2. The application validates the plan, rejects any unsupported or unexplained criterion such as a numeric meaning for "low risk," and stores it as a new plan version with status `proposed`. The plan belongs to the investor's account.
